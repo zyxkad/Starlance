@@ -1,6 +1,5 @@
 package net.jcm.vsch;
 
-import net.jcm.vsch.commands.shiptp;
 import net.jcm.vsch.config.VSCHConfig;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
