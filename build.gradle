@@ -189,7 +189,7 @@ dependencies {
     //runtimeOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
     //runtimeOnly fg.deobf("curse.maven:ctm-267602:3933537")
     //
-    implementation fg.deobf('net.lointain:cosmichorizons:0.0.3')
+    implementation fg.deobf('net.lointain:cosmichorizons:0.0.4')
 
     //using lodestone for now until vsfx comes out
     //implementation fg.deobf("team.lodestar.lodestone:lodestone:${minecraft_version}-${lodestone_version}")

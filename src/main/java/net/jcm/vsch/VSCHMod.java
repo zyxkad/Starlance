@@ -14,12 +14,12 @@ import net.minecraftforge.registries.RegistryObject;
 
 @Mod(VSCHConfig.MOD_ID)
 public class VSCHMod {
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, VSCHConfig.MOD_ID);
-    public static final RegistryObject<Block> ROCK_BLOCK = BLOCKS.register("rock", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+//    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, VSCHConfig.MOD_ID);
+//    public static final RegistryObject<Block> ROCK_BLOCK = BLOCKS.register("rock", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
     public VSCHMod() {
         // Initialize logic here
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        BLOCKS.register(modBus);
+//        BLOCKS.register(modBus);
 
 
     }
