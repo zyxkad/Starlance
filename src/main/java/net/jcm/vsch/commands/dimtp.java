@@ -48,7 +48,7 @@ public class dimtp {
                             dimension,
                             null
                     );
-                    VSGameUtilsKt.getShipObjectWorld(level.getServer())
+                    VSGameUtilsKt.getShipObjectWorld(level)
                             .teleportShip((ServerShip) ship, teleportData);
 //                for (Entity entity : level.getEntities(null, VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()))) {
 //                    // teleport entity to new dimension and posX/posY/posZ
