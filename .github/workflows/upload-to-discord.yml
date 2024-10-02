@@ -1,13 +1,13 @@
 name: Upload Builds to Discord
 on:
   workflow_dispatch:
-  registry_package:
-    types: [published]
-  schedule:
-    - cron: '0 0 * * 5'
-concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: true
+  # registry_package:
+  #   types: [published]
+  # schedule:
+  #   - cron: '0 0 * * 5'
+# concurrency:
+#   group: ${{ github.workflow }}
+#   cancel-in-progress: true
 jobs:
   upload-to-discord:
     runs-on: ubuntu-latest
