@@ -6,7 +6,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 //import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.portal.PortalForcer;
+import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -14,6 +18,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.lointain.cosmos.network.CosmosModVariables;
 import net.lointain.cosmos.network.CosmosModVariables.WorldVariables;
 import net.jcm.vsch.util.VSCHUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
@@ -24,6 +34,7 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
+
 
 public class dimtp {
 
@@ -61,11 +72,12 @@ public class dimtp {
                     double posY = atmospheric_data.get("origin_y").getAsDouble(); // + Mth.nextInt(RandomSource.create(), -5, 5)
                     double posZ = atmospheric_data.get("origin_z").getAsDouble(); // + Mth.nextInt(RandomSource.create(), -10, 10)
                                         
-                    String  gotoDimension = atmospheric_data.get("travel_to").getAsString();
+                    String gotoDimension = atmospheric_data.get("travel_to").getAsString();
                     
                     // Convert back into a stupid stupid VS dimension string
                     String VSnewDimension = VSCHUtils.dimToVSDim(gotoDimension);
                     
+                    // Prepare ship teleport info for later
                     ShipTeleportData teleportData = new ShipTeleportDataImpl(
                             new Vector3d(posX, posY, posZ),
                             ship.getTransform().getShipToWorldRotation(),
@@ -78,7 +90,7 @@ public class dimtp {
                     // Do we actually use this? Eh can't be bothered to check
                     ServerShipWorldCore shipWorld = VSGameUtilsKt.getShipObjectWorld(level);
 
-                    ServerShip serverShip = (ServerShip) ship;
+                    
                     
                     
                     // Get the AABB of the last tick and the AABB of the current tick
@@ -88,70 +100,92 @@ public class dimtp {
                     // Combine the AABB's into one big one
                     AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
                     
-                  
+                    Vec3 oldShipCenter = prevWorldAABB.deflate(10).getCenter();
+                    
+                    
 
                     ServerPlayer player = level.getRandomPlayer(); //ONLY FOR SINGLEPLAYER DEBUGGING
                     if (player != null) {
                     	// More debug
-                    	//System.out.println("Player: "+player.getPosition(0));
+                    	System.out.println("Player: "+player.getPosition(0));
                         //System.out.println("Prev: "+prevWorldAABB);
                         //System.out.println("Current: "+currentWorldAABB);
                         //System.out.println("Total: "+totalAABB);
-                        //System.out.println(level.getEntities(null, totalAABB));
+                        System.out.println(level.getEntities(null, totalAABB));
                     }
                     
                     
-                    // TODO: Experiment with saving the level.getEntities from before the ship moved,
-                    // But then teleporting all the entities after its moved
+                    // ----- Get all entities BEFORE teleporting ship ----- //
+                    
+                    // Save the distances from entities to the ship for afterwards
+                    Map<String, Vec3> entityOffsets = new HashMap<String, Vec3>();
+                    
+                    // Save entities that actually need to be teleported
+                    List<Entity> importantEntities = new ArrayList<>();
+                    
+                    // Find all entities nearby the ship
 	                for (Entity entity : level.getEntities(null, totalAABB)) {
 	                	
 	                	System.out.println("Entity: "+entity);
 	                	
-	                	// If the entity has dragging info (they should)
-	                	if (entity instanceof IEntityDraggingInformationProvider) {
-	                		// Use entity dragging info
-	                		IEntityDraggingInformationProvider dragInfoProv = (IEntityDraggingInformationProvider) entity;
-	                		EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
-	                		
-	                		// If the entity isn't riding another
-	                		if (DragInfo.getLastShipStoodOn() != null && entity.getVehicle() == null) {
-	                			
-		                		if (DragInfo.isEntityBeingDraggedByAShip()) {
-		                			
-		                			// Not sure why this check exists, but its a vanilla function(?) so I'll use it here anyway
-		                			// If it causes problems in the future, get it out of here
-		                			if (entity.canChangeDimensions()) {
-		                				
-		                				// Get a level object from the VS dimension string of the dim we're going to
-		                				ServerLevel newLevel = VSCHUtils.VSDimToLevel(level.getServer(), VSnewDimension);
-		                				
-		                				// Lotta debug...
-		                				//System.out.println(VSnewDimension);
-		                				//System.out.println(newLevel.dimension());
-		                				//System.out.println(newLevel.dimensionTypeId());
-		                				
-		                				
-		                				if (entity instanceof ServerPlayer) {
-		                					System.out.println("Server player");
-		                					
-		                					// Position is wrong
-		                					((ServerPlayer) entity).teleportTo(newLevel, entity.getX(), entity.getY(), entity.getZ(), 0, 0);//.changeDimension(newLevel);
-		                				} else {
-		                					// NOT TESTED
-		                					entity.changeDimension(newLevel);
-		                				}
-		                				
-		                			}
-		                		}
-	                		};
-	                		
-	                	} else {
-	                		// The entity doesn't have a dragging info provider? Idk its VS's problem now
-	                		//logger.info("Something went very wrong on VS for an entity, ignoring it");
+	                	// A couple checks to make sure they are able to be teleported with the ship
+	                	if (VSCHUtils.CanEntityBeTaken(entity)) {
+	                		// Get the offset from the entities position to the ship
+	        				Vec3 entityShipOffset = entity.getPosition(0).subtract(oldShipCenter);
+	        				
+	        				// Save the offset and the entity. Prob don't need two lists here but oh well
+	        				entityOffsets.put(entity.getStringUUID(), entityShipOffset);
+	                		importantEntities.add(entity);
 	                	}
-
-	                }
+	                }	
+		                				
+	                // ---------- //
+    				
+	                
+	                // ----- Teleport ship ----- //
+	                
+	                // Teleport ship to new dimension at origin
+	                ServerShip serverShip = (ServerShip) ship;
 	                shipWorld.teleportShip(serverShip, teleportData);
+	                
+	                // ---------- //
+    				
+	                
+    				// ----- Teleport entities AFTER ship ----- //
+
+    				// Get a level object from the VS dimension string of the dim we're going to
+    				ServerLevel newLevel = VSCHUtils.VSDimToLevel(level.getServer(), VSnewDimension);
+    				Vec3 newShipCenter = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).getCenter();
+    				
+    				for (Entity entity: importantEntities) {
+    					
+    					Vec3 shipOffset = entityOffsets.get(entity.getStringUUID());
+    					Vec3 newPosition = newShipCenter.add(shipOffset);
+    					
+    					System.out.println("New info -----");
+    					System.out.println(entityOffsets);
+    					System.out.println(newShipCenter);
+    					System.out.println(newPosition);
+    					System.out.println("-----");
+    					
+    					// Players need a different teleport command to entities
+    					if (entity instanceof ServerPlayer) {
+        					System.out.println("Server player");
+
+        					((ServerPlayer) entity).teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, entity.getYRot(), entity.getXRot());
+        					
+        				} else {
+        					// NOT TESTED
+        					// Have to teleport before changing dimension, because changeDimension
+        					// makes a new Entity object and removes old one
+        					System.out.println(entity);
+        					//entity.teleportTo(newPosition.x, newPosition.y, newPosition.z);
+        					//System.out.println(entity);
+        					entity.teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, null, entity.getYRot(), entity.getXRot());
+        					//entity.changeDimension(newLevel, (ITeleporter) new PortalInfo(entity.position(), newPosition, entity.getYRot(), entity.getXRot()));
+        				}
+    				}
+ 
                 }
             }
         }
