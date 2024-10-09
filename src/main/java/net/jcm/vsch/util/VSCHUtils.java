@@ -4,14 +4,20 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBic;
 import org.valkyrienskies.core.api.ships.properties.ShipTransform;
 import org.valkyrienskies.core.util.AABBdUtilKt;
+import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
+import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 
 
+/**
+ * The main class where all handy utility functions used by VSCH are stored.
+ */
 public class VSCHUtils {
 	
 	/**
@@ -78,5 +84,43 @@ public class VSCHUtils {
 	    
 	    // Turn that RL into a Registry Key and use that to get a Level
 	    return server.getLevel(ResourceKey.create(Registries.DIMENSION, rl));
+	}
+	
+	/**
+	 * Performs multiple checks on an entity to see if it can/should be moved through dimensions with a VS ship.
+	 * Checks if the entity:
+	 * <ul>
+  	 *	<li>Has a {@link org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider IEntityDraggingInformationProvider}</li>
+  	 *	<li>Is not riding another entity</li>
+  	 *	<li>Is being dragged by a ship (that still exists)</li>
+  	 *  <li>Can change dimension. Not sure what this does but its a vanilla function: Entity.canChangeDimensions()</li>
+	 * </ul>
+	 * @param entity The entity to check
+	 * @return True if the entity passed all checks, otherwise False
+	 */
+	public static boolean CanEntityBeTaken(Entity entity) {
+		
+		// If the entity has dragging info (they should)
+		if (entity instanceof IEntityDraggingInformationProvider) {
+			
+    		// Use entity dragging info
+    		IEntityDraggingInformationProvider dragInfoProv = (IEntityDraggingInformationProvider) entity;
+    		EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
+    		
+    		// If the entity isn't riding another
+    		if (DragInfo.getLastShipStoodOn() != null && entity.getVehicle() == null) {
+    			
+    			// If the entity has been touched by a ship in the last 10 ticks basically
+        		if (DragInfo.isEntityBeingDraggedByAShip()) {
+        			
+        			// Not sure why this check exists, but its a vanilla function(?) so I'll use it here anyway
+        			// If it causes problems in the future, get it out of here
+        			if (entity.canChangeDimensions()) {
+        				return true;
+        			}
+        		}
+    		}
+		}
+		return false;
 	}
 }
