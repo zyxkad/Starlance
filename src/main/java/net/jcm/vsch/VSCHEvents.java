@@ -1,6 +1,6 @@
 package net.jcm.vsch;
 
-import net.jcm.vsch.commands.dimtp;
+import net.jcm.vsch.commands.VSCHTickFunctions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -12,7 +12,9 @@ public class VSCHEvents {
     public static void onLevelTick(TickEvent.LevelTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             if (event.level instanceof ServerLevel) {
-                dimtp.tp((ServerLevel) event.level, event.level);
+            	if (((ServerLevel) event.level).getRandomPlayer() != null) {
+            		VSCHTickFunctions.atmosphericCollisionTick((ServerLevel) event.level, event.level);
+            	}
             }
         }
     }
