@@ -29,6 +29,7 @@ import net.lointain.cosmos.network.CosmosModVariables.WorldVariables;
 import net.lointain.cosmos.procedures.DistanceOrderProviderProcedure;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
@@ -37,6 +38,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
@@ -323,5 +325,36 @@ public class VSCHUtils {
 			System.out.println("Failed to parse nearest planet tag");
 			return null;
 		}
+	}
+	
+	/**
+	 * Determines if a Vec3 position is colliding with / inside a planet. 
+	 * If the needed data from planetData is missing, that data will default to 0.0
+	 * @param planetData A CompoundTag (nbt) of the planets data. 
+	 * @param position The position to check
+	 * @return A boolean, true if the position is inside the planet, false otherwise.
+	 * @author DEA__TH, Brickyboy
+	 * @see #getNearestPlanet(LevelAccessor, Vec3, String)
+	 */
+	public static boolean isCollidingWithPlanet(CompoundTag planetData, Vec3 position) {
+		// getDouble returns 0.0D if not found, which is fine
+		double yaw = planetData.getDouble("yaw"); 
+		double pitch = planetData.getDouble("pitch");
+		double roll = planetData.getDouble("roll");
+		double scale = planetData.getDouble("scale");
+		
+		Vec3 cubepos = new Vec3(planetData.getDouble("x"), planetData.getDouble("y"), planetData.getDouble("z"));
+		Vec3 distanceToPos = (position.subtract(cubepos));
+
+		// I do NOT understand this, so I'm not gonna bother trying to change it... looks fine enough
+		Vec3 rotatedXAxis = ((new Vec3(1, 0, 0)).zRot(-Mth.DEG_TO_RAD * (float) (-roll))).yRot(Mth.DEG_TO_RAD * (float) (-yaw));
+		Vec3 rotatedYAxis = ((new Vec3(0, 1, 0)).zRot(-Mth.DEG_TO_RAD * (float) (-roll))).xRot(-Mth.DEG_TO_RAD * (float) pitch);
+		Vec3 rotatedZAxis = ((new Vec3(0, 0, 1)).xRot(-Mth.DEG_TO_RAD * (float) pitch)).yRot(Mth.DEG_TO_RAD * (float) (-yaw));
+		
+		double distanceSqrX = (rotatedXAxis.scale((distanceToPos.dot(rotatedXAxis)))).lengthSqr();
+		double distanceSqrY = (rotatedYAxis.scale((distanceToPos.dot(rotatedYAxis)))).lengthSqr();
+		double distanceSqrZ = (rotatedZAxis.scale((distanceToPos.dot(rotatedZAxis)))).lengthSqr();
+		double range = (scale * scale) / 4;
+		return (distanceSqrX <= range && distanceSqrY <= range && distanceSqrZ <= range);
 	}
 }
