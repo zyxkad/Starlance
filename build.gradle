@@ -124,6 +124,10 @@ repositories {
     }
     maven { url 'https://modmaven.dev/' }
 
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+
 
 
     maven {
@@ -177,7 +181,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
     implementation 'thedarkcolour:kotlinforforge:4.10.0'
     //implementation fg.deobf("curse.maven:cc-tweaked-282001:5379173")
-
+    implementation fg.deobf('maven.modrinth:cosmic-horizons(cosmos):0.0.5')
 
     //compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")
 
