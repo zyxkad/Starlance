@@ -1,18 +1,46 @@
 package net.jcm.vsch.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.joml.Vector3d;
 import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBic;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.api.ships.properties.ShipTransform;
+import org.valkyrienskies.core.apigame.ShipTeleportData;
+import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
+import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.core.util.AABBdUtilKt;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
+import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
+import net.lointain.cosmos.network.CosmosModVariables;
+import net.lointain.cosmos.network.CosmosModVariables.WorldVariables;
+import net.lointain.cosmos.procedures.DistanceOrderProviderProcedure;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 
 /**
@@ -123,7 +151,7 @@ public class VSCHUtils {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * See {@link #DimensionTeleportShip(Ship, ServerLevel, String, double, double, double) DimensionTeleportShip} for documentation.
 	 * This overload simply takes in a Vec3 instead of 3 doubles.
@@ -245,6 +273,55 @@ public class VSCHUtils {
 				// Teleport non-players
 				entity.teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, null, entity.getYRot(), entity.getXRot());
 			}
+		}
+	}
+	
+	/**
+	 * Gets the nearest (if available) planet to the position in the dimensionId.
+	 * @param world A LevelAccessor for getting Cosmos world variables
+	 * @param position The position to get the nearest planet from
+	 * @param dimensionId The (normal format) dimension id to get planets from
+	 * @return A CompoundTag of the nearest planets data, or null if it couldn't be found
+	 */
+	@Nullable
+	public static CompoundTag getNearestPlanet(LevelAccessor world, Vec3 position, String dimensionId ) {
+		WorldVariables worldVars = CosmosModVariables.WorldVariables.get(world);
+
+		// No data at all, skip it
+		if (!worldVars.collision_data_map.contains(dimensionId)) {
+			return null;
+		}
+		
+		Tag collision_data_map = worldVars.collision_data_map.get(dimensionId);
+
+		ListTag listtag = new ListTag();
+		if (collision_data_map instanceof ListTag _listTag) {
+		   listtag = _listTag.copy();
+		}
+		
+		// No collidable planets, skip it
+		if (listtag.isEmpty()) {
+			return null;
+		}
+		
+		List<Object> Target_List = DistanceOrderProviderProcedure.execute(worldVars.global_collision_position_map, 1, dimensionId, position);
+
+		Object firstTargetIndex = Target_List.get(0);
+		
+		// Not sure why all this double stuff, but I'll leave it for now
+		double firstTargetIndexD = 0.0;
+		if (firstTargetIndex instanceof Number _doubleValue) {
+		  firstTargetIndexD = _doubleValue.doubleValue();
+		}
+
+		Tag targetObject = listtag.get((int) (firstTargetIndexD));
+
+		try {
+			CompoundTag compTag = TagParser.parseTag(targetObject.getAsString());
+			return compTag;
+		} catch (CommandSyntaxException e) {
+			System.out.println("Failed to parse nearest planet tag");
+			return null;
 		}
 	}
 }
