@@ -23,7 +23,7 @@ public class VSCHUtils {
 	/**
 	 * Converts a VS dimension id string of <code>'minecraft:dimension:namespace:dimension_name'</code> to a normal
 	 * dimension id string of <code>'namespace:dimension_name'</code>
-	 * @param dimensionString The VS format dimension id string
+	 * @param VSdimensionString The VS format dimension id string
 	 * @return The converted dimension id string
 	 * @author Brickyboy
 	 * @see #dimToVSDim(String)

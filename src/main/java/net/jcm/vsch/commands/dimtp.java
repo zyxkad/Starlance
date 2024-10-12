@@ -1,18 +1,12 @@
 package net.jcm.vsch.commands;
-//import net.minecraft.core.registries.Registries;
-//import net.minecraft.resources.ResourceKey;
-//import net.minecraft.resources.ResourceLocation;
+import net.jcm.vsch.config.VSCHConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-//import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.portal.PortalForcer;
-import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.ITeleporter;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.nbt.StringTag;
+//import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 import net.lointain.cosmos.network.CosmosModVariables;
@@ -23,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
@@ -31,17 +24,11 @@ import org.valkyrienskies.core.apigame.ShipTeleportData;
 import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
-import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 
 public class dimtp {
-
     public static void tp(ServerLevel level, LevelAccessor world) {
-    	
-    	//Logger logger = LogManager.getLogger(VSCHConfig.MOD_ID);
-    	
 
         for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
         	// Atmo collision JSON for overworld:
@@ -59,12 +46,12 @@ public class dimtp {
             	com.google.gson.JsonObject atmospheric_data = null;
             	
             	// ----- Convert atmo data into a proper json object ----- //
-            	if (dim_atmo_data instanceof StringTag _stringTag) {
-            		atmospheric_data = new com.google.gson.Gson().fromJson(_stringTag.getAsString(), com.google.gson.JsonObject.class);
-            	} else {
-            		atmospheric_data = new com.google.gson.JsonObject();
-            	}
-            	
+//            	if (dim_atmo_data instanceof Tag _stringTag) {
+				atmospheric_data = new com.google.gson.Gson().fromJson(dim_atmo_data.getAsString(), com.google.gson.JsonObject.class);
+//            	} else {
+//            		atmospheric_data = new com.google.gson.JsonObject();
+//            	}
+
             	// If the ship is above the planets atmo height:
                 if (ship.getTransform().getPositionInWorld().y() > atmospheric_data.get("atmosphere_y").getAsDouble()) {
                     // ----- Get destination x, y, z and dimension ----- //
@@ -88,6 +75,7 @@ public class dimtp {
                     );
                     
                     // Do we actually use this? Eh can't be bothered to check
+					// Jcm: We do.
                     ServerShipWorldCore shipWorld = VSGameUtilsKt.getShipObjectWorld(level);
 
                     
@@ -104,20 +92,21 @@ public class dimtp {
                     
                     
 
-                    ServerPlayer player = level.getRandomPlayer(); //ONLY FOR SINGLEPLAYER DEBUGGING
-                    if (player != null) {
+                    //ServerPlayer player = level.getRandomPlayer(); //ONLY FOR SINGLEPLAYER DEBUGGING
+                    //if (player != null) {
                     	// More debug
-                    	System.out.println("Player: "+player.getPosition(0));
-                        //System.out.println("Prev: "+prevWorldAABB);
-                        //System.out.println("Current: "+currentWorldAABB);
-                        //System.out.println("Total: "+totalAABB);
-                        System.out.println(level.getEntities(null, totalAABB));
-                    }
+
+                    	//VSCHMod.logger.debug("Player: "+player.getPosition(0));
+                        //VSCHMod.logger.debug("Prev: "+prevWorldAABB);
+                        //VSCHMod.logger.debug("Current: "+currentWorldAABB);
+                        //VSCHMod.logger.debug("Total: "+totalAABB);
+                        //VSCHMod.logger.debug(level.getEntities(null, totalAABB));
+                    //}
                     
                     
                     // ----- Get all entities BEFORE teleporting ship ----- //
                     
-                    // Save the distances from entities to the ship for afterwards
+                    // Save the distances from entities to the ship to use later
                     Map<String, Vec3> entityOffsets = new HashMap<String, Vec3>();
                     
                     // Save entities that actually need to be teleported
