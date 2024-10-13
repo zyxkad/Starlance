@@ -26,9 +26,9 @@ public class Gravity {
     public static void setAll(LevelAccessor world){
         double gravity;
         for (String keyiterator : CosmosModVariables.WorldVariables.get(world).gravity_data.getAllKeys()) {
-            gravity = (CosmosModVariables.WorldVariables.get(world).gravity_data.get(keyiterator)) instanceof FloatTag _floatTag ? _floatTag.getAsFloat() : 0.0F;
+            gravity = ((FloatTag) CosmosModVariables.WorldVariables.get(world).gravity_data.get(keyiterator)).getAsFloat();
             VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).updateDimension(VSCHUtils.dimToVSDim(keyiterator),new Vector3d(0,-10*gravity,0));
-            //Debugsssssssssssssssssssss
+            //Debugs
             System.out.println("Set gravity for dimension " + keyiterator + " to " + (-10 * gravity));
         }
     }
