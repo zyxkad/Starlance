@@ -14,12 +14,22 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.joml.Vector3d;
 
 @Mod(VSCHConfig.MOD_ID)
 public class VSCHMod {
+<<<<<<< HEAD
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, VSCHConfig.MOD_ID);
     public static final RegistryObject<Block> SAD_BLOCK = BLOCKS.register("thruster",
             () -> new ThrusterBlock(Block.Properties.copy(Blocks.IRON_BLOCK)));
+=======
+    public static final Logger logger = LogManager.getLogger(VSCHConfig.MOD_ID);
+//    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, VSCHConfig.MOD_ID);
+//    public static final RegistryObject<Block> ROCK_BLOCK = BLOCKS.register("rock", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+>>>>>>> main
     public VSCHMod() {
         // Initialize logic here
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
