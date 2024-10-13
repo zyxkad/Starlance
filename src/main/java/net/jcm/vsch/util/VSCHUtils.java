@@ -1,18 +1,48 @@
 package net.jcm.vsch.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.joml.Vector3d;
 import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBic;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.api.ships.properties.ShipTransform;
+import org.valkyrienskies.core.apigame.ShipTeleportData;
+import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
+import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.core.util.AABBdUtilKt;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
+import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
+import net.lointain.cosmos.network.CosmosModVariables;
+import net.lointain.cosmos.network.CosmosModVariables.WorldVariables;
+import net.lointain.cosmos.procedures.DistanceOrderProviderProcedure;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 
 /**
@@ -122,5 +152,209 @@ public class VSCHUtils {
     		}
 		}
 		return false;
+	}
+	
+	/**
+	 * See {@link #DimensionTeleportShip(Ship, ServerLevel, String, double, double, double) DimensionTeleportShip} for documentation.
+	 * This overload simply takes in a Vec3 instead of 3 doubles.
+	 */
+	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
+		DimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
+	}
+	
+	/**
+	 * This function took us like 3 days to make. You better appreciate it.
+	 * <br></br>
+	 * It will teleport the given {@link ship}, using the {@link level}, to the dimension with id of {@link newDim} at {@link x}, {@link y}, {@link z}.
+	 * <br></br>
+	 * But most importantly, it will also teleport any players or entities that are currently being
+	 * dragged by the ship to the new dimension, and their correct position relative to the ship that was moved.
+	 * @param ship The ship to move
+	 * @param level The ships current level
+	 * @param newDim Normal dimension id string format (not VS format)
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @author Brickyboy
+	 */
+	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
+		
+		// ----- Prepare dimension destination ----- //
+		
+		// Convert back into a stupid stupid VS dimension string
+        String VSnewDimension = VSCHUtils.dimToVSDim(newDim);
+        
+        // Prepare ship teleport info for later
+        ShipTeleportData teleportData = new ShipTeleportDataImpl(
+                new Vector3d(x, y, z),
+                ship.getTransform().getShipToWorldRotation(),
+                new Vector3d(),
+                new Vector3d(),
+                VSnewDimension,
+                null
+        );
+		
+		// ----- AABB magic ----- //
+		
+		// Get the AABB of the last tick and the AABB of the current tick
+        AABB prevWorldAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), ship.getShipAABB())).inflate(10);
+        AABB currentWorldAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).inflate(10);
+        
+        // Combine the AABB's into one big one
+        AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
+        
+        Vec3 oldShipCenter = prevWorldAABB.deflate(10).getCenter();
+        
+        // ---------- //
+        
+		
+		 // ----- Get all entities BEFORE teleporting ship ----- //
+        
+        // Save the distances from entities to the ship for afterwards
+        Map<String, Vec3> entityOffsets = new HashMap<String, Vec3>();
+        
+        // Save entities that actually need to be teleported
+        List<Entity> importantEntities = new ArrayList<>();
+        
+        // Find all entities nearby the ship
+        for (Entity entity : level.getEntities(null, totalAABB)) {
+        	
+        	System.out.println("Entity: "+entity);
+        	
+        	// A couple checks to make sure they are able to be teleported with the ship
+        	if (VSCHUtils.CanEntityBeTaken(entity)) {
+        		// Get the offset from the entities position to the ship
+				Vec3 entityShipOffset = entity.getPosition(0).subtract(oldShipCenter);
+				
+				// Save the offset and the entity. Prob don't need two lists here but oh well
+				entityOffsets.put(entity.getStringUUID(), entityShipOffset);
+        		importantEntities.add(entity);
+        	}
+        }	
+            				
+        // ---------- //
+		
+        
+        // ----- Teleport ship ----- //
+        
+        // Do we actually use this? Eh can't be bothered to check
+        // Yes we do. Don't remove this
+        ServerShipWorldCore shipWorld = VSGameUtilsKt.getShipObjectWorld(level);
+        
+        // Teleport ship to new dimension at origin
+        ServerShip serverShip = (ServerShip) ship;
+        shipWorld.teleportShip(serverShip, teleportData);
+        
+        // ---------- //
+		
+        
+		// ----- Teleport entities AFTER ship ----- //
+
+		// Get a level object from the VS dimension string of the dim we're going to
+		ServerLevel newLevel = VSCHUtils.VSDimToLevel(level.getServer(), VSnewDimension);
+		Vec3 newShipCenter = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).getCenter();
+		
+		for (Entity entity: importantEntities) {
+			
+			Vec3 shipOffset = entityOffsets.get(entity.getStringUUID());
+			Vec3 newPosition = newShipCenter.add(shipOffset);
+			
+			System.out.println("New info -----");
+			System.out.println(entityOffsets);
+			System.out.println(newShipCenter);
+			System.out.println(newPosition);
+			System.out.println("-----");
+			
+			// Players need a different teleport command to entities
+			if (entity instanceof ServerPlayer) {
+				System.out.println("Server player");
+
+				((ServerPlayer) entity).teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, entity.getYRot(), entity.getXRot());
+				
+			} else {
+				// Teleport non-players
+				entity.teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, null, entity.getYRot(), entity.getXRot());
+			}
+		}
+	}
+	
+	/**
+	 * Gets the nearest (if available) planet to the position in the dimensionId.
+	 * @param world A LevelAccessor for getting Cosmos world variables
+	 * @param position The position to get the nearest planet from
+	 * @param dimensionId The (normal format) dimension id to get planets from
+	 * @return A CompoundTag of the nearest planets data, or null if it couldn't be found
+	 */
+	@Nullable
+	public static CompoundTag getNearestPlanet(LevelAccessor world, Vec3 position, String dimensionId ) {
+		WorldVariables worldVars = CosmosModVariables.WorldVariables.get(world);
+
+		// No data at all, skip it
+		if (!worldVars.collision_data_map.contains(dimensionId)) {
+			return null;
+		}
+		
+		Tag collision_data_map = worldVars.collision_data_map.get(dimensionId);
+
+		ListTag listtag = new ListTag();
+		if (collision_data_map instanceof ListTag _listTag) {
+		   listtag = _listTag.copy();
+		}
+		
+		// No collidable planets, skip it
+		if (listtag.isEmpty()) {
+			return null;
+		}
+		
+		List<Object> Target_List = DistanceOrderProviderProcedure.execute(worldVars.global_collision_position_map, 1, dimensionId, position);
+
+		Object firstTargetIndex = Target_List.get(0);
+		
+		// Not sure why all this double stuff, but I'll leave it for now
+		double firstTargetIndexD = 0.0;
+		if (firstTargetIndex instanceof Number _doubleValue) {
+		  firstTargetIndexD = _doubleValue.doubleValue();
+		}
+
+		Tag targetObject = listtag.get((int) (firstTargetIndexD));
+
+		try {
+			CompoundTag compTag = TagParser.parseTag(targetObject.getAsString());
+			return compTag;
+		} catch (CommandSyntaxException e) {
+			System.out.println("Failed to parse nearest planet tag");
+			return null;
+		}
+	}
+	
+	/**
+	 * Determines if a Vec3 position is colliding with / inside a planet. 
+	 * If the needed data from planetData is missing, that data will default to 0.0
+	 * @param planetData A CompoundTag (nbt) of the planets data. 
+	 * @param position The position to check
+	 * @return A boolean, true if the position is inside the planet, false otherwise.
+	 * @author DEA__TH, Brickyboy
+	 * @see #getNearestPlanet(LevelAccessor, Vec3, String)
+	 */
+	public static boolean isCollidingWithPlanet(CompoundTag planetData, Vec3 position) {
+		// getDouble returns 0.0D if not found, which is fine
+		double yaw = planetData.getDouble("yaw"); 
+		double pitch = planetData.getDouble("pitch");
+		double roll = planetData.getDouble("roll");
+		double scale = planetData.getDouble("scale");
+		
+		Vec3 cubepos = new Vec3(planetData.getDouble("x"), planetData.getDouble("y"), planetData.getDouble("z"));
+		Vec3 distanceToPos = (position.subtract(cubepos));
+
+		// I do NOT understand this, so I'm not gonna bother trying to change it... looks fine enough
+		Vec3 rotatedXAxis = ((new Vec3(1, 0, 0)).zRot(-Mth.DEG_TO_RAD * (float) (-roll))).yRot(Mth.DEG_TO_RAD * (float) (-yaw));
+		Vec3 rotatedYAxis = ((new Vec3(0, 1, 0)).zRot(-Mth.DEG_TO_RAD * (float) (-roll))).xRot(-Mth.DEG_TO_RAD * (float) pitch);
+		Vec3 rotatedZAxis = ((new Vec3(0, 0, 1)).xRot(-Mth.DEG_TO_RAD * (float) pitch)).yRot(Mth.DEG_TO_RAD * (float) (-yaw));
+		
+		double distanceSqrX = (rotatedXAxis.scale((distanceToPos.dot(rotatedXAxis)))).lengthSqr();
+		double distanceSqrY = (rotatedYAxis.scale((distanceToPos.dot(rotatedYAxis)))).lengthSqr();
+		double distanceSqrZ = (rotatedZAxis.scale((distanceToPos.dot(rotatedZAxis)))).lengthSqr();
+		double range = (scale * scale) / 4;
+		return (distanceSqrX <= range && distanceSqrY <= range && distanceSqrZ <= range);
 	}
 }
