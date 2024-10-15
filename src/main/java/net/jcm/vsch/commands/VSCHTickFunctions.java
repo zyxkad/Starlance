@@ -89,4 +89,52 @@ public class VSCHTickFunctions {
             }
         }
     }
+
+    public static void planetCollisionTick(ServerLevel level, LevelAccessor world) {
+    String dimension = level.dimension().location().toString();
+    for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
+    		
+	AABB currentAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB());
+	Vec3 shipCenter = currentAABB.getCenter();
+    		
+	CompoundTag nearestPlanet = VSCHUtils.getNearestPlanet(world, shipCenter, dimension);
+    		
+	if (nearestPlanet == null) {
+		return;
+	}
+	System.out.println(nearestPlanet);
+    		
+	boolean isColliding = VSCHUtils.isCollidingWithPlanet(nearestPlanet, shipCenter);
+    		
+	// Get the AABB of the last tick and the AABB of the current tick
+	AABB prevWorldAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), ship.getShipAABB())).inflate(10);
+	AABB currentWorldAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).inflate(10);
+            
+	// Combine the AABB's into one big one
+	AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
+            
+	Player nearestPlayer = null;
+	// Find all entities nearby the ship
+	for (Entity entity : level.getEntities(null, totalAABB)) {
+		if (entity instanceof Player player) {
+			nearestPlayer = player;
+            		break;
+            	}
+        }
+            
+        if (nearestPlayer == null) {
+            return;
+        }
+                		
+    	System.out.println(isColliding);
+    	System.out.println(nearestPlayer);
+    		
+    		
+    }
+    	
+    //System.out.println("T: ");
+    //System.out.println(VSCHUtils.isCollidingWithPlanet(planet, new Vec3(0, 0, 0)));
+    //System.out.println(VSCHUtils.isCollidingWithPlanet(planet, new Vec3(0, 1000, 0)));
+    
+    }
 }
