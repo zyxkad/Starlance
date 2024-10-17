@@ -1,38 +1,33 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a problem you found
 title: ''
 labels: bug
-assignees: 'illucc'
 
 ---
 **BEFORE REPORTING MAKE SURE:**
-- [ ] You are on the newest version of Kontraption and Valkyrien Skies.
-- [ ] You have tested it with only Kontraption, Valkyrien Skies, Mekanism and Kotlin for Forge installed.
+- [ ] You are on the newest version of Starlance and Valkyrien Skies.
+- [ ] You have tested it with only Starlance, Valkyrien Skies and Kotlin for Forge installed.
 - [ ] The bug hasn't been reported already.
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+*A description of what the bug is*
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+*how did you get to this bug, and how have you reliably caused it*
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+*What you expected to happen. Might just be "not to crash"*
 
 **Screenshots/videos**
-If applicable, add screenshots to help explain your problem.
+*If applicable, add screenshots to help explain your problem.*
 
 **Logs**
-The game logs (latest.log, debug.log).
+*The game logs: latest.log, crash report (if exists). Please don't just paste it here. Upload the file or use a site like pastebin*
 
 **Versions**
- - VS2 version:
- - Mekanism version:
+ - Starlance version:
+ - Valkrien Skies version:
 
 **Additional context**
-Add any other context about the problem here.
+*Anything else*
