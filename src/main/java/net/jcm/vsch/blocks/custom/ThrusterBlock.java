@@ -1,8 +1,15 @@
 package net.jcm.vsch.blocks.custom;
 
 
+import java.util.Random;
 import java.util.function.Supplier;
 
+import net.minecraft.client.particle.FireworkParticles;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.NotNull;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.minecraft.core.BlockPos;
@@ -151,5 +158,30 @@ public class ThrusterBlock extends DirectionalBlock {
             dir = dir.getOpposite();
         }
         return defaultBlockState().setValue(BlockStateProperties.FACING, dir);
+    }
+    @Override
+    public void animateTick(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random){
+        super.animateTick(state, level, pos, random);
+        var ship = VSGameUtilsKt.getShipManagingPos(level,pos);
+        var rp = ship.getTransform().getShipToWorld().transformPosition(VectorConversionsMCKt.toJOMLD(pos));
+        var dir = state.getValue(FACING);
+        double vel = 10.0;
+        int particleCount = 10;
+
+        var x = rp.x + (0.5 * (dir.getStepX() + 1));
+        var y = rp.y + (0.5 * (dir.getStepY() + 1));
+        var z = rp.z + (0.5 * (dir.getStepZ() + 1));
+        var speedX = dir.getStepX() * -vel;
+        var speedY = dir.getStepY() * -vel;
+        var speedZ = dir.getStepZ() * -vel;
+
+        for (int i = 0; i < particleCount; i++) {
+            level.addParticle(
+                    ParticleTypes.SMOKE,
+                    x + random.nextDouble(), y + random.nextDouble(), z + random.nextDouble(),
+                    speedX, speedY, speedZ
+            );
+        }
+
     }
 }

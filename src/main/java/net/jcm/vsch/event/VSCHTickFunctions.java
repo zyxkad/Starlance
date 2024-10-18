@@ -67,7 +67,7 @@ public class VSCHTickFunctions {
             	
             	// ----- Convert atmo data into a proper json object ----- //
             	// TODO: Gson is bad bad performance change this soon please future me!!
-            	if (dim_atmo_data instanceof StringTag _stringTag) {
+            	if (dim_atmo_data instanceof CompoundTag _stringTag) {
             		atmospheric_data = new com.google.gson.Gson().fromJson(_stringTag.getAsString(), com.google.gson.JsonObject.class);
             	} else {
             		atmospheric_data = new com.google.gson.JsonObject();
