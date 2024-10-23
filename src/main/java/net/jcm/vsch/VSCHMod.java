@@ -25,6 +25,7 @@ public class VSCHMod {
         //BLOCKS.register(modBus);
         ModItems.register(modBus);
         ModBlocks.register(modBus);
+	ModBlockEntities.register(modBus);
         
         // Register commands (I took this code from another one of my mods, can't be bothered to make it consistent with the rest of this)
         MinecraftForge.EVENT_BUS.register(ModCommands.class);
