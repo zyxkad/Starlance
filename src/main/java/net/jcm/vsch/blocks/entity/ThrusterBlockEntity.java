@@ -22,91 +22,56 @@ public class ThrusterBlockEntity extends BlockEntity {
 	}
 
 	public void tick(Level level, BlockPos pos, BlockState state, ThrusterBlockEntity be) {
-		System.out.println("tick");
 
 		Ship ship = VSGameUtilsKt.getShipManagingPos(level,pos);
-		if (ship == null){
-			System.out.println("no ship");
-			return;};
-			//var rp = ship.getTransform().getShipToWorld().transformPosition(VectorConversionsMCKt.toJOMLD(pos));
-			Direction dir = state.getValue(DirectionalBlock.FACING);
-			/*double vel = 1;
-		int particleCount = 20;
+		// If we aren't on a ship, then we skip
+		if (ship == null){return;};
 
-		var x = rp.x + (0.5 * (dir.getStepX() + 1));
-		var y = rp.y + (0.5 * (dir.getStepY() + 1));
-		var z = rp.z + (0.5 * (dir.getStepZ() + 1));
-		var speed = ship.getTransform().getShipToWorldRotation().getEulerAnglesXYZ(new Vector3d(0.0,0.0,0.0)).add(VectorConversionsMCKt.toJOMLD(dir.getNormal())).mul(new Vector3d(vel,vel,vel));
-		for (int i = 0; i < particleCount; i++) {
+		// Get blockstate direction, NORTH, SOUTH, UP, DOWN, etc
+		Direction dir = state.getValue(DirectionalBlock.FACING);
 
-		}*/
+		// BlockPos is always at the corner, getCenter gives us a Vec3 thats centered YAY
+		Vec3 center = pos.getCenter();
+		// Transform that shipyard pos into a world pos
+		Vector3d worldPos = ship.getTransform().getShipToWorld().transformPosition(new Vector3d(center.x, center.y, center.z));
 
-			/*Vector3d realPos = VSGameUtilsKt.toWorldCoordinates(ship, pos);
-		System.out.println("Realpos:");
-		System.out.println(realPos.toString(NumberFormat.getIntegerInstance()));
+		// Get the redstone strength
+		int signal = level.getBestNeighborSignal(pos);
 
-		// Offset to get center of block, then offset by the blocks rotation (devided by 2 because its -1->1 and we need -0.5->0.5)
-		realPos = realPos.add(new Vector3d(0.5-(dir.getStepX()/2), 0.5-(dir.getStepY()/2), 0.5-(dir.getStepZ()/2)));
-		System.out.println(realPos.toString(NumberFormat.getIntegerInstance()));
+		// Divide by 15 so we are now between 0 and 1 (vel is very powerful)
+		// (Vel is used for speed particles are sent at)
+		double vel = signal / 15;
 
-		double d0 = realPos.x() - 0.7D * dir.getStepX();
-		double d1 = realPos.y() - 0.7D * dir.getStepY();
-		double d2 = realPos.z() - 0.7D * dir.getStepZ();
-
-		Vector3d newPos = new Vector3d(d0, d1, d2);
-		Vector3d newPosCopy = new Vector3d(newPos.x, newPos.y, newPos.z);
-
-		System.out.println("Newpos: "+newPos);
-		System.out.println("Newpos2: "+newPosCopy);
-
-		Vector3d direction = newPos.sub(realPos);
-
-		System.out.println("Newpos: "+newPos); 
-		System.out.println("Newpos2: "+newPosCopy);
-
-		System.out.println("Direction: "+direction);
-		//XYZ, YXZ
-		Vector3d transformedDirection = direction.add(ship.getTransform().getShipToWorldRotation().getEulerAnglesZYX(new Vector3d(0.0,0.0,0.0)));
-
-		System.out.println("Trans direction: "+transformedDirection);
-
-		newPosCopy = newPosCopy.add(transformedDirection);*/
-
-			Vec3 center = pos.getCenter();
-			Vector3d rp = ship.getTransform().getShipToWorld().transformPosition(new Vector3d(center.x, center.y, center.z));
-
-			// Get velocity
-			int signal = level.getBestNeighborSignal(pos);
-
-			double vel = signal / 15;
-
-			if (vel == 0.0) {
-				return;
-			}
-
-			vel = vel * 0.7;
-
-			double x = rp.x + (0.5 * (dir.getStepX() + 1));
-			double y = rp.y + (0.5 * (dir.getStepY() + 1));
-			double z = rp.z + (0.5 * (dir.getStepZ() + 1));
-			double speedX = dir.getStepX() * -vel;
-			double speedY = dir.getStepY() * -vel;
-			double speedZ = dir.getStepZ() * -vel;
-
-			Vector3d speeds = new Vector3d(speedX, speedY, speedZ);
-			speeds = ship.getTransform().getShipToWorldRotation().transform(speeds, new Vector3d(0, 0, 0));
-			//speeds.add(ship.getTransform().getShipToWorldRotation().getEulerAnglesZYX(new Vector3d(0.0,0.0,0.0)));
-			//speeds = ship.getTransform().getShipToWorldRotation().getEulerAnglesZYX(new Vector3d(0.0,0.0,0.0));
-			System.out.println(speeds.toString(NumberFormat.getIntegerInstance()));
-
-
-			level.addParticle(
-					CosmosModParticleTypes.THRUSTED.get(),
-					rp.x, rp.y, rp.z,
-					speeds.x, speeds.y, speeds.z
-					);
-
+		// If we are unpowered, do no particles
+		if (vel == 0.0) {
 			return;
+		}
+
+		// Get 70% of vel (like I said, its very stronk)
+		vel = vel * 0.7;
+
+		double speedX = dir.getStepX() * -vel;
+		double speedY = dir.getStepY() * -vel;
+		double speedZ = dir.getStepZ() * -vel;
+
+		// Put them all in a nice Vector3d so we can do them all at once
+		Vector3d speeds = new Vector3d(speedX, speedY, speedZ);
+		// Transform the speeds by the rotation of the ships
+		speeds = ship.getTransform().getShipToWorldRotation().transform(speeds, new Vector3d(0, 0, 0));
+
+		// Offset the XYZ by a little bit so its at the end of the thruster block
+		double x = worldPos.x - dir.getStepX();
+		double y = worldPos.y - dir.getStepY();
+		double z = worldPos.z - dir.getStepZ();
+
+		// All that for one particle per tick...
+		level.addParticle(
+				CosmosModParticleTypes.THRUSTED.get(),
+				x, y, z,
+				speeds.x, speeds.y, speeds.z
+				);
+
+		return;
 	}
 
 }
