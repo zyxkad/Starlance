@@ -40,7 +40,8 @@ public class ThrusterBlockEntity extends BlockEntity {
 
 		// Divide by 15 so we are now between 0 and 1 (vel is very powerful)
 		// (Vel is used for speed particles are sent at)
-		double vel = signal / 15;
+		// IT DIDN'T WORK, TODO: FIND OUT WHY
+		double vel = signal;
 
 		// If we are unpowered, do no particles
 		if (vel == 0.0) {
