@@ -19,7 +19,6 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	        
 	@Override
 	public void applyForces(PhysShip physShip) {
-		// TODO Auto-generated method stub
 		//System.out.println(thrusters);
 		thrusters.forEach((pos, data) -> {
 			// pos = dir, force = throttle
@@ -30,11 +29,20 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
             Vector3d tForce = physShip.getTransform().getShipToWorld().transformDirection(data.dir, new Vector3d());
             tForce.mul(force);
-            Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
-                .add(0.5, 0.5, 0.5, new Vector3d())
-                .sub(physShip.getTransform().getPositionInShip());
+            
+            // Switch between applying force at position and just applying the force
+            if (data.mode == ThrusterData.ThrusterMode.POSITION) {
+            	Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
+                        .add(0.5, 0.5, 0.5, new Vector3d())
+                        .sub(physShip.getTransform().getPositionInShip());
 
-            physShip.applyInvariantForceToPos(tForce, tPos);
+                physShip.applyInvariantForceToPos(tForce, tPos);
+            
+                //ThrusterData.ThrusterMode.GLOBAL should be the only other value:
+            } else {
+            	physShip.applyInvariantForce(tForce);
+            }
+            
 		});
 	}
 	
@@ -45,6 +53,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	public void removeThruster(BlockPos pos) {
 		thrusters.remove(pos);
 	}
+	
 	
 	public ThrusterData getThrusterAtPos(BlockPos pos) {
 		return thrusters.get(pos);
