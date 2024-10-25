@@ -181,7 +181,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
     implementation 'thedarkcolour:kotlinforforge:4.10.0'
     //implementation fg.deobf("curse.maven:cc-tweaked-282001:5379173")
-    implementation fg.deobf('maven.modrinth:cosmic-horizons(cosmos):0.0.5')
+//    implementation fg.deobf('maven.modrinth:cosmic-horizons(cosmos):0.0.5')
 
     //compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")
 
@@ -193,7 +193,7 @@ dependencies {
     //runtimeOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
     //runtimeOnly fg.deobf("curse.maven:ctm-267602:3933537")
     //
-    implementation fg.deobf('net.lointain:cosmichorizons:0.0.4')
+    implementation fg.deobf('net.lointain:cosmic-horizons:0.0.6:WIP')
 
     //using lodestone for now until vsfx comes out
     //implementation fg.deobf("team.lodestar.lodestone:lodestone:${minecraft_version}-${lodestone_version}")
