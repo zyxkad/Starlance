@@ -10,31 +10,38 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3d;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.assembly.ShipAssembler;
+import org.valkyrienskies.mod.util.McMathUtilKt;
+
+import java.util.Objects;
 
 
 /**
  * The class for gravity related functions
  */
 public class Gravity {
-	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
-	/**
-	 * Sets the Gravity of all dimensions as defined in the datapacks.
-	 * @param world A {@link net.minecraft.world.level.LevelAccessor LevelAccessor} used to access the world variables.
-	 * @author Jcm
-	 */
-	public static void setAll(LevelAccessor world){
-		double gravity;
-		for (String keyiterator : CosmosModVariables.WorldVariables.get(world).gravity_data.getAllKeys()) {
-			gravity = ((FloatTag) CosmosModVariables.WorldVariables.get(world).gravity_data.get(keyiterator)).getAsFloat();
-			try {
-				VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).updateDimension(VSCHUtils.dimToVSDim(keyiterator),new Vector3d(0,-10*gravity,0));
-				logger.info("[VSCH]: Set gravity for dimension " + keyiterator + " to " + (-10 * gravity));
-			} catch(Exception e) {
-				logger.error("[VSCH]: Failed to set gravity for dimension "+keyiterator+". Skipping");
-			}
+    public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
+    /**
+     * Sets the Gravity of all dimensions as defined in the datapacks.
+     * @param world A {@link net.minecraft.world.level.LevelAccessor LevelAccessor} used to access the world variables.
+     * @author Jcm
+     */
+    public static void setAll(LevelAccessor world){
+        double gravity;
+        FloatTag gravity_data;
+        for (String keyiterator : CosmosModVariables.WorldVariables.get(world).gravity_data.getAllKeys()) {
+            gravity_data = (FloatTag) CosmosModVariables.WorldVariables.get(world).gravity_data.get(keyiterator);
+            gravity = gravity_data.getAsFloat();
+            try {
+                VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).updateDimension(VSCHUtils.dimToVSDim(keyiterator),new Vector3d(0,-10*gravity,0));
+            } catch (Exception e) {
+                logger.info("[CH]: Failed to set gravity for dimension " + keyiterator + " due to error " + e);
+            }
 
-			//Debugs
-
-		}
-	}
+            //Debugs
+            logger.info("[CH]: Set gravity for dimension " + keyiterator + " to " + (-10 * gravity));
+        }
+        VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).removeDimension("minecraft:dimension:cosmos:solar_system");
+        VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).addDimension("minecraft:dimension:cosmos:solar_system", VSGameUtilsKt.getYRange(world.getServer().overworld()),new Vector3d(0,0,0));
+    }
 }
