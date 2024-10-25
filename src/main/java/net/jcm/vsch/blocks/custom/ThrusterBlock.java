@@ -215,7 +215,9 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		return new ThrusterBlockEntity(pos, state);
 	}
 
-	// Register tick function
+	/*public static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(Level level) {
+		return level.isClientSide() && !allowClient ? null : (level0, pos0, state0, blockEntity) -> ((TickableBlockEntity)blockEntity).tick();
+	}*/
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		// TODO Auto-generated method stub
