@@ -123,7 +123,6 @@ public class VSCHTickFunctions {
 		String dimension = level.dimension().location().toString();
 		for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
 
-			System.out.println(ship.getChunkClaimDimension());
 			AABB currentAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB());
 			Vec3 shipCenter = currentAABB.getCenter();
 
