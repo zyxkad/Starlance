@@ -37,7 +37,7 @@ import net.jcm.vsch.util.rot.RotShapes;
 import net.lointain.cosmos.init.CosmosModItems;
 
 
-public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
+public class DragBlock extends DirectionalBlock implements EntityBlock {
 
 	public static final int MULT = 1000;
 	//TODO: fix this bounding box
@@ -45,7 +45,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	private final DirectionalShape Thruster_SHAPE = DirectionalShape.south(SHAPE);
 
 
-	public ThrusterBlock(Properties properties) {
+	public DragBlock(Properties properties) {
 		super(properties);
 		registerDefaultState(defaultBlockState()
 				.setValue(FACING, Direction.NORTH)

@@ -14,7 +14,7 @@ import net.jcm.vsch.VSCHMod;
 import net.minecraft.world.level.Level;
 
 @Mixin(VSGameUtilsKt.class)
-public abstract class MixinGetY {
+public class MixinGetY {
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
 	@Inject(method = "getYRange", at = @At("HEAD"), cancellable = true)
 	@NotNull

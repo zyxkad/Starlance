@@ -1,6 +1,7 @@
 package net.jcm.vsch.blocks.entity;
 
 import org.joml.Vector3d;
+import org.joml.Vector4d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
@@ -33,6 +34,8 @@ public class ThrusterBlockEntity extends BlockEntity {
 		// Transform that shipyard pos into a world pos
 		Vector3d worldPos = ship.getTransform().getShipToWorld().transformPosition(new Vector3d(center.x, center.y, center.z));
 
+		System.out.println("Center: "+center + " " + worldPos);
+
 		// Get the redstone strength
 		int signal = level.getBestNeighborSignal(pos);
 
@@ -46,8 +49,8 @@ public class ThrusterBlockEntity extends BlockEntity {
 			return;
 		}
 
-		// Get 70% of vel (like I said, its very stronk)
-		vel = vel * 0.7;
+		// Get 0.05% of vel (like I said, its very stronk)
+		vel = vel / 25;
 
 		double speedX = dir.getStepX() * -vel;
 		double speedY = dir.getStepY() * -vel;
@@ -58,10 +61,17 @@ public class ThrusterBlockEntity extends BlockEntity {
 		// Transform the speeds by the rotation of the ships
 		speeds = ship.getTransform().getShipToWorldRotation().transform(speeds, new Vector3d(0, 0, 0));
 
+		double offsetX = dir.getStepX();
+		double offsetY = dir.getStepY();
+		double offsetZ = dir.getStepZ();
+
+		Vector3d offset = new Vector3d(offsetX, offsetY, offsetZ);
+		offset = ship.getTransform().getShipToWorldRotation().transform(offset, new Vector3d(0, 0, 0));
+
 		// Offset the XYZ by a little bit so its at the end of the thruster block
-		double x = worldPos.x - dir.getStepX();
-		double y = worldPos.y - dir.getStepY();
-		double z = worldPos.z - dir.getStepZ();
+		double x = worldPos.x - offset.x;// - dir.getStepX();
+		double y = worldPos.y - offset.y;// - dir.getStepY();
+		double z = worldPos.z - offset.z;// - dir.getStepZ();
 
 		// All that for one particle per tick...
 		level.addParticle(
