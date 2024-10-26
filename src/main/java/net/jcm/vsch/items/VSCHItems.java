@@ -6,7 +6,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.jcm.vsch.VSCHMod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class ModItems {
+public class VSCHItems {
 	public static final DeferredRegister<Item> ITEMS =
 			DeferredRegister.create(ForgeRegistries.ITEMS, VSCHMod.MODID); //this bit does some mumbo-jumbo to set up for adding items
 	

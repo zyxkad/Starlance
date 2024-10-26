@@ -1,26 +1,14 @@
 package net.jcm.vsch.blocks.custom;
 
 
-import java.text.NumberFormat;
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3d;
-import org.valkyrienskies.core.api.ships.Ship;
-import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import net.jcm.vsch.config.VSCHConfig;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.PositionImpl;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -38,18 +26,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
-import net.jcm.vsch.blocks.entity.ModBlockEntities;
 import net.jcm.vsch.blocks.entity.ThrusterBlockEntity;
 import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
 import net.jcm.vsch.util.rot.RotShapes;
 import net.lointain.cosmos.init.CosmosModItems;
-import net.lointain.cosmos.init.CosmosModParticleTypes;
 
 
 public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
@@ -128,31 +113,33 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 
 		// If client side, ignore
 		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
-
 		// If its the right item and mainhand
 		if (player.getMainHandItem().getItem() == CosmosModItems.ENERGY_METER.get() && hand == InteractionHand.MAIN_HAND) {
+			if(VSCHConfig.THRUSTER_TOGGLE.get()){
+				// Get the force handler
+				VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 
-			// Get the force handler
-			VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+				// If a force handler exists (might not if we aren't on a VS ship)
+				if (ships != null) {
+					ThrusterData data = ships.getThrusterAtPos(pos);
 
-			// If a force handler exists (might not if we aren't on a VS ship)
-			if (ships != null) {
-				ThrusterData data = ships.getThrusterAtPos(pos);
+					// Probably unneeded, but checks are always good right?
+					if (data != null) {
 
-				// Probably unneeded, but checks are always good right?
-				if (data != null) {
+						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
+							data.mode = ThrusterData.ThrusterMode.GLOBAL;
+							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
+							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
+						} else {
+							data.mode = ThrusterData.ThrusterMode.POSITION;
 
-					if (data.mode == ThrusterData.ThrusterMode.POSITION) {
-						data.mode = ThrusterData.ThrusterMode.GLOBAL;
-						//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
-						player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
-					} else {
-						data.mode = ThrusterData.ThrusterMode.POSITION;
-
-						player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
+							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
+						}
+						return InteractionResult.CONSUME;
 					}
-					return InteractionResult.CONSUME;
 				}
+			} else if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
+				player.displayClientMessage(Component.literal("Thruster Mode Toggling is disabled").withStyle(ChatFormatting.RED), true);
 			}
 		}
 

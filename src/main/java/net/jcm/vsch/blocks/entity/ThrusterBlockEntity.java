@@ -1,7 +1,5 @@
 package net.jcm.vsch.blocks.entity;
 
-import java.text.NumberFormat;
-
 import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
@@ -18,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public class ThrusterBlockEntity extends BlockEntity {
 
 	public ThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
+		super(VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
 	}
 
 	public void tick(Level level, BlockPos pos, BlockState state, ThrusterBlockEntity be) {
