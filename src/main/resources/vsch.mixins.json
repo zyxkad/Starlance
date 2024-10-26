@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.jcm.vsch.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "vsch.refmap.json",
+  "mixins": [
+    "MixinGetY"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
