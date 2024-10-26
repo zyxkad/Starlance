@@ -30,6 +30,7 @@ public class VSCHMod {
 		VSCHBlocks.register(modBus);
 		VSCHBlockEntities.register(modBus);
 		VSCHConfig.register(ModLoadingContext.get());
+		VSCHTab.register(modBus);
 		// Register commands (I took this code from another one of my mods, can't be bothered to make it consistent with the rest of this)
 		MinecraftForge.EVENT_BUS.register(ModCommands.class);
 	}
