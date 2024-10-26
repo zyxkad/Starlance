@@ -447,4 +447,14 @@ public class VSCHUtils {
 	}
 
 
+	public static Vector3d clampVector(Vector3d force, double limit) {
+		// Clamp each component of the force vector within the range -limit, +limit
+		double clampedX = Math.max(-limit, Math.min(limit, force.x));
+		double clampedY = Math.max(-limit, Math.min(limit, force.y));
+		double clampedZ = Math.max(-limit, Math.min(limit, force.z));
+
+		// Return a new Vector3d with the clamped values
+		return new Vector3d(clampedX, clampedY, clampedZ);
+	}
+
 }

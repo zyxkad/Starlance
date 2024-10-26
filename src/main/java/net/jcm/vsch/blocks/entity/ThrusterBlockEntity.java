@@ -80,6 +80,15 @@ public class ThrusterBlockEntity extends BlockEntity {
 				speeds.x, speeds.y, speeds.z
 				);
 
+		speeds = speeds.mul(1.06);
+
+		// Ok ok, two particles per tick
+		level.addParticle(
+				CosmosModParticleTypes.THRUST_SMOKE.get(),
+				x, y, z,
+				speeds.x, speeds.y, speeds.z
+				);
+
 		return;
 	}
 

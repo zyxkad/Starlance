@@ -17,6 +17,11 @@ public class VSCHBlockEntities {
 					() -> BlockEntityType.Builder.of(ThrusterBlockEntity::new, VSCHBlocks.THRUSTER_BLOCK.get())
 					.build(null));
 
+	public static final RegistryObject<BlockEntityType<ThrusterBlockEntity>> DRAGGER_BLOCK_ENTITY =
+			BLOCK_ENTITIES.register("dragger_block",
+					() -> BlockEntityType.Builder.of(ThrusterBlockEntity::new, VSCHBlocks.THRUSTER_BLOCK.get())
+					.build(null));
+
 	public static void register(IEventBus eventBus) {
 		BLOCK_ENTITIES.register(eventBus);
 	}

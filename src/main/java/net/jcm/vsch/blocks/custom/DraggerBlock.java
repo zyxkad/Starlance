@@ -29,7 +29,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
+import net.jcm.vsch.blocks.entity.DraggerBlockEntity;
 import net.jcm.vsch.blocks.entity.ThrusterBlockEntity;
+import net.jcm.vsch.ship.DraggerData;
 import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
@@ -37,19 +39,16 @@ import net.jcm.vsch.util.rot.RotShapes;
 import net.lointain.cosmos.init.CosmosModItems;
 
 
-public class DragBlock extends DirectionalBlock implements EntityBlock {
+public class DraggerBlock extends Block implements EntityBlock { //
 
 	public static final int MULT = 1000;
 	//TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-	private final DirectionalShape Thruster_SHAPE = DirectionalShape.south(SHAPE);
+	private final DirectionalShape dragger_shape = DirectionalShape.south(SHAPE);
 
 
-	public DragBlock(Properties properties) {
+	public DraggerBlock(Properties properties) {
 		super(properties);
-		registerDefaultState(defaultBlockState()
-				.setValue(FACING, Direction.NORTH)
-				);
 	}
 
 	@Override
@@ -57,21 +56,6 @@ public class DragBlock extends DirectionalBlock implements EntityBlock {
 		return RenderShape.MODEL;
 	}
 
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return Thruster_SHAPE.get(state.getValue(BlockStateProperties.FACING));
-	}
-
-	@Override
-	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-		super.createBlockStateDefinition(builder);
-	}
-
-	public float getThrottle(BlockState state, int signal) {
-		//return state.getValue(TournamentProperties.TIER) * signal * mult.get().floatValue();
-		return signal * MULT;
-	}
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -85,19 +69,12 @@ public class DragBlock extends DirectionalBlock implements EntityBlock {
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 
 		if (ships != null) {
-			if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
-				ships.addThruster(pos, new ThrusterData(
-						VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
-						getThrottle(state, signal),
-						ThrusterData.ThrusterMode.POSITION //Position based thruster by default
-				));
-			} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
-				ships.addThruster(pos, new ThrusterData(
-						VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
-						getThrottle(state, signal),
-						ThrusterData.ThrusterMode.GLOBAL //Global thruster by default
-				));
-			}
+
+			ships.addDragger(pos, new DraggerData(
+					(signal > 0)
+					)
+					);
+
 		}
 	}
 
@@ -110,48 +87,10 @@ public class DragBlock extends DirectionalBlock implements EntityBlock {
 		// I guess VS does this automatically when switching a shipyards dimension?
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships != null) {
-			ships.removeThruster(pos);
+			ships.removeDragger(pos);
 		}
 
 		super.onRemove(state, level, pos, newState, isMoving);
-	}
-
-	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-
-		// If client side, ignore
-		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
-		// If its the right item and mainhand
-		if (player.getMainHandItem().getItem() == CosmosModItems.ENERGY_METER.get() && hand == InteractionHand.MAIN_HAND) {
-			if(VSCHConfig.THRUSTER_TOGGLE.get()){
-				// Get the force handler
-				VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-
-				// If a force handler exists (might not if we aren't on a VS ship)
-				if (ships != null) {
-					ThrusterData data = ships.getThrusterAtPos(pos);
-
-					// Probably unneeded, but checks are always good right?
-					if (data != null) {
-
-						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
-							data.mode = ThrusterData.ThrusterMode.GLOBAL;
-							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
-							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
-						} else {
-							data.mode = ThrusterData.ThrusterMode.POSITION;
-
-							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
-						}
-						return InteractionResult.CONSUME;
-					}
-				}
-			} else if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
-				player.displayClientMessage(Component.literal("Thruster Mode Toggling is disabled").withStyle(ChatFormatting.RED), true);
-			}
-		}
-
-		return InteractionResult.PASS;
 	}
 
 
@@ -174,32 +113,14 @@ public class DragBlock extends DirectionalBlock implements EntityBlock {
 
 		int signal = level.getBestNeighborSignal(pos);
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-		System.out.println("ships");
-		System.out.println(ships);
-		System.out.println("Signal");
-		System.out.println(signal);
 
 		if (ships != null) {
-			ThrusterData data = ships.getThrusterAtPos(pos);
+			DraggerData data = ships.getDraggerAtPos(pos);
 
 			if (data != null) {
-				float newThrottle = getThrottle(state, signal);
-
-				if (data.throttle != newThrottle) {
-					data.throttle = newThrottle;
-				}
-
+				data.on = (signal > 0);	
 			}
 		}
-	}
-
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		Direction dir = ctx.getNearestLookingDirection();
-		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
-			dir = dir.getOpposite();
-		}
-		return defaultBlockState().setValue(BlockStateProperties.FACING, dir);
 	}
 
 
@@ -207,17 +128,17 @@ public class DragBlock extends DirectionalBlock implements EntityBlock {
 	// Attach block entity
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new ThrusterBlockEntity(pos, state);
+		return new DraggerBlockEntity(pos, state);
 	}
 
 	/*public static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(Level level) {
 		return level.isClientSide() && !allowClient ? null : (level0, pos0, state0, blockEntity) -> ((TickableBlockEntity)blockEntity).tick();
 	}*/
-	@Override
+	/*@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		// TODO Auto-generated method stub
 		return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((ThrusterBlockEntity)blockEntity).tick(level0, pos0, state0, (ThrusterBlockEntity) blockEntity) : null;
-	}
+	}*/
 
 
 }

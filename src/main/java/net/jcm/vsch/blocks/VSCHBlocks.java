@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.jcm.vsch.blocks.custom.DragBlock;
+import net.jcm.vsch.blocks.custom.DraggerBlock;
 import net.jcm.vsch.blocks.custom.ThrusterBlock;
 import net.jcm.vsch.items.VSCHItems;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -27,8 +27,8 @@ public class VSCHBlocks {
 					.strength(5f)
 					.noOcclusion()));
 
-	public static final RegistryObject<Block> DRAG_BLOCK = registerBlock("drag_block",
-			() -> new DragBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
+	public static final RegistryObject<Block> DRAG_BLOCK = registerBlock("dragger_block",
+			() -> new DraggerBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
 					.strength(5f)
 					.noOcclusion()));
 
