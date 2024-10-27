@@ -13,7 +13,7 @@ buildscript {
         classpath 'org.parchmentmc:librarian:1.+'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0'
         classpath "org.jlleitschuh.gradle:ktlint-gradle:12.1.1"
-
+       
         // OPTIONAL Gradle plugin for Kotlin Serialization
         //classpath 'org.jetbrains.kotlin:kotlin-serialization:1.6.10'
 
@@ -25,7 +25,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm" version "1.9.22"
     // OPTIONAL Kotlin Serialization plugin
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22'
-
+    id 'maven-publish'
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
@@ -260,4 +260,17 @@ tasks.named('jar', Jar).configure {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = "https://maven.pkg.github.com/jcm236/Valkyrien-Skies-X-Cosmic-Horizons"
+      credentials {
+        username = System.getenv("GITHUB_ACTOR")
+        password = System.getenv("GITHUB_TOKEN")
+      }
+    }
+  }
 }
