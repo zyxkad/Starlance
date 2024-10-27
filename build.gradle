@@ -193,7 +193,7 @@ dependencies {
     //runtimeOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
     //runtimeOnly fg.deobf("curse.maven:ctm-267602:3933537")
     //Create for testing
-    runtimeOnly fg.deobf("maven.modrinth:create:1.20.1-0.5.1.h")
+    runtimeOnly fg.deobf("maven.modrinth:create:1.20.1:0.5.1.h")
     
     //
     implementation fg.deobf('net.lointain:cosmichorizons:0.0.6')

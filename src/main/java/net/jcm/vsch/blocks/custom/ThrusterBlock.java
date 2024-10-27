@@ -90,13 +90,13 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 						VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
 						getThrottle(state, signal),
 						ThrusterData.ThrusterMode.POSITION //Position based thruster by default
-				));
+						));
 			} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
 				ships.addThruster(pos, new ThrusterData(
 						VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
 						getThrottle(state, signal),
 						ThrusterData.ThrusterMode.GLOBAL //Global thruster by default
-				));
+						));
 			}
 		}
 	}
@@ -216,7 +216,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		// TODO Auto-generated method stub
-		return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((ThrusterBlockEntity)blockEntity).tick(level0, pos0, state0, (ThrusterBlockEntity) blockEntity) : null;
+		return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((ThrusterBlockEntity)blockEntity).clientTick(level0, pos0, state0, (ThrusterBlockEntity) blockEntity) : (level0, pos0, state0, blockEntity) -> ((ThrusterBlockEntity)blockEntity).serverTick(level0, pos0, state0, (ThrusterBlockEntity) blockEntity);
 	}
 
 

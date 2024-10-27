@@ -2,13 +2,19 @@ package net.jcm.vsch.blocks.entity;
 
 import org.joml.Vector3d;
 import org.joml.Vector4d;
+import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
+import net.jcm.vsch.config.VSCHConfig;
+import net.jcm.vsch.ship.ThrusterData;
+import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,7 +26,30 @@ public class ThrusterBlockEntity extends BlockEntity {
 		super(VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
 	}
 
-	public void tick(Level level, BlockPos pos, BlockState state, ThrusterBlockEntity be) {
+
+	public void clientTick(Level level, BlockPos pos, BlockState state, ThrusterBlockEntity be) {
+		tickParticles(level, pos, state);
+	}
+
+	public void serverTick(Level level, BlockPos pos, BlockState state, ThrusterBlockEntity be) {
+		//tickForce(level, pos, state);
+	}
+
+	@SuppressWarnings("deprecation")
+	public static void tickForce(Level level, BlockPos pos, BlockState state) {
+
+		ServerShip ship = (ServerShip) ((VSGameUtilsKt.getShipObjectManagingPos(level, pos) != null) ? VSGameUtilsKt.getShipObjectManagingPos(level, pos) : VSGameUtilsKt.getShipManagingPos(level, pos));
+
+		if (ship != null) {
+			if (!VSCHForceInducedShips.exists(ship)) {
+				System.out.println("serverside");
+				BlockState newState = level.getBlockState(pos);
+				state.getBlock().onPlace(newState, level, pos, Blocks.AIR.defaultBlockState(), false);
+			}
+		}
+	}
+
+	public static void tickParticles(Level level, BlockPos pos, BlockState state) {
 
 		Ship ship = VSGameUtilsKt.getShipManagingPos(level,pos);
 		// If we aren't on a ship, then we skip
@@ -34,7 +63,7 @@ public class ThrusterBlockEntity extends BlockEntity {
 		// Transform that shipyard pos into a world pos
 		Vector3d worldPos = ship.getTransform().getShipToWorld().transformPosition(new Vector3d(center.x, center.y, center.z));
 
-		System.out.println("Center: "+center + " " + worldPos);
+		//System.out.println("Center: "+center + " " + worldPos);
 
 		// Get the redstone strength
 		int signal = level.getBestNeighborSignal(pos);

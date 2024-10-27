@@ -66,15 +66,18 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 		});
 
 		// Prep for draggers
-		Vector3dc linearVelocity = physShip.getVelocity();
-		Vector3dc angularVelocity = physShip.getOmega();
+
 
 		// Apply draggers force
 		draggers.forEach((pos, data) -> {
 
+			Vector3dc linearVelocity = physShip.getVelocity();
+			Vector3dc angularVelocity = physShip.getOmega();
+
 			if (!data.on) {
 				return;
 			}
+
 
 			// Get position relative to center of mass
 			Vector3d relativePosition = new Vector3d(
@@ -86,23 +89,26 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 			// ChatGPT math, I suck at this stuff lol:
 			// Get rotational velocity as the cross product of angular velocity and relative position
 			Vector3d rotationalVelocity = new Vector3d();
-			angularVelocity.cross(relativePosition, rotationalVelocity);
+			//angularVelocity.cross(relativePosition, rotationalVelocity);
 
 			// Add linear and rotational velocities
-			Vector3d totalVelocity = new Vector3d(linearVelocity).add(rotationalVelocity);
+			//Vector3d totalVelocity = new Vector3d(linearVelocity).add(rotationalVelocity);
 
-			Vector3d acceleration = totalVelocity.negate();
+			//Vector3d acceleration = totalVelocity.negate();
+			Vector3d acceleration = linearVelocity.negate(new Vector3d());
 			Vector3d force = acceleration.mul(physShip.getMass());
 
 			force = VSCHUtils.clampVector(force, 15000);
 
+			Vector3d rotAcceleration = angularVelocity.negate(new Vector3d());
+			Vector3d rotForce = rotAcceleration.mul(physShip.getMass());
 
-			// ChatGPT math is over
-			System.out.println(totalVelocity);
-			Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
-					.add(0.5, 0.5, 0.5, new Vector3d())
-					.sub(physShip.getTransform().getPositionInShip());
-			physShip.applyInvariantForceToPos(force, tPos);
+			rotForce = VSCHUtils.clampVector(rotForce, 15000);
+
+			physShip.applyInvariantForce(force);
+			physShip.applyInvariantTorque(rotForce);
+			return;
+
 		});
 	}
 
@@ -138,6 +144,11 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	}
 
 	// ----- Force induced ships ----- //
+
+	public static boolean exists(ServerShip ship) {
+		VSCHForceInducedShips attachment = ship.getAttachment(VSCHForceInducedShips.class);
+		return !(attachment == null);
+	}
 
 	public static VSCHForceInducedShips getOrCreate(ServerShip ship, String dimensionId) {
 		VSCHForceInducedShips attachment = ship.getAttachment(VSCHForceInducedShips.class);

@@ -70,10 +70,17 @@ public class DraggerBlock extends Block implements EntityBlock { //
 
 		if (ships != null) {
 
-			ships.addDragger(pos, new DraggerData(
-					(signal > 0)
-					)
-					);
+			if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
+				ships.addDragger(pos, new DraggerData(
+						(signal > 0),
+						ThrusterData.ThrusterMode.POSITION //Position based thruster by default
+						));
+			} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
+				ships.addDragger(pos, new DraggerData(
+						(signal > 0),
+						ThrusterData.ThrusterMode.GLOBAL //Position based thruster by default
+						));
+			}
 
 		}
 	}
@@ -91,6 +98,43 @@ public class DraggerBlock extends Block implements EntityBlock { //
 		}
 
 		super.onRemove(state, level, pos, newState, isMoving);
+	}
+
+	@Override
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		// If client side, ignore
+		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
+		// If its the right item and mainhand
+		if (player.getMainHandItem().getItem() == CosmosModItems.ENERGY_METER.get() && hand == InteractionHand.MAIN_HAND) {
+			if(VSCHConfig.THRUSTER_TOGGLE.get()){
+				// Get the force handler
+				VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+
+				// If a force handler exists (might not if we aren't on a VS ship)
+				if (ships != null) {
+					DraggerData data = ships.getDraggerAtPos(pos);
+
+					// Probably unneeded, but checks are always good right?
+					if (data != null) {
+
+						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
+							data.mode = ThrusterData.ThrusterMode.GLOBAL;
+							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
+							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
+						} else {
+							data.mode = ThrusterData.ThrusterMode.POSITION;
+
+							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
+						}
+						return InteractionResult.CONSUME;
+					}
+				}
+			} else if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
+				player.displayClientMessage(Component.literal("Thruster Mode Toggling is disabled").withStyle(ChatFormatting.RED), true);
+			}
+		}
+
+		return InteractionResult.PASS;
 	}
 
 
