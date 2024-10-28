@@ -13,6 +13,7 @@ import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
@@ -32,21 +33,37 @@ public class ThrusterBlockEntity extends BlockEntity {
 	}
 
 	public void serverTick(Level level, BlockPos pos, BlockState state, ThrusterBlockEntity be) {
-		//tickForce(level, pos, state);
+		tickForce(level, pos, state);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void tickForce(Level level, BlockPos pos, BlockState state) {
+		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
 
-		ServerShip ship = (ServerShip) ((VSGameUtilsKt.getShipObjectManagingPos(level, pos) != null) ? VSGameUtilsKt.getShipObjectManagingPos(level, pos) : VSGameUtilsKt.getShipManagingPos(level, pos));
+		if (!(level instanceof ServerLevel)) return;
 
-		if (ship != null) {
-			if (!VSCHForceInducedShips.exists(ship)) {
-				System.out.println("serverside");
-				BlockState newState = level.getBlockState(pos);
-				state.getBlock().onPlace(newState, level, pos, Blocks.AIR.defaultBlockState(), false);
+		// ----- Add thruster to the force appliers for the current level ----- //
+
+		//int signal = level.getBestNeighborSignal(pos);
+		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+
+		if (ships != null) {
+			if (ships.getThrusterAtPos(pos) == null) {
+				if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
+					ships.addThruster(pos, new ThrusterData(
+							VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
+							0,
+							ThrusterData.ThrusterMode.POSITION //Position based thruster by default
+							));
+				} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
+					ships.addThruster(pos, new ThrusterData(
+							VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
+							0,
+							ThrusterData.ThrusterMode.GLOBAL //Global thruster by default
+							));
+				}
 			}
 		}
+
 	}
 
 	public static void tickParticles(Level level, BlockPos pos, BlockState state) {

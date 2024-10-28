@@ -145,11 +145,6 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 	// ----- Force induced ships ----- //
 
-	public static boolean exists(ServerShip ship) {
-		VSCHForceInducedShips attachment = ship.getAttachment(VSCHForceInducedShips.class);
-		return !(attachment == null);
-	}
-
 	public static VSCHForceInducedShips getOrCreate(ServerShip ship, String dimensionId) {
 		VSCHForceInducedShips attachment = ship.getAttachment(VSCHForceInducedShips.class);
 		if (attachment == null) {

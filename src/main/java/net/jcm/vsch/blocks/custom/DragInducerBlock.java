@@ -29,7 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
-import net.jcm.vsch.blocks.entity.DraggerBlockEntity;
+import net.jcm.vsch.blocks.entity.DragInducerBlockEntity;
 import net.jcm.vsch.blocks.entity.ThrusterBlockEntity;
 import net.jcm.vsch.ship.DraggerData;
 import net.jcm.vsch.ship.ThrusterData;
@@ -39,7 +39,7 @@ import net.jcm.vsch.util.rot.RotShapes;
 import net.lointain.cosmos.init.CosmosModItems;
 
 
-public class DraggerBlock extends Block implements EntityBlock { //
+public class DragInducerBlock extends Block implements EntityBlock { //
 
 	public static final int MULT = 1000;
 	//TODO: fix this bounding box
@@ -47,7 +47,7 @@ public class DraggerBlock extends Block implements EntityBlock { //
 	private final DirectionalShape dragger_shape = DirectionalShape.south(SHAPE);
 
 
-	public DraggerBlock(Properties properties) {
+	public DragInducerBlock(Properties properties) {
 		super(properties);
 	}
 
@@ -102,7 +102,7 @@ public class DraggerBlock extends Block implements EntityBlock { //
 
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		// If client side, ignore
+		// If client side, ignore 
 		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
 		// If its the right item and mainhand
 		if (player.getMainHandItem().getItem() == CosmosModItems.ENERGY_METER.get() && hand == InteractionHand.MAIN_HAND) {
@@ -172,17 +172,17 @@ public class DraggerBlock extends Block implements EntityBlock { //
 	// Attach block entity
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new DraggerBlockEntity(pos, state);
+		return new DragInducerBlockEntity(pos, state);
 	}
 
 	/*public static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(Level level) {
 		return level.isClientSide() && !allowClient ? null : (level0, pos0, state0, blockEntity) -> ((TickableBlockEntity)blockEntity).tick();
 	}*/
-	/*@Override
+	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		// TODO Auto-generated method stub
-		return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((ThrusterBlockEntity)blockEntity).tick(level0, pos0, state0, (ThrusterBlockEntity) blockEntity) : null;
-	}*/
+		return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).clientTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity) : (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).serverTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity);
+	}
 
 
 }

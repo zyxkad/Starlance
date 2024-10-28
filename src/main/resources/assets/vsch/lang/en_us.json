@@ -1,4 +1,5 @@
 {
 	"vsch.itemtab": "Starlance",
-	"block.vsch.thruster_block": "Thruster"
+	"block.vsch.thruster_block": "Thruster",
+	"block.vsch.drag_inducer_block": "Drag inducer"
 }

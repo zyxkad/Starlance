@@ -17,10 +17,13 @@ public class VSCHTab {
 	public static final DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, VSCHMod.MODID);
 	public static final RegistryObject<CreativeModeTab> TAB = REGISTRY.register("starlance",
 			() -> CreativeModeTab.builder().title(Component.translatable("vsch.itemtab")).icon(() -> new ItemStack(VSCHBlocks.THRUSTER_BLOCK.get())).displayItems((parameters, tabData) -> {
-				tabData.accept(VSCHBlocks.THRUSTER_BLOCK.get().asItem());
-			}).build());
-	public static void register(IEventBus eventBus) {
 
+				tabData.accept(VSCHBlocks.THRUSTER_BLOCK.get().asItem());
+				tabData.accept(VSCHBlocks.DRAG_INDUCER_BLOCK.get().asItem());
+
+			}).build());
+
+	public static void register(IEventBus eventBus) {
 		REGISTRY.register(eventBus);
 	}
 }
