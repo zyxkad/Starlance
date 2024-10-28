@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 public class DragInducerBlockEntity extends BlockEntity {
 
 	public DragInducerBlockEntity(BlockPos pos, BlockState state) {
-		super(VSCHBlockEntities.DRAGGER_BLOCK_ENTITY.get(), pos, state);
+		super(VSCHBlockEntities.DRAG_INDUCER_BLOCK_ENTITY.get(), pos, state);
 	}
 
 	public void clientTick(Level level, BlockPos pos, BlockState state, DragInducerBlockEntity be) {
