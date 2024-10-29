@@ -196,7 +196,8 @@ dependencies {
     //runtimeOnly fg.deobf("maven.modrinth:create:1.20.1:0.5.1.h")
     
     //
-    implementation fg.deobf('net.lointain:cosmichorizons:0.0.6')
+    //implementation fg.deobf('net.lointain:cosmichorizons:0.0.6')
+    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6")
     
 
     //using lodestone for now until vsfx comes out
