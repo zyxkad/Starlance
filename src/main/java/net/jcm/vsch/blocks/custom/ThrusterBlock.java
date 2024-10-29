@@ -2,6 +2,8 @@ package net.jcm.vsch.blocks.custom;
 
 
 import net.jcm.vsch.config.VSCHConfig;
+import net.jcm.vsch.items.VSCHItems;
+
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.minecraft.ChatFormatting;
@@ -122,7 +124,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		// If client side, ignore
 		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
 		// If its the right item and mainhand
-		if (player.getMainHandItem().getItem() == CosmosModItems.ENERGY_METER.get() && hand == InteractionHand.MAIN_HAND) {
+		if (player.getMainHandItem().getItem() == VSCHItems.WRENCH.get() && hand == InteractionHand.MAIN_HAND) {
 			if(VSCHConfig.THRUSTER_TOGGLE.get()){
 				// Get the force handler
 				VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);

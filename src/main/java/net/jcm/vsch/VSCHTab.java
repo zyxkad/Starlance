@@ -2,6 +2,7 @@ package net.jcm.vsch;
 
 import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.custom.ThrusterBlock;
+import net.jcm.vsch.items.VSCHItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -21,6 +22,7 @@ public class VSCHTab {
 				tabData.accept(VSCHBlocks.THRUSTER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.DRAG_INDUCER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.AIR_THRUSTER_BLOCK.get().asItem());
+				tabData.accept(VSCHItems.WRENCH.get().asItem());
 
 			}).build());
 

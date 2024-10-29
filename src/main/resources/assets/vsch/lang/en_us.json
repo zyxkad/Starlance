@@ -2,5 +2,6 @@
 	"vsch.itemtab": "Starlance",
 	"block.vsch.thruster_block": "Thruster",
 	"block.vsch.drag_inducer_block": "Drag inducer",
-	"block.vsch.air_thruster_block": "Air thruster"
+	"block.vsch.air_thruster_block": "Air thruster",
+	"item.vsch.wrench": "Wrench"
 }
