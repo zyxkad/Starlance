@@ -447,6 +447,12 @@ public class VSCHUtils {
 	}
 
 
+	/**
+	 * Clamps all axis of a Vector3d between -limit and +limit (not abs).
+	 * @param force the vector to clamp
+	 * @param limit the limit to clamp all axis to
+	 * @return the clamped vector
+	 */
 	public static Vector3d clampVector(Vector3d force, double limit) {
 		// Clamp each component of the force vector within the range -limit, +limit
 		double clampedX = Math.max(-limit, Math.min(limit, force.x));
@@ -455,6 +461,22 @@ public class VSCHUtils {
 
 		// Return a new Vector3d with the clamped values
 		return new Vector3d(clampedX, clampedY, clampedZ);
+	}
+
+	/**
+	 * Vector3d returns the highest axis of a Vector3d
+	 * @param vec
+	 * @return the value of the highest axis
+	 */
+	public static double getMax(Vector3d vec) {
+		int maxIndex = vec.maxComponent();
+		if (maxIndex == 0) {
+			return vec.x;
+		} else if (maxIndex == 1) {
+			return vec.y;
+		} else {
+			return vec.z;
+		}
 	}
 
 }

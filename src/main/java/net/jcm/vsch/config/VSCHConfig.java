@@ -11,10 +11,16 @@ import java.util.List;
 public class VSCHConfig {
 	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	public static final ForgeConfigSpec SPEC;
+
 	public static final ForgeConfigSpec.ConfigValue<Boolean> THRUSTER_TOGGLE;
 	public static final ForgeConfigSpec.ConfigValue<String> THRUSTER_MODE;
 	public static final ForgeConfigSpec.ConfigValue<Number> THRUSTER_STRENGTH;
+
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
+
+	public static final ForgeConfigSpec.ConfigValue<Boolean> LIMIT_SPEED;
+	public static final ForgeConfigSpec.ConfigValue<Number> MAX_SPEED;
+
 	private static final Collection<String> modes = new ArrayList<String>(2);
 	static {
 		modes.add("POSITION");
@@ -26,6 +32,8 @@ public class VSCHConfig {
 		BUILDER.pop();
 		BUILDER.push("Misc");
 		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);
+		LIMIT_SPEED = BUILDER.comment("Limit speed thrusters can accelerate to. Recommended, as VS ships get funky at high speeds").define("limit_speed", true);
+		MAX_SPEED = BUILDER.comment("Max speed to limit to. Blocks/tick I think. Default is highly recommended").define("max_speed", 50);
 		BUILDER.pop();
 		SPEC = BUILDER.build();
 	}
