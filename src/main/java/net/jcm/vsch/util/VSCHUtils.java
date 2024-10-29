@@ -300,11 +300,11 @@ public class VSCHUtils {
 			Vec3 shipOffset = entityOffsets.get(entity.getStringUUID());
 			Vec3 newPosition = newShipCenter.add(shipOffset);
 
-			System.out.println("New (player) info -----");
+			/*System.out.println("New (player) info -----");
 			System.out.println(entityOffsets);
 			System.out.println(newShipCenter);
 			System.out.println(newPosition);
-			System.out.println("-----");
+			System.out.println("-----");*/
 
 			// Players need a different teleport command to entities
 			((ServerPlayer) entity).teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, entity.getYRot(), entity.getXRot());
@@ -316,11 +316,11 @@ public class VSCHUtils {
 			Vec3 shipOffset = entityOffsets.get(entity.getStringUUID());
 			Vec3 newPosition = newShipCenter.add(shipOffset);
 
-			System.out.println("New info -----");
+			/*System.out.println("New info -----");
 			System.out.println(entityOffsets);
 			System.out.println(newShipCenter);
 			System.out.println(newPosition);
-			System.out.println("-----");
+			System.out.println("-----");*/
 
 			// Teleport entity (players are handled separately)
 			entity.teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, null, entity.getYRot(), entity.getXRot());

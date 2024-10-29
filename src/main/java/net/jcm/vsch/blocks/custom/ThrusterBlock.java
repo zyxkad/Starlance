@@ -168,10 +168,10 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 
 		int signal = level.getBestNeighborSignal(pos);
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-		System.out.println("ships");
+		/*System.out.println("ships");
 		System.out.println(ships);
 		System.out.println("Signal");
-		System.out.println(signal);
+		System.out.println(signal);*/
 
 		if (ships != null) {
 			ThrusterData data = ships.getThrusterAtPos(pos);
