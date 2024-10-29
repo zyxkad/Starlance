@@ -9,21 +9,27 @@ import java.util.Collection;
 import java.util.List;
 
 public class VSCHConfig {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> THRUSTER_TOGGLE;
-    public static final ForgeConfigSpec.ConfigValue<String> THRUSTER_MODE;
-    private static final Collection<String> modes = new ArrayList<String>(2);
-    static {
-        modes.add("POSITION");
-        modes.add("GLOBAL");
-        BUILDER.push("Thruster Configs");
-        THRUSTER_TOGGLE = BUILDER.comment("Thruster Mode Toggling").define("thruster_mode_toggle", true);
-        THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineInList("thruster_default_mode","POSITION",modes);
-        BUILDER.pop();
-        SPEC = BUILDER.build();
-    }
-    public static void register(ModLoadingContext context){
-        context.registerConfig(ModConfig.Type.SERVER, VSCHConfig.SPEC, "vsch-config.toml");
-    }
+	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	public static final ForgeConfigSpec SPEC;
+	public static final ForgeConfigSpec.ConfigValue<Boolean> THRUSTER_TOGGLE;
+	public static final ForgeConfigSpec.ConfigValue<String> THRUSTER_MODE;
+	public static final ForgeConfigSpec.ConfigValue<Number> THRUSTER_STRENGTH;
+	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
+	private static final Collection<String> modes = new ArrayList<String>(2);
+	static {
+		modes.add("POSITION");
+		modes.add("GLOBAL");
+		BUILDER.push("Thrusters");
+		THRUSTER_TOGGLE = BUILDER.comment("Thruster Mode Toggling").define("thruster_mode_toggle", true);
+		THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineInList("thruster_default_mode","POSITION",modes);
+		THRUSTER_STRENGTH = BUILDER.comment("Thruster force multiplier. redstone * this (Newtons)").define("thruster_strength", 1000);
+		BUILDER.pop();
+		BUILDER.push("Misc");
+		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);
+		BUILDER.pop();
+		SPEC = BUILDER.build();
+	}
+	public static void register(ModLoadingContext context){
+		context.registerConfig(ModConfig.Type.SERVER, VSCHConfig.SPEC, "vsch-config.toml");
+	}
 }

@@ -41,7 +41,6 @@ import net.lointain.cosmos.init.CosmosModItems;
 
 public class DragInducerBlock extends Block implements EntityBlock { //
 
-	public static final int MULT = 1000;
 	//TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 	private final DirectionalShape dragger_shape = DirectionalShape.south(SHAPE);

@@ -12,6 +12,7 @@ import org.valkyrienskies.core.api.ships.ShipForcesInducer;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
+import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.util.VSCHUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -98,12 +99,12 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 			Vector3d acceleration = linearVelocity.negate(new Vector3d());
 			Vector3d force = acceleration.mul(physShip.getMass());
 
-			force = VSCHUtils.clampVector(force, 15000);
+			force = VSCHUtils.clampVector(force, VSCHConfig.MAX_DRAG.get().intValue());
 
 			Vector3d rotAcceleration = angularVelocity.negate(new Vector3d());
 			Vector3d rotForce = rotAcceleration.mul(physShip.getMass());
 
-			rotForce = VSCHUtils.clampVector(rotForce, 15000);
+			rotForce = VSCHUtils.clampVector(rotForce, VSCHConfig.MAX_DRAG.get().intValue());
 
 			physShip.applyInvariantForce(force);
 			physShip.applyInvariantTorque(rotForce);
