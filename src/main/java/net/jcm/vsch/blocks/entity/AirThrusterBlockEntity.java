@@ -1,5 +1,7 @@
 package net.jcm.vsch.blocks.entity;
 
+import java.util.Iterator;
+
 import org.joml.Vector3d;
 import org.joml.Vector4d;
 import org.valkyrienskies.core.api.ships.ServerShip;
@@ -21,42 +23,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class ThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity  {
+public class AirThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
 
-	// VERY JANKY but hey we had to get v1 out somehow right
-	public ThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super(VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
-	}
-
-	@Override
-	public void tickForce(Level level, BlockPos pos, BlockState state) {
-		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
-
-		if (!(level instanceof ServerLevel)) return;
-
-		// ----- Add thruster to the force appliers for the current level ----- //
-
-		//int signal = level.getBestNeighborSignal(pos);
-		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-
-		if (ships != null) {
-			if (ships.getThrusterAtPos(pos) == null) {
-				if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
-					ships.addThruster(pos, new ThrusterData(
-							VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
-							0,
-							ThrusterData.ThrusterMode.POSITION //Position based thruster by default
-							));
-				} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
-					ships.addThruster(pos, new ThrusterData(
-							VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
-							0,
-							ThrusterData.ThrusterMode.GLOBAL //Global thruster by default
-							));
-				}
-			}
-		}
-
+	public AirThrusterBlockEntity(BlockPos pos, BlockState state) {
+		super(VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state);
 	}
 
 	@Override
@@ -90,7 +60,7 @@ public class ThrusterBlockEntity extends BlockEntity implements ParticleBlockEnt
 		}
 
 		// Get 0.05% of vel (like I said, its very stronk)
-		vel = vel / 25;
+		vel = vel / 120.5;
 
 		double speedX = dir.getStepX() * -vel;
 		double speedY = dir.getStepY() * -vel;
@@ -101,35 +71,48 @@ public class ThrusterBlockEntity extends BlockEntity implements ParticleBlockEnt
 		// Transform the speeds by the rotation of the ships
 		speeds = ship.getTransform().getShipToWorldRotation().transform(speeds, new Vector3d(0, 0, 0));
 
-		double offsetX = dir.getStepX();
-		double offsetY = dir.getStepY();
-		double offsetZ = dir.getStepZ();
+		int max = 100;
 
-		Vector3d offset = new Vector3d(offsetX, offsetY, offsetZ);
-		offset = ship.getTransform().getShipToWorldRotation().transform(offset, new Vector3d(0, 0, 0));
+		for (int i = 0; i<max; i++) {
+			level.addParticle(
+					CosmosModParticleTypes.AIR_THRUST.get(),
+					worldPos.x, worldPos.y, worldPos.z,
+					speeds.x*0.95, speeds.y*0.95, speeds.z*0.95
+					);
 
-		// Offset the XYZ by a little bit so its at the end of the thruster block
-		double x = worldPos.x - offset.x;// - dir.getStepX();
-		double y = worldPos.y - offset.y;// - dir.getStepY();
-		double z = worldPos.z - offset.z;// - dir.getStepZ();
+		}
 
-		// All that for one particle per tick...
-		level.addParticle(
-				CosmosModParticleTypes.THRUSTED.get(),
-				x, y, z,
-				speeds.x, speeds.y, speeds.z
-				);
+	}
 
-		speeds = speeds.mul(1.06);
+	@Override
+	public void tickForce(Level level, BlockPos pos, BlockState state) {
+		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
 
-		// Ok ok, two particles per tick
-		level.addParticle(
-				CosmosModParticleTypes.THRUST_SMOKE.get(),
-				x, y, z,
-				speeds.x, speeds.y, speeds.z
-				);
+		if (!(level instanceof ServerLevel)) return;
 
-		return;
+		// ----- Add thruster to the force appliers for the current level ----- //
+
+		//int signal = level.getBestNeighborSignal(pos);
+		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+
+		if (ships != null) {
+			if (ships.getThrusterAtPos(pos) == null) {
+				if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
+					ships.addThruster(pos, new ThrusterData(
+							VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
+							0,
+							ThrusterData.ThrusterMode.POSITION //Position based thruster by default
+							));
+				} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
+					ships.addThruster(pos, new ThrusterData(
+							VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
+							0,
+							ThrusterData.ThrusterMode.GLOBAL //Global thruster by default
+							));
+				}
+			}
+		}
+
 	}
 
 }

@@ -70,7 +70,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 
 	public float getThrottle(BlockState state, int signal) {
 		//return state.getValue(TournamentProperties.TIER) * signal * mult.get().floatValue();
-		return signal * MULT;
+		return signal * VSCHConfig.THRUSTER_STRENGTH.get().intValue();
 	}
 
 	@SuppressWarnings("deprecation")

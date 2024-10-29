@@ -26,6 +26,7 @@ public class DragInducerBlockEntity extends BlockEntity {
 		super(VSCHBlockEntities.DRAG_INDUCER_BLOCK_ENTITY.get(), pos, state);
 	}
 
+	// Doesn't get run because doesn't get registered as a ticker yet, it seemed to break stuff
 	public void clientTick(Level level, BlockPos pos, BlockState state, DragInducerBlockEntity be) {
 		//TODO: add particles depending on where we're thrusting? Might need to go in force inducers
 	}
@@ -35,7 +36,7 @@ public class DragInducerBlockEntity extends BlockEntity {
 	}
 
 	public static void tickForce(Level level, BlockPos pos, BlockState state) {
-		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
+		// TODO: fix this bad. It both sets the throttle of all draggers to 0 until a block update, and sets them back to default mode.
 
 		if (!(level instanceof ServerLevel)) return;
 
