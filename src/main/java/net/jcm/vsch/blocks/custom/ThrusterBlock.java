@@ -87,19 +87,11 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 
 		if (ships != null) {
-			if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
-				ships.addThruster(pos, new ThrusterData(
-						VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
-						getThrottle(state, signal),
-						ThrusterData.ThrusterMode.POSITION //Position based thruster by default
-						));
-			} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
-				ships.addThruster(pos, new ThrusterData(
-						VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
-						getThrottle(state, signal),
-						ThrusterData.ThrusterMode.GLOBAL //Global thruster by default
-						));
-			}
+			ships.addThruster(pos, new ThrusterData(
+					VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
+					getThrottle(state, signal),
+					ThrusterData.ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()) // handy string to Enum :D
+					));
 		}
 	}
 
