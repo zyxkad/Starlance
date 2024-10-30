@@ -4,11 +4,13 @@ import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.valkyrienskies.core.api.ships.PhysShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.ShipForcesInducer;
+import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
@@ -24,19 +26,19 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addThruster(BlockPos, ThrusterData)} or {@link #removeThruster(BlockPos)} or {@link #getThrusterAtPos(BlockPos)}
 	 */
-	public HashMap<BlockPos, ThrusterData> thrusters = new HashMap<BlockPos, ThrusterData>();
+	public HashMap<BlockPos, ThrusterData> thrusters = new HashMap<>();
 
 	/**
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addDragger(BlockPos, DraggerData)} or {@link #removeDragger(BlockPos)} or {@link #getDraggerAtPos(BlockPos)}
 	 */
-	public HashMap<BlockPos, DraggerData> draggers = new HashMap<BlockPos, DraggerData>();
+	public HashMap<BlockPos, DraggerData> draggers = new HashMap<>();
 
 	private String dimensionId = "minecraft:overworld";
 
 	@Override
-	public void applyForces(PhysShip physShip) {
-
+	public void applyForces(@NotNull PhysShip physicShip) {
+		var physShip = (PhysShipImpl) physicShip;
 		// Apply thrusters force
 		thrusters.forEach((pos, data) -> {
 
@@ -51,12 +53,12 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 			tForce.mul(throttle);
 
 			if (VSCHConfig.LIMIT_SPEED.get()) {
-				Vector3dc linearVelocity = physShip.getVelocity();
+				Vector3dc linearVelocity = physShip.getPoseVel().getVel();
 
 				// TODO: Fix this bad. Thrusters won't be able to slow you down if your above max speed.
 				if (linearVelocity.get(linearVelocity.maxComponent()) > VSCHConfig.MAX_SPEED.get().intValue()) {
 					return;
-				};
+				}
 			}
 
 			// Switch between applying force at position and just applying the force
@@ -81,8 +83,8 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 		// Apply draggers force
 		draggers.forEach((pos, data) -> {
 
-			Vector3dc linearVelocity = physShip.getVelocity();
-			Vector3dc angularVelocity = physShip.getOmega();
+			Vector3dc linearVelocity = physShip.getPoseVel().getVel();
+			Vector3dc angularVelocity = physShip.getPoseVel().getOmega();
 
 			if (!data.on) {
 				return;
@@ -90,15 +92,9 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 
 			// Get position relative to center of mass
-			Vector3d relativePosition = new Vector3d(
-					pos.getX() - physShip.getCenterOfMass().x(),
-					pos.getY() - physShip.getCenterOfMass().y(),
-					pos.getZ() - physShip.getCenterOfMass().z()
-					);
 
 			// ChatGPT math, I suck at this stuff lol:
 			// Get rotational velocity as the cross product of angular velocity and relative position
-			Vector3d rotationalVelocity = new Vector3d();
 			//angularVelocity.cross(relativePosition, rotationalVelocity);
 
 			// Add linear and rotational velocities
@@ -106,18 +102,17 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 			//Vector3d acceleration = totalVelocity.negate();
 			Vector3d acceleration = linearVelocity.negate(new Vector3d());
-			Vector3d force = acceleration.mul(physShip.getMass());
+			Vector3d force = acceleration.mul(physShip.getInertia().getShipMass());
 
 			force = VSCHUtils.clampVector(force, VSCHConfig.MAX_DRAG.get().intValue());
 
 			Vector3d rotAcceleration = angularVelocity.negate(new Vector3d());
-			Vector3d rotForce = rotAcceleration.mul(physShip.getMass());
+			Vector3d rotForce = rotAcceleration.mul(physShip.getInertia().getShipMass());
 
 			rotForce = VSCHUtils.clampVector(rotForce, VSCHConfig.MAX_DRAG.get().intValue());
 
 			physShip.applyInvariantForce(force);
 			physShip.applyInvariantTorque(rotForce);
-			return;
 
 		});
 	}

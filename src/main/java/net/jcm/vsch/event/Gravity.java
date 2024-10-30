@@ -10,8 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3d;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.assembly.ShipAssembler;
-import org.valkyrienskies.mod.util.McMathUtilKt;
 
 import java.util.Objects;
 
@@ -33,7 +31,7 @@ public class Gravity {
 			gravity_data = (FloatTag) CosmosModVariables.WorldVariables.get(world).gravity_data.get(keyiterator);
 			gravity = gravity_data.getAsFloat();
 			try {
-				VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).updateDimension(VSCHUtils.dimToVSDim(keyiterator),new Vector3d(0,-10*gravity,0));
+//				VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).updateDimension(VSCHUtils.dimToVSDim(keyiterator),new Vector3d(0,-10*gravity,0));
 				logger.info("[CH]: Set gravity for dimension " + keyiterator + " to " + (-10 * gravity));
 			} catch (Exception e) {
 				logger.info("[CH]: Failed to set gravity for dimension " + keyiterator + " due to error " + e);
