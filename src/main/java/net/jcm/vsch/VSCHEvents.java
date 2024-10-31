@@ -25,15 +25,16 @@ public class VSCHEvents {
 			}
 		}
 	}
-	public void loadevent(){
-		VSEvents.getShipLoadEvent().on {event ->
-			event.ship.setAttachment();
-		}
+
+	@SubscribeEvent
+	public static void onServerStart(ServerStartedEvent event) {
+		GravityInducer.server = event.getServer();
 	}
-//	@SubscribeEvent
-//	public static void shipLoad(VSEvents.ShipLoadEvent event) {
-////		Gravity.setAll(event.getServer().overworld());
-//	}
+
+	//	@SubscribeEvent
+	//	public static void shipLoad(VSEvents.ShipLoadEvent event) {
+	////		Gravity.setAll(event.getServer().overworld());
+	//	}
 
 }
 

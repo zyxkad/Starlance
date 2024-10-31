@@ -56,7 +56,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 				Vector3dc linearVelocity = physShip.getPoseVel().getVel();
 
 				// TODO: Fix this bad. Thrusters won't be able to slow you down if your above max speed.
-				if (linearVelocity.get(linearVelocity.maxComponent()) > VSCHConfig.MAX_SPEED.get().intValue()) {
+				if (Math.abs(linearVelocity.get(linearVelocity.maxComponent())) > VSCHConfig.MAX_SPEED.get().intValue()) {
 					return;
 				}
 			}
