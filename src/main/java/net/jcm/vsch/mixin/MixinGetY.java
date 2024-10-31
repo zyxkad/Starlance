@@ -22,7 +22,7 @@ public class MixinGetY {
 		String dimensionName = level.dimension().location().toString();
 		if (dimensionName.split(":")[0].equals("cosmos")) {
 			logger.info("[VSCH]: Found cosmos dimension: "+dimensionName+". Changing its world height!");
-			cir.setReturnValue(VSGameUtilsKt.getYRange(level.getServer().overworld()));
+			cir.setReturnValue(new LevelYRange(-64, 319));
 			cir.cancel();
 		}
 	}

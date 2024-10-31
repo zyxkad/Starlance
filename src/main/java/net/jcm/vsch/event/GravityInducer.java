@@ -40,7 +40,7 @@ public class GravityInducer implements ShipForcesInducer {
 		if(CosmosModVariables.WorldVariables.get(world).gravity_data.getAllKeys().contains(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()))){
 			gravity_data = (FloatTag) CosmosModVariables.WorldVariables.get(world).gravity_data.get(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()));
 			if(gravity_data == null){return;}
-			gravity = (1-gravity_data.getAsFloat())*10*((PhysShipImpl) physShip).getInertia().getShipMass();
+			gravity = (1-gravity_data.getAsFloat())*10*((PhysShipImpl) physShip).get_inertia().getShipMass();
 			try {
 				physShip.applyInvariantForce(new Vector3d(0,gravity,0));
 			} catch (Exception e) {

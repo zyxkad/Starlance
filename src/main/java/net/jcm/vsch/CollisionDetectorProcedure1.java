@@ -34,7 +34,7 @@ import io.netty.buffer.Unpooled;
 
 import com.ibm.icu.number.Scale;
 
-public class CollisionDetectorProcedure {
+public class CollisionDetectorProcedure1 {
 	public static void execute(LevelAccessor world, double x, double y, double z, Entity entity) {
 		if (entity == null)
 			return;
@@ -167,13 +167,13 @@ public class CollisionDetectorProcedure {
 						}
 					}
 					CosmosModVariables.WorldVariables
-							.get(world).entry_world = (CosmosModVariables.WorldVariables.get(world).antena_locations.get(((Target_object.get("travel_to")) instanceof StringTag _stringTag ? _stringTag.getAsString() : ""))) instanceof ListTag _listTag
-									? _listTag.copy()
-									: new ListTag();
+					.get(world).entry_world = (CosmosModVariables.WorldVariables.get(world).antena_locations.get(((Target_object.get("travel_to")) instanceof StringTag _stringTag ? _stringTag.getAsString() : ""))) instanceof ListTag _listTag
+					? _listTag.copy()
+							: new ListTag();
 					CosmosModVariables.WorldVariables.get(world).syncData(world);
 					if (entity instanceof ServerPlayer _ent) {
 						BlockPos _bpos = BlockPos.containing(x, y, z);
-						NetworkHooks.openScreen((ServerPlayer) _ent, new MenuProvider() {
+						NetworkHooks.openScreen(_ent, new MenuProvider() {
 							@Override
 							public Component getDisplayName() {
 								return Component.literal("LandingSelector");
@@ -198,8 +198,8 @@ public class CollisionDetectorProcedure {
 								return 0;
 							}
 						}.convert(((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).substring(
-								(int) ((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("*") + "*".length(),
-								(int) ((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("|"))) + 0;
+								((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("*") + "*".length(),
+								((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("|"))) + 0;
 						posY = 550 + Mth.nextInt(RandomSource.create(), -8, 8);
 						posZ = new Object() {
 							double convert(String s) {
@@ -210,8 +210,8 @@ public class CollisionDetectorProcedure {
 								return 0;
 							}
 						}.convert(((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).substring(
-								(int) ((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("|") + "|".length(),
-								(int) ((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("~"))) + 0;
+								((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("|") + "|".length(),
+								((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).landing_coords).indexOf("~"))) + 0;
 						dimension = (Target_object.get("travel_to")) instanceof StringTag _stringTag ? _stringTag.getAsString() : "";
 						if (inside_a_valk_ship) {//dimension tp
 						}
@@ -221,7 +221,7 @@ public class CollisionDetectorProcedure {
 					if (isCollided) {
 						if (entity.isPassenger()) {
 							(entity.getVehicle())
-									.setDeltaMovement((((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).entry_velocity).multiply((new Vec3((-4), (-4), (-4))))));
+							.setDeltaMovement((((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).entry_velocity).multiply((new Vec3((-4), (-4), (-4))))));
 						} else {
 							entity.setDeltaMovement(
 									new Vec3(((((entity.getCapability(CosmosModVariables.PLAYER_VARIABLES_CAPABILITY, null).orElse(new CosmosModVariables.PlayerVariables())).entry_velocity).multiply((new Vec3((-4), (-4), (-4))))).x()),
