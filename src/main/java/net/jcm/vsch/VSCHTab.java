@@ -22,6 +22,7 @@ public class VSCHTab {
 				tabData.accept(VSCHBlocks.THRUSTER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.DRAG_INDUCER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.AIR_THRUSTER_BLOCK.get().asItem());
+				tabData.accept(VSCHBlocks.TRAIL_MAKER_BLOCK.get().asItem());
 				tabData.accept(VSCHItems.WRENCH.get().asItem());
 
 			}).build());

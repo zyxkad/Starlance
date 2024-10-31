@@ -2,6 +2,7 @@ package net.jcm.vsch.event;
 
 import net.jcm.vsch.VSCHMod;
 import net.lointain.cosmos.network.CosmosModVariables;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -21,24 +22,23 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 @SuppressWarnings("deprecation")
 public class GravityInducer implements ShipForcesInducer {
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
-	public static MinecraftServer server;
 	public ServerShip ship;
+    public static CompoundTag gravitydata;
 	//    public HashMap<String, Float> dimensions = new HashMap<String, Float>();
 
 	@Override
 	public void applyForces(@NotNull PhysShip physShip) {
-		if (server == null) {
+		if (gravitydata == null) {
 			return;
 		}
-		var world = server.overworld();
 		double gravity;
 		FloatTag gravity_data;
 		if (ship == null) {
 			return;
 		}
 
-		if(CosmosModVariables.WorldVariables.get(world).gravity_data.getAllKeys().contains(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()))){
-			gravity_data = (FloatTag) CosmosModVariables.WorldVariables.get(world).gravity_data.get(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()));
+		if(gravitydata.getAllKeys().contains(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()))){
+			gravity_data = (FloatTag) gravitydata.get(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()));
 			if(gravity_data == null){return;}
 			gravity = (1-gravity_data.getAsFloat())*10*((PhysShipImpl) physShip).get_inertia().getShipMass();
 			try {
@@ -57,7 +57,6 @@ public class GravityInducer implements ShipForcesInducer {
 		if (attachment == null) {
 			attachment = new GravityInducer();
 			attachment.ship = ship;
-			//attachment.server = server;
 			ship.saveAttachment(GravityInducer.class, attachment);
 		}
 		if (attachment.ship == null) {
