@@ -21,15 +21,20 @@ public class VSCHEvents {
 			if (level.getRandomPlayer() != null) {
 				AtmosphericCollision.atmosphericCollisionTick(level, level);
 				PlanetCollision.planetCollisionTick(level, level);
-				
+
 			}
 		}
 	}
 
-//	@SubscribeEvent
-//	public static void shipLoad(VSEvents.ShipLoadEvent event) {
-////		Gravity.setAll(event.getServer().overworld());
-//	}
+	@SubscribeEvent
+	public static void onServerStart(ServerStartedEvent event) {
+		GravityInducer.server = event.getServer();
+	}
+
+	//	@SubscribeEvent
+	//	public static void shipLoad(VSEvents.ShipLoadEvent event) {
+	////		Gravity.setAll(event.getServer().overworld());
+	//	}
 
 }
 

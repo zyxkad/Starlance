@@ -1,11 +1,17 @@
 package net.jcm.vsch;
 
+import org.valkyrienskies.core.impl.hooks.VSEvents;
+
+import net.jcm.vsch.VSCHTab;
 import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.entity.VSCHBlockEntities;
 import net.jcm.vsch.commands.ModCommands;
 import net.jcm.vsch.config.VSCHConfig;
+import net.jcm.vsch.event.GravityInducer;
 import net.jcm.vsch.items.VSCHItems;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -33,5 +39,10 @@ public class VSCHMod {
 		VSCHTab.register(modBus);
 		// Register commands (I took this code from another one of my mods, can't be bothered to make it consistent with the rest of this)
 		MinecraftForge.EVENT_BUS.register(ModCommands.class);
+
+		VSEvents.ShipLoadEvent.Companion.on((shipLoadEvent) -> {
+			GravityInducer.getOrCreate(shipLoadEvent.getShip());
+		});
 	}
+
 }
