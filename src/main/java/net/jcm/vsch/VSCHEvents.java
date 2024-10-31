@@ -1,5 +1,6 @@
 package net.jcm.vsch;
 
+import net.lointain.cosmos.network.CosmosModVariables;
 import org.valkyrienskies.core.impl.hooks.VSEvents;
 import net.jcm.vsch.event.GravityInducer;
 import net.jcm.vsch.event.PlanetCollision;
@@ -28,7 +29,7 @@ public class VSCHEvents {
 
 	@SubscribeEvent
 	public static void onServerStart(ServerStartedEvent event) {
-		GravityInducer.server = event.getServer();
+		GravityInducer.gravitydata = CosmosModVariables.WorldVariables.get(event.getServer().overworld()).gravity_data;
 	}
 
 	//	@SubscribeEvent

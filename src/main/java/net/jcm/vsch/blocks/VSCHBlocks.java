@@ -3,6 +3,7 @@ package net.jcm.vsch.blocks;
 import java.util.function.Supplier;
 
 import net.jcm.vsch.VSCHMod;
+import net.jcm.vsch.blocks.custom.TrailMakerBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -38,6 +39,10 @@ public class VSCHBlocks {
 					.strength(5f)
 					.noOcclusion()));
 
+	public static final RegistryObject<Block> TRAIL_MAKER_BLOCK = registerBlock("trailmaker_block",
+			() -> new TrailMakerBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
+					.strength(5f)
+					.noOcclusion()));
 
 	//below is just tools used in adding the block
 	private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {

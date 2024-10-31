@@ -34,7 +34,7 @@ import io.netty.buffer.Unpooled;
 
 import com.ibm.icu.number.Scale;
 
-public class CollisionDetectorProcedure {
+public class CollisionDetectorProcedure1 {
 	public static void execute(LevelAccessor world, double x, double y, double z, Entity entity) {
 		if (entity == null)
 			return;
