@@ -52,7 +52,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		super(properties);
 		registerDefaultState(defaultBlockState()
 				.setValue(FACING, Direction.NORTH)
-				.setValue(MODE, ThrusterData.ThrusterMode.POSITION)
+				.setValue(MODE, ThrusterData.ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()))
 				);
 	}
 
@@ -93,7 +93,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 			ships.addThruster(pos, new ThrusterData(
 					VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
 					getThrottle(state, signal),
-					state.getValue(MODE)) // handy string to Enum :D
+					ThrusterData.ThrusterMode.valueOf(state.getValue(MODE).toString())) // handy string to Enum :D
 					);
 		}
 	}
