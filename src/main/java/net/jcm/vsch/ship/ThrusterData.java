@@ -7,8 +7,8 @@ import org.joml.Vector3d;
 public class ThrusterData {
 	
 	public enum ThrusterMode implements StringRepresentable {
-		POSITION("position"),
-		GLOBAL("global");
+		POSITION("POSITION"),
+		GLOBAL("GLOBAL");
 
         public final String name;
 
