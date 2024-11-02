@@ -24,61 +24,62 @@ import net.minecraft.world.phys.Vec3;
 
 public class ThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity  {
 
-//	public String mode = "";
+	public String mode = "";
 
 	// VERY JANKY but hey we had to get v1 out somehow right
 	public ThrusterBlockEntity(BlockPos pos, BlockState state) {
 		super(VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
 
-//		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-//
-//		if (ships != null) {
-//			ThrusterData thruster = ships.getThrusterAtPos(pos);
-//			if (thruster != null) {
-//				mode = thruster.mode.toString();
-//			}
-//		}
+		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+
+		if (ships != null) {
+			ThrusterData thruster = ships.getThrusterAtPos(pos);
+			if (thruster != null) {
+				mode = thruster.mode.toString();
+			}
+		}
 	}
 
-//	@Override
-//	protected void saveAdditional(CompoundTag pTag) {
-//		pTag.putString("thrustermode", mode);
-//		super.saveAdditional(pTag);
-//	}
+	@Override
+	protected void saveAdditional(CompoundTag pTag) {
+		pTag.putString("thrustermode", mode);
+		super.saveAdditional(pTag);
+	}
 
-//	@Override
-//	public void load(CompoundTag pTag) {
-//		this.mode = pTag.getString("thrustermode");
-//		super.load(pTag);
-//	}
+	@Override
+	public void load(CompoundTag pTag) {
+		this.mode = pTag.getString("thrustermode");
+		super.load(pTag);
+	}
 
 	@Override
 	public void tickForce(Level level, BlockPos pos, BlockState state) {
-//		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
-//
-//		if (!(level instanceof ServerLevel)) return;
-//
-//		// ----- Add thruster to the force appliers for the current level ----- //
-//
-//		//int signal = level.getBestNeighborSignal(pos);
-//		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-//
-//		if (ships != null) {
-//			if (ships.getThrusterAtPos(pos) == null) {
-//				if (this.mode.equals("")) { // Shouldn't happen but sometimes does on world made before this feature
-//					this.mode = ThrusterData.ThrusterMode.POSITION.toString();
-//				}
-//
-//				ships.addThruster(pos, new ThrusterData(
-//						VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
-//						0,
-//						ThrusterData.ThrusterMode.valueOf(this.mode) // Position based thruster by default
-//						));
-//
-//			} else {
-//				this.mode = ships.getThrusterAtPos(pos).mode.toString();
-//			}
-//		}
+		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
+
+		if (!(level instanceof ServerLevel)) return;
+
+		// ----- Add thruster to the force appliers for the current level ----- //
+
+		//int signal = level.getBestNeighborSignal(pos);
+		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+
+		if (ships != null) {
+			if (ships.getThrusterAtPos(pos) == null) {
+				if (this.mode.equals("")) { // Shouldn't happen but sometimes does on world made before this feature
+					this.mode = ThrusterData.ThrusterMode.POSITION.toString();
+				}
+
+				ships.addThruster(pos, new ThrusterData(
+						VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
+						0,
+						ThrusterData.ThrusterMode.valueOf(this.mode) // Position based thruster by default
+				));
+
+			} else {
+				this.mode = ships.getThrusterAtPos(pos).mode.toString();
+			}
+		}
+
 	}
 
 
@@ -142,7 +143,7 @@ public class ThrusterBlockEntity extends BlockEntity implements ParticleBlockEnt
 				CosmosModParticleTypes.THRUSTED.get(),
 				x, y, z,
 				speeds.x, speeds.y, speeds.z
-				);
+		);
 
 		speeds = speeds.mul(1.06);
 
@@ -151,7 +152,7 @@ public class ThrusterBlockEntity extends BlockEntity implements ParticleBlockEnt
 				CosmosModParticleTypes.THRUST_SMOKE.get(),
 				x, y, z,
 				speeds.x, speeds.y, speeds.z
-				);
+		);
 
 		return;
 	}

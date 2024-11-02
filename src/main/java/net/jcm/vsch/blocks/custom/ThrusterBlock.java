@@ -4,8 +4,6 @@ package net.jcm.vsch.blocks.custom;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.items.VSCHItems;
 
-import net.minecraft.world.level.block.state.properties.DripstoneThickness;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.minecraft.ChatFormatting;
@@ -38,6 +36,7 @@ import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
 import net.jcm.vsch.util.rot.RotShapes;
+import net.lointain.cosmos.init.CosmosModItems;
 
 
 public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
@@ -46,14 +45,13 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	//TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 	private final DirectionalShape Thruster_SHAPE = DirectionalShape.south(SHAPE);
-	public static final EnumProperty<ThrusterData.ThrusterMode> MODE = EnumProperty.create("thruster_mode", ThrusterData.ThrusterMode.class);
+
 
 	public ThrusterBlock(Properties properties) {
 		super(properties);
 		registerDefaultState(defaultBlockState()
 				.setValue(FACING, Direction.NORTH)
-				.setValue(MODE, ThrusterData.ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()))
-				);
+		);
 	}
 
 	@Override
@@ -69,7 +67,6 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	@Override
 	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
-		builder.add(MODE);
 		super.createBlockStateDefinition(builder);
 	}
 
@@ -93,8 +90,8 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 			ships.addThruster(pos, new ThrusterData(
 					VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
 					getThrottle(state, signal),
-					ThrusterData.ThrusterMode.valueOf(state.getValue(MODE).toString())) // handy string to Enum :D
-					);
+					ThrusterData.ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()) // handy string to Enum :D
+			));
 		}
 	}
 
@@ -132,14 +129,11 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 					if (data != null) {
 
 						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
-							state.setValue(MODE, ThrusterData.ThrusterMode.GLOBAL);
-							
-							data.mode = ThrusterData.ThrusterMode.valueOf(state.getValue(MODE).toString());
+							data.mode = ThrusterData.ThrusterMode.GLOBAL;
 							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
 							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
 						} else {
-							state.setValue(MODE, ThrusterData.ThrusterMode.POSITION);
-							data.mode = ThrusterData.ThrusterMode.valueOf(state.getValue(MODE).toString());
+							data.mode = ThrusterData.ThrusterMode.POSITION;
 
 							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
 						}
@@ -199,7 +193,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
 			dir = dir.getOpposite();
 		}
-		return defaultBlockState().setValue(BlockStateProperties.FACING, dir).setValue(MODE,ThrusterData.ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()));
+		return defaultBlockState().setValue(BlockStateProperties.FACING, dir);
 	}
 
 
