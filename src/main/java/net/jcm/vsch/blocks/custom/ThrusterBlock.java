@@ -133,8 +133,8 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 
 						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
 							state.setValue(MODE, ThrusterData.ThrusterMode.GLOBAL);
-							state.
-							data.mode = state.getValue(MODE);
+							
+							data.mode = ThrusterData.ThrusterMode.valueOf(state.getValue(MODE).toString());
 							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
 							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
 						} else {
