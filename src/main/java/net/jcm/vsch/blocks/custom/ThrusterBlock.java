@@ -26,13 +26,17 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.blocks.entity.ThrusterBlockEntity;
 import net.jcm.vsch.ship.ThrusterData;
+import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
 import net.jcm.vsch.util.rot.RotShapes;
@@ -44,6 +48,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	public static final int MULT = 1000;
 	//TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+	public static final EnumProperty<ThrusterMode> MODE = EnumProperty.create("mode", ThrusterMode.class);
 	private final DirectionalShape Thruster_SHAPE = DirectionalShape.south(SHAPE);
 
 
@@ -51,23 +56,29 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		super(properties);
 		registerDefaultState(defaultBlockState()
 				.setValue(FACING, Direction.NORTH)
+				.setValue(MODE, ThrusterMode.POSITION) // handy string to Enum :D
 				);
 	}
+
+	@Override
+	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING);
+		builder.add(MODE);
+		super.createBlockStateDefinition(builder);
+	}
+
 
 	@Override
 	public RenderShape getRenderShape(BlockState blockState) {
 		return RenderShape.MODEL;
 	}
 
+
+	// Should run whenever the block state is changed, but not when the block itself is replaced
+	//TODO: See if we can move setting the force inducer to here instead of all over the place (would require some extra stuff for redstone change tho)
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return Thruster_SHAPE.get(state.getValue(BlockStateProperties.FACING));
-	}
-
-	@Override
-	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-		super.createBlockStateDefinition(builder);
 	}
 
 	public float getThrottle(BlockState state, int signal) {
@@ -90,7 +101,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 			ships.addThruster(pos, new ThrusterData(
 					VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
 					getThrottle(state, signal),
-					ThrusterData.ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()) // handy string to Enum :D
+					state.getValue(MODE) 
 					));
 		}
 	}
@@ -115,29 +126,50 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 
 		// If client side, ignore
 		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
+
 		// If its the right item and mainhand
 		if (player.getMainHandItem().getItem() == VSCHItems.WRENCH.get() && hand == InteractionHand.MAIN_HAND) {
+
+			// If thrusters can be toggled
 			if(VSCHConfig.THRUSTER_TOGGLE.get()){
+
 				// Get the force handler
 				VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 
 				// If a force handler exists (might not if we aren't on a VS ship)
 				if (ships != null) {
-					ThrusterData data = ships.getThrusterAtPos(pos);
+
+					// Get thruster
+					ThrusterData thruster = ships.getThrusterAtPos(pos);
 
 					// Probably unneeded, but checks are always good right?
-					if (data != null) {
+					if (thruster != null) {
 
-						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
-							data.mode = ThrusterData.ThrusterMode.GLOBAL;
-							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
-							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
-						} else {
-							data.mode = ThrusterData.ThrusterMode.POSITION;
+						// Get current state (block property)
+						ThrusterMode blockMode = state.getValue(MODE);
 
-							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
-						}
+						// Toggle it between POSITION and GLOBAL
+						blockMode = blockMode.toggle();
+
+						// Save the block property into the block
+						level.setBlockAndUpdate(pos, state.setValue(MODE, blockMode));
+
+						// Set the thruster data to the new toggled property
+						thruster.mode = blockMode;
+
+						//Send a chat message to them. The wrench class will handle the actionbar
+						player.sendSystemMessage(Component.translatable("vsch.toggle_message").append(Component.translatable("vsch."+blockMode.toString().toLowerCase())));
+
 						return InteractionResult.CONSUME;
+
+					} else {
+						// Somethings gone wrong, make us a new thruster
+						int signal = level.getBestNeighborSignal(pos);
+						ships.addThruster(pos, new ThrusterData(
+								VectorConversionsMCKt.toJOMLD(state.getValue(FACING).getNormal()),
+								getThrottle(state, signal),
+								state.getValue(MODE) 
+								));
 					}
 				}
 			} else if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
@@ -193,7 +225,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
 			dir = dir.getOpposite();
 		}
-		return defaultBlockState().setValue(BlockStateProperties.FACING, dir);
+		return defaultBlockState().setValue(BlockStateProperties.FACING, dir).setValue(MODE, ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()));
 	}
 
 

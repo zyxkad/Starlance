@@ -1,5 +1,9 @@
 {
 	"vsch.itemtab": "Starlance",
+	"vsch.toggle_message": "Set mode to",
+	"vsch.mode_message": "Mode:",
+	"vsch.global": " §6GLOBAL",
+	"vsch.position": " §ePOSITION",
 	"block.vsch.thruster_block": "Thruster",
 	"block.vsch.drag_inducer_block": "Drag inducer",
 	"block.vsch.air_thruster_block": "Air thruster",
