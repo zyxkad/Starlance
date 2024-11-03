@@ -21,10 +21,8 @@ import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.core.util.AABBdUtilKt;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
-import org.valkyrienskies.mod.util.RelocationUtilKt;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
@@ -71,8 +69,7 @@ public class VSCHUtils {
 		// Transform VS's 'minecraft:dimension:namespace:dimension_name' into
 		// 'namespace:dimension_name'
 		String[] dimSplit = VSdimensionString.split(":");
-		String dimFixed = dimSplit[2] + ":" + dimSplit[3];
-		return dimFixed;
+        return dimSplit[2] + ":" + dimSplit[3];
 	}
 
 	/**
@@ -113,8 +110,7 @@ public class VSCHUtils {
 		// From AABBic (Int, constant) to AABBd (Double)
 		AABBd shipAABBd = AABBdUtilKt.toAABBd(shipAABB, new AABBd());
 		// Turn the shipyard AABBd to the world AABBd using the transform
-		AABBd worldAABB = shipAABBd.transform(transform.getShipToWorld());
-		return worldAABB;
+        return shipAABBd.transform(transform.getShipToWorld());
 	}
 
 	/**
@@ -161,30 +157,24 @@ public class VSCHUtils {
 	public static boolean CanEntityBeTaken(Entity entity) {
 
 		// If the entity has dragging info (they should)
-		if (entity instanceof IEntityDraggingInformationProvider) {
-
-			// Use entity dragging info
-			// NOT NEEDED ANYMORE (it interfered with seats)
-			// IEntityDraggingInformationProvider dragInfoProv =
-			// (IEntityDraggingInformationProvider) entity;
-			// EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
-
-			// If the entity isn't riding another
-			//if (entity.getVehicle() == null) {
-			// Not sure why this check exists, but its a vanilla function(?) so I'll use it
-			// here anyway
-			// If it causes problems in the future, get it out of here
-			// Future: It caused problems
-			/*
-			 * if (entity.canChangeDimensions()) { return true; }
-			 */
-			//return true;
-			//}
-			return true;
-
-		}
-		return false;
-	}
+        // Use entity dragging info
+        // NOT NEEDED ANYMORE (it interfered with seats)
+        // IEntityDraggingInformationProvider dragInfoProv =
+        // (IEntityDraggingInformationProvider) entity;
+        // EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
+        // If the entity isn't riding another
+        //if (entity.getVehicle() == null) {
+        // Not sure why this check exists, but its a vanilla function(?) so I'll use it
+        // here anyway
+        // If it causes problems in the future, get it out of here
+        // Future: It caused problems
+        /*
+         * if (entity.canChangeDimensions()) { return true; }
+         */
+        //return true;
+        //}
+        return entity instanceof IEntityDraggingInformationProvider;
+    }
 
 	/**
 	 * See
@@ -199,8 +189,8 @@ public class VSCHUtils {
 	/**
 	 * This function took us like 3 days to make. You better appreciate it. <br>
 	 * </br>
-	 * It will teleport the given {@link ship}, using the {@link level}, to the
-	 * dimension with id of {@link newDim} at {@link x}, {@link y}, {@link z}. <br>
+	 * It will teleport the given ship, using the level, to the
+	 * dimension with id of newDim at x, y, z. <br>
 	 * </br>
 	 * But most importantly, it will also teleport any players or entities that are
 	 * currently being dragged by the ship to the new dimension, and their correct
@@ -209,9 +199,9 @@ public class VSCHUtils {
 	 * @param ship   The ship to move
 	 * @param level  The ships current level
 	 * @param newDim Normal dimension id string format (not VS format)
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x x position in world to tp to
+	 * @param y y position in world to tp to
+	 * @param z z position in world to tp to
 	 */
 	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
 
@@ -230,9 +220,10 @@ public class VSCHUtils {
 		AABB currentWorldAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).inflate(10);
 
 		// Combine the AABB's into one big one
-		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
+//		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
 
 		Vec3 oldShipCenter = prevWorldAABB.deflate(10).getCenter();
+		Vec3 newoldShipCenter = currentWorldAABB.deflate(10).getCenter();
 
 		// ---------- //
 
@@ -246,7 +237,35 @@ public class VSCHUtils {
 		List<Entity> playerEntities = new ArrayList<>();
 
 		// Find all entities nearby the ship
-		for (Entity entity : level.getEntities(null, totalAABB)) {
+		for (Entity entity : level.getEntities(null, currentWorldAABB)) {
+
+			//System.out.println("Entity: " + entity);
+
+			// A couple checks to make sure they are able to be teleported with the ship
+			if (VSCHUtils.CanEntityBeTaken(entity)) {
+
+				// If the entity is riding another
+				if (entity.getVehicle() != null) {
+					// Dismount them
+					entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
+				}
+
+				// Get the offset from the entities position to the ship
+				Vec3 entityShipOffset = entity.getPosition(0).subtract(newoldShipCenter);
+
+				// Save the offset and the entity. Prob don't need two lists here but oh well
+				entityOffsets.put(entity.getStringUUID(), entityShipOffset);
+				if (entity instanceof ServerPlayer) {
+					playerEntities.add(entity);
+				} else {
+					importantEntities.add(entity);
+				}
+
+			}
+
+		}
+
+		for (Entity entity : level.getEntities(null, prevWorldAABB)) {
 
 			//System.out.println("Entity: " + entity);
 
