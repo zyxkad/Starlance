@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.jcm.vsch.VSCHMod;
 import net.jcm.vsch.VSCHTab;
+import net.jcm.vsch.items.custom.WrenchItem;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -14,7 +15,7 @@ public class VSCHItems {
 
 
 	public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench", 
-			() -> new Item(new Item.Properties()));
+			() -> new WrenchItem(new Item.Properties()));
 
 
 
