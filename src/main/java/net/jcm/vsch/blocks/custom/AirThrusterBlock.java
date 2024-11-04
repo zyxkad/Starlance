@@ -40,8 +40,6 @@ import net.lointain.cosmos.init.CosmosModItems;
 
 public class AirThrusterBlock extends ThrusterBlock {
 
-	public static final int MULT = 100;
-
 	public AirThrusterBlock(Properties properties) {
 		super(properties);
 		// TODO Auto-generated constructor stub
@@ -49,7 +47,7 @@ public class AirThrusterBlock extends ThrusterBlock {
 
 	@Override
 	public float getThrottle(BlockState state, int signal) {
-		return signal * MULT;
+		return signal * VSCHConfig.AIR_THRUSTER_STRENGTH.get().intValue();
 	}
 
 	@Override
