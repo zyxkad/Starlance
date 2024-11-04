@@ -1,11 +1,14 @@
 {
 	"vsch.itemtab": "Starlance",
-	"vsch.toggle_message": "Set mode to",
-	"vsch.mode_message": "Mode:",
+	"vsch.message.toggle": "Set mode to",
+	"vsch.message.mode": "Mode:",
 	"vsch.global": " §6GLOBAL",
 	"vsch.position": " §ePOSITION",
+	"vsch.error.thruster_modes_disabled": "Thruster mode toggling is disabled!",
+	"vsch.error.thruster_not_on_ship": "Thruster not on a ship",
 	"block.vsch.thruster_block": "Thruster",
 	"block.vsch.drag_inducer_block": "Drag inducer",
 	"block.vsch.air_thruster_block": "Air thruster",
+	"block.vsch.powerful_thruster_block": "Powerful thruster",
 	"item.vsch.wrench": "Wrench"
 }

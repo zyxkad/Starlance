@@ -158,7 +158,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 						thruster.mode = blockMode;
 
 						//Send a chat message to them. The wrench class will handle the actionbar
-						player.sendSystemMessage(Component.translatable("vsch.toggle_message").append(Component.translatable("vsch."+blockMode.toString().toLowerCase())));
+						player.sendSystemMessage(Component.translatable("vsch.message.toggle").append(Component.translatable("vsch."+blockMode.toString().toLowerCase())));
 
 						return InteractionResult.CONSUME;
 
@@ -171,9 +171,12 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 								state.getValue(MODE) 
 								));
 					}
+				} else {
+					//Not on a ship
+					player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(ChatFormatting.RED), true);
 				}
 			} else if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
-				player.displayClientMessage(Component.literal("Thruster Mode Toggling is disabled").withStyle(ChatFormatting.RED), true);
+				player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(ChatFormatting.RED), true);
 			}
 		}
 

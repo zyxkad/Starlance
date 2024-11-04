@@ -45,7 +45,7 @@ public class WrenchItem extends Item {
 				// If our entity is a player
 				if (entity instanceof Player player) {
 					// Send actionbar of its state
-					player.displayClientMessage(Component.translatable("vsch.mode_message").append(Component.translatable("vsch."+blockState.getValue(MODE).toString().toLowerCase())), true);
+					player.displayClientMessage(Component.translatable("vsch.message.mode").append(Component.translatable("vsch."+blockState.getValue(MODE).toString().toLowerCase())), true);
 				}
 			}
 		}
