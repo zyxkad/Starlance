@@ -16,6 +16,7 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec.ConfigValue<String> THRUSTER_MODE;
 	public static final ForgeConfigSpec.ConfigValue<Number> THRUSTER_STRENGTH;
 	public static final ForgeConfigSpec.ConfigValue<Number> AIR_THRUSTER_STRENGTH;
+	public static final ForgeConfigSpec.ConfigValue<Number> POWERFUL_THRUSTER_STRENGTH;
 
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
 
@@ -31,6 +32,7 @@ public class VSCHConfig {
 		THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineInList("thruster_default_mode","POSITION",modes);
 		THRUSTER_STRENGTH = BUILDER.comment("Thruster force multiplier. redstone * this (Newtons)").define("thruster_strength", 1000);
 		AIR_THRUSTER_STRENGTH = BUILDER.comment("Air thruster force multiplier. redstone * this (Newtons)").define("air_thruster_strength", 100);
+		POWERFUL_THRUSTER_STRENGTH = BUILDER.comment("Powerful thruster force multiplier. redstone * this (Newtons)").define("powerful_thruster_strength", 5000);
 		BUILDER.pop();
 		BUILDER.push("Misc");
 		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);

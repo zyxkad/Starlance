@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.jcm.vsch.blocks.custom.AirThrusterBlock;
 import net.jcm.vsch.blocks.custom.DragInducerBlock;
+import net.jcm.vsch.blocks.custom.PowerfulThrusterBlock;
 import net.jcm.vsch.blocks.custom.ThrusterBlock;
 import net.jcm.vsch.items.VSCHItems;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -31,6 +32,11 @@ public class VSCHBlocks {
 
 	public static final RegistryObject<Block> AIR_THRUSTER_BLOCK = registerBlock("air_thruster_block",
 			() -> new AirThrusterBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
+					.strength(5f)
+					.noOcclusion()));
+
+	public static final RegistryObject<Block> POWERFUL_THRUSTER_BLOCK = registerBlock("powerful_thruster_block",
+			() -> new PowerfulThrusterBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
 					.strength(5f)
 					.noOcclusion()));
 
