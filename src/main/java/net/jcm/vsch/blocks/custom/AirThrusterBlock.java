@@ -58,7 +58,7 @@ public class AirThrusterBlock extends ThrusterBlock {
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		if (!level.isClientSide()) {
-			return null;
+			return (level0, pos0, state0, blockEntity) -> ((AirThrusterBlockEntity)blockEntity).serverTick(level0, pos0, state0, (AirThrusterBlockEntity) blockEntity);
 		} else {
 			return (level0, pos0, state0, blockEntity) -> ((AirThrusterBlockEntity)blockEntity).clientTick(level0, pos0, state0, (AirThrusterBlockEntity) blockEntity);
 		}

@@ -43,7 +43,6 @@ public class PowerfulThrusterBlock extends ThrusterBlock {
 
 	public PowerfulThrusterBlock(Properties properties) {
 		super(properties);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -59,7 +58,7 @@ public class PowerfulThrusterBlock extends ThrusterBlock {
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		if (!level.isClientSide()) {
-			return null;
+			return (level0, pos0, state0, blockEntity) -> ((PowerfulThrusterBlockEntity)blockEntity).serverTick(level0, pos0, state0, (PowerfulThrusterBlockEntity) blockEntity);
 		} else {
 			return (level0, pos0, state0, blockEntity) -> ((PowerfulThrusterBlockEntity)blockEntity).clientTick(level0, pos0, state0, (PowerfulThrusterBlockEntity) blockEntity);
 		}
