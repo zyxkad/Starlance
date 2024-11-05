@@ -35,7 +35,7 @@ public interface ParticleBlockEntity {
 	}
 
 	public default void tickForce(Level level, BlockPos pos, BlockState state) {
-		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update, and sets them back to default mode.
+		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update
 
 		if (!(level instanceof ServerLevel)) return;
 

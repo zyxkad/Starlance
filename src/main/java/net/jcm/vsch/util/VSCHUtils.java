@@ -69,7 +69,7 @@ public class VSCHUtils {
 		// Transform VS's 'minecraft:dimension:namespace:dimension_name' into
 		// 'namespace:dimension_name'
 		String[] dimSplit = VSdimensionString.split(":");
-        return dimSplit[2] + ":" + dimSplit[3];
+		return dimSplit[2] + ":" + dimSplit[3];
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class VSCHUtils {
 		// From AABBic (Int, constant) to AABBd (Double)
 		AABBd shipAABBd = AABBdUtilKt.toAABBd(shipAABB, new AABBd());
 		// Turn the shipyard AABBd to the world AABBd using the transform
-        return shipAABBd.transform(transform.getShipToWorld());
+		return shipAABBd.transform(transform.getShipToWorld());
 	}
 
 	/**
@@ -157,24 +157,24 @@ public class VSCHUtils {
 	public static boolean CanEntityBeTaken(Entity entity) {
 
 		// If the entity has dragging info (they should)
-        // Use entity dragging info
-        // NOT NEEDED ANYMORE (it interfered with seats)
-        // IEntityDraggingInformationProvider dragInfoProv =
-        // (IEntityDraggingInformationProvider) entity;
-        // EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
-        // If the entity isn't riding another
-        //if (entity.getVehicle() == null) {
-        // Not sure why this check exists, but its a vanilla function(?) so I'll use it
-        // here anyway
-        // If it causes problems in the future, get it out of here
-        // Future: It caused problems
-        /*
-         * if (entity.canChangeDimensions()) { return true; }
-         */
-        //return true;
-        //}
-        return entity instanceof IEntityDraggingInformationProvider;
-    }
+		// Use entity dragging info
+		// NOT NEEDED ANYMORE (it interfered with seats)
+		// IEntityDraggingInformationProvider dragInfoProv =
+		// (IEntityDraggingInformationProvider) entity;
+		// EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
+		// If the entity isn't riding another
+		//if (entity.getVehicle() == null) {
+		// Not sure why this check exists, but its a vanilla function(?) so I'll use it
+		// here anyway
+		// If it causes problems in the future, get it out of here
+		// Future: It caused problems
+		/*
+		 * if (entity.canChangeDimensions()) { return true; }
+		 */
+		//return true;
+		//}
+		return true;//entity instanceof IEntityDraggingInformationProvider;
+	}
 
 	/**
 	 * See
@@ -220,7 +220,7 @@ public class VSCHUtils {
 		AABB currentWorldAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).inflate(10);
 
 		// Combine the AABB's into one big one
-//		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
+		//		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
 
 		Vec3 oldShipCenter = prevWorldAABB.deflate(10).getCenter();
 		Vec3 newoldShipCenter = currentWorldAABB.deflate(10).getCenter();
@@ -253,33 +253,10 @@ public class VSCHUtils {
 				// Get the offset from the entities position to the ship
 				Vec3 entityShipOffset = entity.getPosition(0).subtract(newoldShipCenter);
 
-				// Save the offset and the entity. Prob don't need two lists here but oh well
-				entityOffsets.put(entity.getStringUUID(), entityShipOffset);
-				if (entity instanceof ServerPlayer) {
-					playerEntities.add(entity);
-				} else {
-					importantEntities.add(entity);
-				}
-
-			}
-
-		}
-
-		for (Entity entity : level.getEntities(null, prevWorldAABB)) {
-
-			//System.out.println("Entity: " + entity);
-
-			// A couple checks to make sure they are able to be teleported with the ship
-			if (VSCHUtils.CanEntityBeTaken(entity)) {
-
-				// If the entity is riding another
-				if (entity.getVehicle() != null) {
-					// Dismount them
-					entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
-				}
-
-				// Get the offset from the entities position to the ship
-				Vec3 entityShipOffset = entity.getPosition(0).subtract(oldShipCenter);
+				/*System.out.println("Entity BEFORE info");
+				System.out.println("Entity: "+entity);
+				System.out.println("Position: "+entity.getPosition(0));
+				System.out.println("Offset: "+entityShipOffset);*/
 
 				// Save the offset and the entity. Prob don't need two lists here but oh well
 				entityOffsets.put(entity.getStringUUID(), entityShipOffset);
@@ -325,6 +302,11 @@ public class VSCHUtils {
 			System.out.println(newPosition);
 			System.out.println("-----");*/
 
+			/*System.out.println("player AFTER info");
+			System.out.println("Entity: "+entity);
+			System.out.println("New Position: "+newPosition);
+			System.out.println("Offset: "+shipOffset);*/
+
 			// Players need a different teleport command to entities
 			((ServerPlayer) entity).teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, entity.getYRot(), entity.getXRot());
 		}
@@ -334,6 +316,11 @@ public class VSCHUtils {
 
 			Vec3 shipOffset = entityOffsets.get(entity.getStringUUID());
 			Vec3 newPosition = newShipCenter.add(shipOffset);
+
+			/*System.out.println("entity AFTER info");
+			System.out.println("Entity: "+entity);
+			System.out.println("New Position: "+newPosition);
+			System.out.println("Offset: "+shipOffset);*/
 
 			/*System.out.println("New info -----");
 			System.out.println(entityOffsets);
