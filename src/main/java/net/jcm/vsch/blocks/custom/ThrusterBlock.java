@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
@@ -50,6 +52,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 	public static final EnumProperty<ThrusterMode> MODE = EnumProperty.create("mode", ThrusterMode.class);
 	private final DirectionalShape Thruster_SHAPE = DirectionalShape.south(SHAPE);
+	public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 
 
 	public ThrusterBlock(Properties properties) {
@@ -57,6 +60,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		registerDefaultState(defaultBlockState()
 				.setValue(FACING, Direction.NORTH)
 				.setValue(MODE, ThrusterMode.POSITION) // handy string to Enum :D
+				.setValue(LIT, Boolean.valueOf(false))
 				);
 	}
 
@@ -64,6 +68,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
 		builder.add(MODE);
+		builder.add(LIT);
 		super.createBlockStateDefinition(builder);
 	}
 
@@ -202,6 +207,17 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		if (!(level instanceof ServerLevel)) return;
 
 		int signal = level.getBestNeighborSignal(pos);
+
+		if (signal > 0) {
+			if (!state.getValue(LIT).booleanValue()) { //If we aren't lit
+				level.setBlockAndUpdate(pos, state.setValue(LIT, Boolean.valueOf(true)));
+			}
+		} else {
+			if (state.getValue(LIT).booleanValue()) { //If we ARE lit
+				level.setBlockAndUpdate(pos, state.setValue(LIT, Boolean.valueOf(false)));
+			}
+		}
+
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		/*System.out.println("ships");
 		System.out.println(ships);
@@ -228,7 +244,9 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
 			dir = dir.getOpposite();
 		}
-		return defaultBlockState().setValue(BlockStateProperties.FACING, dir).setValue(MODE, ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()));
+		return defaultBlockState()
+				.setValue(BlockStateProperties.FACING, dir)
+				.setValue(MODE, ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()));
 	}
 
 
