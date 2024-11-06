@@ -7,13 +7,21 @@ import net.minecraft.util.StringRepresentable;
 public class ThrusterData {
 
 	public enum ThrusterMode implements StringRepresentable  {
-		POSITION,
-		GLOBAL;
+		POSITION("position"),
+		GLOBAL("global");
+
+		private final String name;
+
+		// Constructor that takes a string parameter
+		ThrusterMode(String name) {
+			this.name = name;
+		}
 
 		@Override
 		public String getSerializedName() {
-			return name().toLowerCase();
+			return this.name;
 		}
+
 
 		public ThrusterMode toggle() {
 			return this == POSITION ? GLOBAL : POSITION;

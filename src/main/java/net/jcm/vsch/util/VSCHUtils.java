@@ -253,6 +253,8 @@ public class VSCHUtils {
 				// Get the offset from the entities position to the ship
 				Vec3 entityShipOffset = entity.getPosition(0).subtract(newoldShipCenter);
 
+
+
 				/*System.out.println("Entity BEFORE info");
 				System.out.println("Entity: "+entity);
 				System.out.println("Position: "+entity.getPosition(0));
