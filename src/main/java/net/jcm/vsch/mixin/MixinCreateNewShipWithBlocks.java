@@ -45,7 +45,8 @@ public class MixinCreateNewShipWithBlocks {
 	@Inject(method = "createNewShipWithBlocks", at = @At("HEAD"), cancellable = true)
 	@NotNull
 	private static void createNewShipWithBlocks(BlockPos centerBlock, DenseBlockPosSet blocks, ServerLevel level, CallbackInfoReturnable<ServerShip> cir) {
-		ServerShip ship = VSGameUtilsKt.getShipObjectWorld(level).createNewShipAtBlock((Vector3ic) VectorConversionsMCKt.toJOMLD(centerBlock), false, 1.0, VSGameUtilsKt.getDimensionId(level));
+		// ERRORS IN BUILT JAR: BE WARNED (something about casting)
+		//ServerShip ship = VSGameUtilsKt.getShipObjectWorld(level).createNewShipAtBlock((Vector3ic) VectorConversionsMCKt.toJOMLD(centerBlock), false, 1.0, VSGameUtilsKt.getDimensionId(level));
 
 		/*ServerShip assembledShip = cir.getReturnValue();
 
