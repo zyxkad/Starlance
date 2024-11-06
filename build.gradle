@@ -197,7 +197,7 @@ dependencies {
     
     //
     //implementation fg.deobf('net.lointain:cosmichorizons:0.0.6')
-    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6")
+    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6.9")
     
 
     //using lodestone for now until vsfx comes out
