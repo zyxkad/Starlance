@@ -68,7 +68,15 @@ license="${mod_license}"
 	modId = "valkyrienskies"
 	mandatory = true
 	# For some reason {vs2_version} from gradle.properties doesn't exist here
-	versionRange = "[2.3.0-beta.1,)"
+	versionRange = "(,2.3.0-beta.6)"
+	ordering = "AFTER"
+	side = "BOTH"
+	
+[[dependencies.${mod_id}]]
+	modId = "cosmos"
+	mandatory = true
+	# For some reason {vs2_version} from gradle.properties doesn't exist here
+	versionRange = "[0.0.6,)"
 	ordering = "AFTER"
 	side = "BOTH"
 
