@@ -21,6 +21,9 @@ import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.core.util.AABBdUtilKt;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.entity.handling.VSEntityHandler;
+import org.valkyrienskies.mod.common.entity.handling.VSEntityManager;
+import org.valkyrienskies.mod.common.entity.handling.WorldEntityHandler;
 import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
@@ -99,10 +102,22 @@ public class VSCHUtils {
 	 * 
 	 * @param transform The ship transform to use
 	 * @param shipAABB  The <b>shipyard</b> AABBic of the ship
+	 * @param toWorld 	If we are transforming into the world position, or staying ship position.
 	 * @author Brickyboy
 	 * @return The world based AABBd
 	 */
 	public static AABBd transformToAABBd(ShipTransform transform, AABBic shipAABB) {
+		return transformToAABBd(transform, shipAABB, true);
+	}
+
+	/**
+	 * Boolean toWorld can be false, allowing you to get the AABBd of the Shipyard
+	 * @param transform
+	 * @param shipAABB
+	 * @param toWorld
+	 * @return
+	 */
+	public static AABBd transformToAABBd(ShipTransform transform, AABBic shipAABB, boolean toWorld) {
 		if (shipAABB == null) {
 			logger.warn("[CH] Ship AABB was null, returning empty AABBd, this may break things");
 			return new AABBd();
@@ -110,7 +125,12 @@ public class VSCHUtils {
 		// From AABBic (Int, constant) to AABBd (Double)
 		AABBd shipAABBd = AABBdUtilKt.toAABBd(shipAABB, new AABBd());
 		// Turn the shipyard AABBd to the world AABBd using the transform
-		return shipAABBd.transform(transform.getShipToWorld());
+		if (toWorld) {
+			return shipAABBd.transform(transform.getShipToWorld());
+		} else {
+			return shipAABBd.transform(transform.getWorldToShip());
+		}
+
 	}
 
 	/**
@@ -222,8 +242,10 @@ public class VSCHUtils {
 		// Combine the AABB's into one big one
 		//		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
 
-		Vec3 oldShipCenter = prevWorldAABB.deflate(10).getCenter();
-		Vec3 newoldShipCenter = currentWorldAABB.deflate(10).getCenter();
+		Vec3 shipyardCenter = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getTransform(), ship.getShipAABB(), false)).getCenter();
+
+		Vec3 prevShipsWorldCenter = prevWorldAABB.deflate(10).getCenter();
+		Vec3 shipsWorldCenter = currentWorldAABB.deflate(10).getCenter();
 
 		// ---------- //
 
@@ -233,7 +255,9 @@ public class VSCHUtils {
 		Map<String, Vec3> entityOffsets = new HashMap<String, Vec3>();
 
 		// Save entities that actually need to be teleported
-		List<Entity> importantEntities = new ArrayList<>();
+		List<Entity> teleportEntities = new ArrayList<>();
+		//Shipyard entities will be in teleportEntities, but will also be here, unlike world entities
+		List<Entity> shipyardEntities = new ArrayList<>(); 
 		List<Entity> playerEntities = new ArrayList<>();
 
 		// Find all entities nearby the ship
@@ -250,8 +274,17 @@ public class VSCHUtils {
 					entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
 				}
 
-				// Get the offset from the entities position to the ship
-				Vec3 entityShipOffset = entity.getPosition(0).subtract(newoldShipCenter);
+				VSEntityHandler handler = VSEntityManager.INSTANCE.getHandler(entity);
+				Vec3 entityShipOffset = null;
+				if (handler.getClass() == WorldEntityHandler.class) {
+					// Get the offset from the entities position to the ship
+					entityShipOffset = entity.getPosition(0).subtract(shipsWorldCenter);
+				} else {
+					entityShipOffset = entity.getPosition(0).subtract(shipyardCenter);
+					shipyardEntities.add(entity);
+				}
+
+
 
 
 
@@ -265,7 +298,7 @@ public class VSCHUtils {
 				if (entity instanceof ServerPlayer) {
 					playerEntities.add(entity);
 				} else {
-					importantEntities.add(entity);
+					teleportEntities.add(entity);
 				}
 
 			}
@@ -291,6 +324,7 @@ public class VSCHUtils {
 		// Get a level object from the VS dimension string of the dim we're going to
 		ServerLevel newLevel = VSCHUtils.VSDimToLevel(level.getServer(), VSnewDimension);
 		Vec3 newShipCenter = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).getCenter();
+		Vec3 newShipyardCenter = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getTransform(), ship.getShipAABB(), false)).getCenter();
 
 		// Teleport ALL players before teleporting ALL entities to prevent players getting entity pushed
 		for (Entity entity : playerEntities) {
@@ -314,10 +348,16 @@ public class VSCHUtils {
 		}
 
 		// Now teleport all non-player entities
-		for (Entity entity : importantEntities) {
+		for (Entity entity : teleportEntities) {
 
 			Vec3 shipOffset = entityOffsets.get(entity.getStringUUID());
-			Vec3 newPosition = newShipCenter.add(shipOffset);
+			Vec3 newPosition = null;
+			if (shipyardEntities.contains(entity)) {
+				newPosition = newShipyardCenter.add(shipOffset);
+			} else {
+				newPosition = newShipCenter.add(shipOffset);
+			}
+
 
 			/*System.out.println("entity AFTER info");
 			System.out.println("Entity: "+entity);
