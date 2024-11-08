@@ -1,5 +1,6 @@
 package net.jcm.vsch.event;
 
+import net.jcm.vsch.util.TeleportUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.nbt.Tag;

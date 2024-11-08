@@ -23,9 +23,9 @@ import net.minecraftforge.network.NetworkHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.valkyrienskies.core.api.ships.Ship;
+import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
-
 public class PlanetCollision {
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
 	public static void planetCollisionTick(ServerLevel level, LevelAccessor world) {
