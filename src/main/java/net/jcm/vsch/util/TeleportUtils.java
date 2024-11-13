@@ -24,23 +24,34 @@ import java.util.Map;
 
 public class TeleportUtils {
 
+    /**
+     * See
+     * {@link #DimensionTeleportShip(Ship, ServerLevel, String, double, double, double)
+     * DimensionTeleportShip} for documentation. This overload simply takes in a
+     * Vec3 instead of 3 doubles.
+     */
+    public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
+        DimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
+    }
 
     /**
-     * This function took us like 3 days to make. You better appreciate it. <br>
+     * This function took us like a week days to make. You better appreciate it. <br>
      * </br>
      * It will teleport the given ship, using the level, to the
      * dimension with id of newDim at x, y, z. <br>
      * </br>
-     * But most importantly, it will also teleport any players or entities that are
+     * But most importantly, it will also teleport any players or entities
+     * (including create contraptions) that are
      * currently being dragged by the ship to the new dimension, and their correct
      * position relative to the ship that was moved.
      *
      * @param ship   The ship to move
      * @param level  The ships current level
      * @param newDim Normal dimension id string format (not VS format)
-     * @param x x position in world to tp to
-     * @param y y position in world to tp to
-     * @param z z position in world to tp to
+     * @param x x position in world to tp the ship to
+     * @param y y position in world to tp the ship to
+     * @param z z position in world to tp the ship to
+     *
      */
     public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
 
@@ -111,30 +122,32 @@ public class TeleportUtils {
         for (Entity entity : level.getEntities(null, aabb)) {
 
             VSEntityHandler handler = VSEntityManager.INSTANCE.getHandler(entity);
-            if (handler.getClass() == WorldEntityHandler.class && !shipyard) {
+            if (shipyard) {
+                if (handler.getClass() == WorldEntityHandler.class) {
+                    // If the entity is riding another
+                    if (entity.getVehicle() != null) {
+                        // Dismount them
+                        entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
+                    }
 
-                // If the entity is riding another
-                if (entity.getVehicle() != null) {
-                    // Dismount them
-                    entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
+                    // Get the offset from the entities position to the ship
+                    Vec3 entityShipOffset = entity.getPosition(0).subtract(center);
+
+                    offsets.put(entity, entityShipOffset);
                 }
+            } else {
+                if (handler.getClass() != WorldEntityHandler.class) {
+                    // If the entity is riding another
+                    if (entity.getVehicle() != null) {
+                        // Dismount them
+                        entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
+                    }
 
-                // Get the offset from the entities position to the ship
-                Vec3 entityShipOffset = entity.getPosition(0).subtract(center);
+                    // Get the offset from the entities position to the ship
+                    Vec3 entityShipOffset = entity.getPosition(0).subtract(center);
 
-                offsets.put(entity, entityShipOffset);
-
-            } else if (shipyard) {
-                // If the entity is riding another
-                if (entity.getVehicle() != null) {
-                    // Dismount them
-                    entity.dismountTo(entity.getX(), entity.getY(), entity.getZ());
+                    offsets.put(entity, entityShipOffset);
                 }
-
-                // Get the offset from the entities position to the ship
-                Vec3 entityShipOffset = entity.getPosition(0).subtract(center);
-
-                offsets.put(entity, entityShipOffset);
             }
 
 
