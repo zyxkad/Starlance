@@ -39,6 +39,9 @@ import net.lointain.cosmos.init.CosmosModItems;
 
 
 public class AirThrusterBlock extends ThrusterBlock {
+	//TODO: fix this bounding box
+	private static final RotShape SHAPE = RotShapes.box(3.0, 0.0, 3.0, 13.0, 8.0, 13.0);
+	private final DirectionalShape Thruster_SHAPE = DirectionalShape.down(SHAPE);
 
 	public AirThrusterBlock(Properties properties) {
 		super(properties);
@@ -48,6 +51,10 @@ public class AirThrusterBlock extends ThrusterBlock {
 	@Override
 	public float getThrottle(BlockState state, int signal) {
 		return signal * VSCHConfig.AIR_THRUSTER_STRENGTH.get().intValue();
+	}
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return Thruster_SHAPE.get(state.getValue(BlockStateProperties.FACING));
 	}
 
 	@Override

@@ -188,6 +188,7 @@ public class VSCHUtils {
 	 * DimensionTeleportShip} for documentation. This overload simply takes in a
 	 * Vec3 instead of 3 doubles.
 	 */
+	@Deprecated
 	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
 		DimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
 	}
@@ -208,9 +209,11 @@ public class VSCHUtils {
 	 * @param x x position in world to tp to
 	 * @param y y position in world to tp to
 	 * @param z z position in world to tp to
+	 * @deprecated Use {@link net.jcm.vsch.util.TeleportUtils#DimensionTeleportShip(Ship, ServerLevel, String, double, double, double)} instead
 	 */
+	@Deprecated
 	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
-
+		logger.fatal("Deprecated function VSCHUtils.DimensionTeleportShip used. Please use TeleportUtils.DimensionTeleportShip instead.");
 		// ----- Prepare dimension destination ----- //
 
 		// Convert back into a stupid stupid VS dimension string
