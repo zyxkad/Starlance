@@ -23,6 +23,8 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec.ConfigValue<Boolean> LIMIT_SPEED;
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_SPEED;
 
+	public static final ForgeConfigSpec.ConfigValue<Boolean> CANCEL_ASSEMBLY;
+
 	private static final Collection<String> modes = new ArrayList<String>(2);
 	static {
 		modes.add("POSITION");
@@ -38,6 +40,7 @@ public class VSCHConfig {
 		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);
 		LIMIT_SPEED = BUILDER.comment("Limit speed thrusters can accelerate to. Recommended, as VS ships get funky at high speeds").define("limit_speed", true);
 		MAX_SPEED = BUILDER.comment("Max speed to limit to. Blocks/tick I think. Default is highly recommended").define("max_speed", 150);
+		CANCEL_ASSEMBLY = BUILDER.comment("Cancel multi-block assemblies when above world height. This is a temporary fix, but for now ships made above world height have issues with starlance.").define("cancel_assembly", true);
 		BUILDER.pop();
 		SPEC = BUILDER.build();
 	}
