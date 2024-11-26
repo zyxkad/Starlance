@@ -1,5 +1,6 @@
 package net.jcm.vsch.items.custom;
 
+import net.jcm.vsch.config.VSCHConfig;
 import net.lointain.cosmos.item.SteelarmourItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
@@ -21,7 +22,7 @@ public class MagnetBootItem extends ArmorItem {
 
 		boolean magnetOn = true;
 
-		double maxDistance = 4; //TODO: Make this a config 
+		double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
 
 		Vec3 startPos = player.position(); // Starting position (player's position)
 		Vec3 endPos = startPos.add(0, -maxDistance, 0); // End position (straight down)
@@ -48,7 +49,7 @@ public class MagnetBootItem extends ArmorItem {
 			//mAtH
 			double multiplier = 1.0 - (distanceY / maxDistance);
 
-			double scaledForce = multiplier * -0.1; //-0.1 being max force
+			double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue();
 
 			Vec3 force = new Vec3(0, scaledForce, 0);
 
