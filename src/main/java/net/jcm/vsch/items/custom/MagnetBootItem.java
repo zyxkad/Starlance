@@ -20,7 +20,7 @@ public class MagnetBootItem extends ArmorItem {
 	@Override
 	public void onArmorTick(ItemStack stack, Level level, Player player) {
 
-		boolean magnetOn = true;
+		boolean magnetOn = true; //TODO: make this a keybind that can toggle it on and off
 
 		double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
 
