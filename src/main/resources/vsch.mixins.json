@@ -6,7 +6,8 @@
   "refmap": "vsch.refmap.json",
   "mixins": [
     "MixinGetY",
-    "MixinCreateNewShipWithBlocks"
+    "MixinCreateNewShipWithBlocks",
+    "MixinSpaceSuitLogic"
   ],
   "client": [
   ],
