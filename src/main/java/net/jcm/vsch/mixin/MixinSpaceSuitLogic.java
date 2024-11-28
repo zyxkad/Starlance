@@ -92,6 +92,8 @@ public class MixinSpaceSuitLogic {
 				}
 			}
 
+		} else {
+			cir.setReturnValue(false);
 		}
 
 		if (cir.getReturnValue() == null) { // Dont ask
