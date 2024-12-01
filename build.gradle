@@ -175,8 +175,10 @@ dependencies {
     //runtimeOnly    fg.deobf("mekanism:Mekanism:${mekanism_version}:generators")
     //runtimeOnly    fg.deobf("mekanism:Mekanism:${mekanism_version}:additions")
 
-
+    runtimeOnly fg.deobf("maven.modrinth:create-clockwork:1.20.1-0.1.16")
+    runtimeOnly fg.deobf("maven.modrinth:architectury-api:9.2.14+forge")
     implementation fg.deobf("curse.maven:jade-324717:${jade_id}")
+    runtimeOnly fg.deobf("maven.modrinth:jade-addons-forge:5.3.1+forge")
 
     implementation "org.joml:joml:1.10.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
