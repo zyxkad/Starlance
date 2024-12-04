@@ -24,6 +24,7 @@ public class VSCHTab {
 				tabData.accept(VSCHBlocks.AIR_THRUSTER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.POWERFUL_THRUSTER_BLOCK.get().asItem());
 				tabData.accept(VSCHItems.WRENCH.get().asItem());
+				tabData.accept(VSCHItems.MAGNET_BOOT.get().asItem());
 
 			}).build());
 
