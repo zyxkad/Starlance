@@ -1,5 +1,10 @@
 package net.jcm.vsch;
 
+import net.jcm.vsch.compat.CompatMods;
+import net.jcm.vsch.compat.create.PonderRegistry;
+import net.jcm.vsch.compat.create.PonderTags;
+import net.jcm.vsch.compat.create.RegistrateBlocks;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.valkyrienskies.core.impl.hooks.VSEvents;
 
 import net.jcm.vsch.VSCHTab;
@@ -44,6 +49,25 @@ public class VSCHMod {
 		VSEvents.ShipLoadEvent.Companion.on((shipLoadEvent) -> {
 			GravityInducer.getOrCreate(shipLoadEvent.getShip());
 		});
+
+		modBus.addListener(this::onClientSetup);
+
+		if (CompatMods.CREATE.isLoaded()) {
+			RegistrateBlocks.register();
+		}
+	}
+
+	// Idk why but this doesn't work in VSCHEvents (prob its only a server-side event listener)
+	private void onClientSetup(FMLClientSetupEvent event) {
+		if (CompatMods.CREATE.isLoaded()) {
+			PonderRegistry.register();
+			PonderTags.register();
+		}
 	}
 
 }
+
+
+
+
+
