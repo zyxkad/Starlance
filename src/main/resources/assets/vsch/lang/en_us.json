@@ -11,5 +11,6 @@
 	"block.vsch.air_thruster_block": "Air thruster",
 	"block.vsch.powerful_thruster_block": "Powerful thruster",
 	"item.vsch.wrench": "Wrench",
-	"item.vsch.magnet_boot": "Magnet Boots"
+	"item.vsch.magnet_boot": "Magnet Boots",
+	"config.jade.plugin_vsch.thruster_component_config": "Thruster Mode Details"
 }

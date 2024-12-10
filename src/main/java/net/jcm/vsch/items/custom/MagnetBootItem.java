@@ -35,50 +35,50 @@ public class MagnetBootItem extends ArmorItem {
 
         boolean magnetOn = true; //TODO: make this a keybind that can toggle it on and off
 
-        double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
+		double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
 
-        Vec3 startPos = player.position(); // Starting position (player's position)
-        Vec3 endPos = startPos.add(0, -maxDistance, 0); // End position (straight down)
+		Vec3 startPos = player.position(); // Starting position (player's position)
+		Vec3 endPos = startPos.add(0, -maxDistance, 0); // End position (straight down)
 
-        HitResult hitResult = level.clip(new ClipContext(
-                startPos,
-                endPos,
-                ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
-                ClipContext.Fluid.NONE,     // Ignore fluids
-                player
-        ));
+		HitResult hitResult = level.clip(new ClipContext(
+				startPos,
+				endPos,
+				ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
+				ClipContext.Fluid.NONE,     // Ignore fluids
+				player
+				));
 
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-
-
-            double blockY = hitResult.getLocation().y;
-            double distanceY = startPos.y - blockY;
-
-            // If magnet is turned off and we are more than 0.1 distance, do nothing
-            if ((!magnetOn) && (distanceY > 0.1)) {
-                return;
-            }
-
-            //mAtH
-            double multiplier = 1.0 - (distanceY / maxDistance);
-
-            double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue();
-
-            Vec3 force = new Vec3(0, scaledForce, 0);
+		if (hitResult.getType() == HitResult.Type.BLOCK) {
 
 
+			double blockY = hitResult.getLocation().y;
+			double distanceY = startPos.y - blockY;
 
-            player.setDeltaMovement(player.getDeltaMovement().add(force));
+			// If magnet is turned off and we are more than 0.1 distance, do nothing
+			if ((!magnetOn) && (distanceY > 0.1)) {
+				return;
+			}
+
+			//mAtH
+			double multiplier = 1.0 - (distanceY / maxDistance);
+
+			double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue();
+
+			Vec3 force = new Vec3(0, scaledForce, 0);
 
 
 
-            //System.out.println("Hit block");
+			player.setDeltaMovement(player.getDeltaMovement().add(force));
 
 
-            //System.out.println(slotId);
-            //level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
-        }
+
+			//System.out.println("Hit block");
 
 
-    }
+			//System.out.println(slotId);
+			//level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
+		}
+
+
+	}
 }

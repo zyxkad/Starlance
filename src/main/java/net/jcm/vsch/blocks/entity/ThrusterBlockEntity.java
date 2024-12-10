@@ -1,5 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
+import net.jcm.vsch.blocks.VSCHBlocks;
 import org.joml.Vector3d;
 import org.joml.Vector4d;
 import org.valkyrienskies.core.api.ships.ServerShip;

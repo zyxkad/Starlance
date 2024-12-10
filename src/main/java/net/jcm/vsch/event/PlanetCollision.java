@@ -2,6 +2,7 @@ package net.jcm.vsch.event;
 
 import io.netty.buffer.Unpooled;
 import net.jcm.vsch.VSCHMod;
+import net.jcm.vsch.util.TeleportUtils;
 import net.jcm.vsch.util.VSCHUtils;
 import net.lointain.cosmos.network.CosmosModVariables;
 import net.lointain.cosmos.world.inventory.LandingSelectorMenu;
@@ -120,7 +121,7 @@ public class PlanetCollision {
 					return;
 				}
 				logger.info("[VSCH]: Teleporting VS ship into planet!");
-				VSCHUtils.DimensionTeleportShip(ship, level, dimension, posX, posY, posZ);
+				TeleportUtils.DimensionTeleportShip(ship, level, dimension, posX, posY, posZ);
 				vars.landing_coords = "^";
 				vars.check_collision = true;
 				vars.syncPlayerVariables(nearestPlayer);

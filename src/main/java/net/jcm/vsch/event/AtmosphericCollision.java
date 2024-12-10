@@ -82,7 +82,7 @@ public class AtmosphericCollision {
 
 					}*/
 
-					VSCHUtils.DimensionTeleportShip(ship, level, gotoDimension, posX, posY, posZ);
+					TeleportUtils.DimensionTeleportShip(ship, level, gotoDimension, posX, posY, posZ);
 
 				}
 			}

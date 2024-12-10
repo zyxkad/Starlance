@@ -43,6 +43,7 @@ public class VSCHConfig {
 		POWERFUL_THRUSTER_STRENGTH = BUILDER.comment("Powerful thruster force multiplier. redstone * this (Newtons)").define("powerful_thruster_strength", 20000);
 
 		BUILDER.pop();
+
 		BUILDER.push("Misc");
 
 		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);
@@ -54,6 +55,7 @@ public class VSCHConfig {
 		MAGNET_BOOT_MAX_FORCE = BUILDER.comment("Max acceleration magnet boots will apply at close distances to move the player downwards.").define("magnet_boot_max_force", 0.1);
 
 		BUILDER.pop();
+
 		SPEC = BUILDER.build();
 	}
 	public static void register(ModLoadingContext context){

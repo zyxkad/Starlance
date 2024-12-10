@@ -46,6 +46,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
@@ -188,6 +191,7 @@ public class VSCHUtils {
 	 * DimensionTeleportShip} for documentation. This overload simply takes in a
 	 * Vec3 instead of 3 doubles.
 	 */
+	@Deprecated
 	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
 		DimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
 	}
@@ -208,9 +212,11 @@ public class VSCHUtils {
 	 * @param x x position in world to tp to
 	 * @param y y position in world to tp to
 	 * @param z z position in world to tp to
+	 * @deprecated Use {@link net.jcm.vsch.util.TeleportUtils#DimensionTeleportShip(Ship, ServerLevel, String, double, double, double)} instead
 	 */
+	@Deprecated
 	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
-
+		logger.fatal("Deprecated function VSCHUtils.DimensionTeleportShip used. Please use TeleportUtils.DimensionTeleportShip instead.");
 		// ----- Prepare dimension destination ----- //
 
 		// Convert back into a stupid stupid VS dimension string
@@ -513,6 +519,31 @@ public class VSCHUtils {
 		} else {
 			return vec.z;
 		}
+	}
+
+	public static Entity getNearestEntityOfType(ServerLevel level, EntityType<?> entityType, Entity sourceEntity, double maxDistance) {
+		// Define the search bounding box
+		AABB searchBox = sourceEntity.getBoundingBox().inflate(maxDistance);
+
+		List<Entity> entities = level.getEntities(null, searchBox);
+
+		Entity nearestEntity = null;
+
+		// Uhhh this doesn't seem good, but it works I guess?
+		double nearestDistance = 100000000000000.0d;
+
+		for (Entity entity : entities) {
+			if (entity.getType() == entityType) {
+				double distance = entity.distanceToSqr(sourceEntity);
+				if (distance < nearestDistance) {
+					nearestEntity = entity;
+					nearestDistance = distance;
+				}
+			}
+		}
+
+		return nearestEntity;
+
 	}
 
 }
