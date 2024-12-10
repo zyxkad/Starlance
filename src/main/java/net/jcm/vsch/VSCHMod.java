@@ -1,27 +1,23 @@
 package net.jcm.vsch;
 
 import net.jcm.vsch.compat.CompatMods;
-import net.jcm.vsch.compat.create.PonderRegistry;
-import net.jcm.vsch.compat.create.PonderTags;
-import net.jcm.vsch.compat.create.RegistrateBlocks;
+import net.jcm.vsch.compat.create.VSCHPonderRegistry;
+import net.jcm.vsch.compat.create.VSCHPonderTags;
+import net.jcm.vsch.compat.create.VSCHRegistrateBlocks;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.valkyrienskies.core.impl.hooks.VSEvents;
 
-import net.jcm.vsch.VSCHTab;
 import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.entity.VSCHBlockEntities;
 import net.jcm.vsch.commands.ModCommands;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.event.GravityInducer;
 import net.jcm.vsch.items.VSCHItems;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.valkyrienskies.core.impl.hooks.VSEvents;
 
 @Mod(VSCHMod.MODID)
 public class VSCHMod {
@@ -53,15 +49,15 @@ public class VSCHMod {
 		modBus.addListener(this::onClientSetup);
 
 		if (CompatMods.CREATE.isLoaded()) {
-			RegistrateBlocks.register();
+			VSCHRegistrateBlocks.register();
 		}
 	}
 
 	// Idk why but this doesn't work in VSCHEvents (prob its only a server-side event listener)
 	private void onClientSetup(FMLClientSetupEvent event) {
 		if (CompatMods.CREATE.isLoaded()) {
-			PonderRegistry.register();
-			PonderTags.register();
+			VSCHPonderRegistry.register();
+			VSCHPonderTags.register();
 		}
 	}
 

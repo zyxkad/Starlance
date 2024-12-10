@@ -3,12 +3,11 @@ package net.jcm.vsch.compat.create;
 import com.simibubi.create.Create;
 import com.simibubi.create.foundation.ponder.PonderRegistry;
 import com.simibubi.create.foundation.ponder.PonderTag;
-import net.minecraft.resources.ResourceLocation;
 
-public class PonderTags {
+public class VSCHPonderTags {
     public static final PonderTag
 
-    STARLANCE_PONDERS = create("starlance_ponders").item(RegistrateBlocks.THRUSTER_BLOCK.get())
+    STARLANCE_PONDERS = create("starlance_ponders").item(VSCHRegistrateBlocks.THRUSTER_BLOCK.get())
             .defaultLang("Starlance", "Starlance blocks")
             .addToIndex();
 
@@ -17,9 +16,11 @@ public class PonderTags {
     }
 
     /**
-     * Does nothing, just makes sure the class is loaded
+     * Add ponders to the starlance tag here
      */
     public static void register() {
-        PonderRegistry.TAGS.add(STARLANCE_PONDERS, RegistrateBlocks.THRUSTER_BLOCK.getId());
+        PonderRegistry.TAGS.forTag(STARLANCE_PONDERS)
+                .add(VSCHRegistrateBlocks.THRUSTER_BLOCK.getId())
+                .add(VSCHRegistrateBlocks.DRAG_INDUCER_BLOCK.getId());
     }
 }

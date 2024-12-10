@@ -6,10 +6,8 @@ import net.jcm.vsch.VSCHMod;
 import net.jcm.vsch.blocks.VSCHBlocks;
 import net.minecraft.world.level.block.Block;
 
-import static com.simibubi.create.Create.REGISTRATE;
-
 // Because create only seems to take Registrate block registry object thingys, we have to re-register some of our blocks for the ponder stuff
-public class RegistrateBlocks {
+public class VSCHRegistrateBlocks {
     public static final Registrate REGISTRATE = Registrate.create(VSCHMod.MODID);
 
     public static final BlockEntry<Block> THRUSTER_BLOCK = REGISTRATE.block("thruster_block", properties -> VSCHBlocks.THRUSTER_BLOCK.get())
@@ -19,6 +17,9 @@ public class RegistrateBlocks {
             .register();
 
     public static final BlockEntry<Block> POWERFUL_THRUSTER_BLOCK = REGISTRATE.block("powerful_thruster_block", properties -> VSCHBlocks.POWERFUL_THRUSTER_BLOCK.get())
+            .register();
+
+    public static final BlockEntry<Block> DRAG_INDUCER_BLOCK = REGISTRATE.block("drag_inducer_block", properties -> VSCHBlocks.DRAG_INDUCER_BLOCK.get())
             .register();
 
     /**

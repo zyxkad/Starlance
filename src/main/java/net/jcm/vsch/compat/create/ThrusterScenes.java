@@ -44,7 +44,7 @@ public class ThrusterScenes {
         scene.idle(40);
 
         scene.overlay.showText(80)
-                .colored(PonderPalette.GREEN)
+                .colored(PonderPalette.WHITE)
                 .text("Thrusters need to be powered with redstone to thrust")
                 .pointAt(util.vector.centerOf(middleThrusterLever))
                 .attachKeyFrame()
@@ -75,7 +75,7 @@ public class ThrusterScenes {
         scene.idle(40);
 
         scene.overlay.showText(65)
-                .colored(PonderPalette.GREEN)
+                .colored(PonderPalette.WHITE)
                 .text("Redstone level can control strength")
                 .pointAt(util.vector.centerOf(leftThrusterLever))
                 .attachKeyFrame()
@@ -179,7 +179,7 @@ public class ThrusterScenes {
 
         // explain that doors have multiple modes
         scene.overlay.showText(80)
-                .colored(PonderPalette.GREEN)
+                .colored(PonderPalette.WHITE)
                 .text("Doors have multiple modes of operation: Normal, Manual, and Special")
                 .pointAt(util.vector.topOf(doorBottomPos))
                 .attachKeyFrame()
@@ -408,7 +408,7 @@ public class ThrusterScenes {
         scene.overlay.showControls(new InputWindowElement(util.vector.topOf(elevatorDoorBottomPos.below(6))
                 .add(8 / 16f, 0, 0), Pointing.DOWN).rightClick().whileSneaking(), 50);
         scene.overlay.showText(60)
-                .colored(PonderPalette.GREEN)
+                .colored(PonderPalette.WHITE)
                 .text("Sneaking, however, allows the player to toggle the door anyway")
                 .pointAt(util.vector.blockSurface(elevatorDoorTopPos.below(6), Direction.NORTH))
                 .placeNearTarget()

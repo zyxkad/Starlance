@@ -1,18 +1,9 @@
 package net.jcm.vsch.compat.create;
 
 import com.simibubi.create.foundation.ponder.PonderRegistrationHelper;
-import com.simibubi.create.foundation.ponder.PonderTag;
-import com.tterrag.registrate.util.entry.BlockEntry;
-import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import net.jcm.vsch.VSCHMod;
-import net.jcm.vsch.blocks.VSCHBlocks;
-import net.jcm.vsch.items.VSCHItems;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.RegistryObject;
 
-import static com.simibubi.create.Create.REGISTRATE;
-
-public class PonderRegistry {
+public class VSCHPonderRegistry {
     private static final PonderRegistrationHelper HELPER = new PonderRegistrationHelper(VSCHMod.MODID);
 
 
@@ -21,13 +12,15 @@ public class PonderRegistry {
 
 
         HELPER.forComponents(
-                        RegistrateBlocks.THRUSTER_BLOCK,
-                        RegistrateBlocks.AIR_THRUSTER_BLOCK,
-                        RegistrateBlocks.POWERFUL_THRUSTER_BLOCK
+                        VSCHRegistrateBlocks.THRUSTER_BLOCK,
+                        VSCHRegistrateBlocks.AIR_THRUSTER_BLOCK,
+                        VSCHRegistrateBlocks.POWERFUL_THRUSTER_BLOCK
                 )
                 .addStoryBoard("thrusters", ThrusterScenes::thrusters);
 
-
+        HELPER.forComponents(
+                VSCHRegistrateBlocks.DRAG_INDUCER_BLOCK
+        ).addStoryBoard("drag_inducer", DragInducerScene::inducer);
 
 
 
