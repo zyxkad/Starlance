@@ -81,6 +81,7 @@ public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
 
 	// Should run whenever the block state is changed, but not when the block itself is replaced
 	//TODO: See if we can move setting the force inducer to here instead of all over the place (would require some extra stuff for redstone change tho)
+	// Disabling this didn't fix Jade :(
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return Thruster_SHAPE.get(state.getValue(BlockStateProperties.FACING));

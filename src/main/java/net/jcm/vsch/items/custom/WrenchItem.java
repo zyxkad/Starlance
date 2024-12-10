@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.valkyrienskies.mod.common.VSClientGameUtils;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class WrenchItem extends Item {
 
@@ -39,13 +41,15 @@ public class WrenchItem extends Item {
 			BlockPos blockPos = blockHit.getBlockPos();
 			BlockState blockState = level.getBlockState(blockPos);
 
-			// Does it have a thruster mode property
-			// This seems wrong, but oh well
-			if (blockState.hasProperty(MODE)) {
-				// If our entity is a player
-				if (entity instanceof Player player) {
-					// Send actionbar of its state
-					player.displayClientMessage(Component.translatable("vsch.message.mode").append(Component.translatable("vsch."+blockState.getValue(MODE).toString().toLowerCase())), true);
+			if (VSGameUtilsKt.isBlockInShipyard(level, blockPos)) {
+				// Does it have a thruster mode property
+				// This seems wrong, but oh well
+				if (blockState.hasProperty(MODE)) {
+					// If our entity is a player
+					if (entity instanceof Player player) {
+						// Send actionbar of its state
+						player.displayClientMessage(Component.translatable("vsch.message.mode").append(Component.translatable("vsch."+blockState.getValue(MODE).toString().toLowerCase())), true);
+					}
 				}
 			}
 		}

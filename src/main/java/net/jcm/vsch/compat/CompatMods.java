@@ -7,7 +7,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public enum CompatMods {
-    CREATE("create");
+    CREATE("create"),
+    JADE("jade");
 
     private final String modId;
 
