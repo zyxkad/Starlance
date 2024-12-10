@@ -21,6 +21,18 @@ public class MagnetBootItem extends ArmorItem {
     @SuppressWarnings("removal")
     public void onArmorTick(ItemStack stack, Level level, Player player) {
 
+        // Ignore spectator mode
+        // I don't exactly know what this var does, but it trigger in spectator mode.
+        // If it causes problems, replace it with 'isSpectator()'
+        if (player.noPhysics) {
+            return;
+        }
+
+        // I don't know why there isn't a simpler check for this
+        if (player.getAbilities().flying) {
+            return;
+        }
+
         boolean magnetOn = true; //TODO: make this a keybind that can toggle it on and off
 
         double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
