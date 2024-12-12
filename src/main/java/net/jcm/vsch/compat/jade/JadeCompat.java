@@ -15,6 +15,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import snownee.jade.api.*;
 
+
 @WailaPlugin
 public class JadeCompat implements IWailaPlugin {
     public static final EnumProperty<ThrusterData.ThrusterMode> MODE = EnumProperty.create("mode", ThrusterData.ThrusterMode.class);
