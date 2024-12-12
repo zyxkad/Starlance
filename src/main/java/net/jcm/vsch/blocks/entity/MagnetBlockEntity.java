@@ -66,7 +66,7 @@ public class MagnetBlockEntity extends BlockEntityWithEntity<MagnetEntity> {
 	}
 
 	@Override
-	public MagnetEntity createLinkedEntity(ServerLevel level) {
-		return new MagnetEntity(VSCHEntities.MAGNET_ENTITY.get(), level);
+	public MagnetEntity createLinkedEntity(ServerLevel level, BlockPos pos) {
+		return new MagnetEntity(VSCHEntities.MAGNET_ENTITY.get(), level, pos);
 	}
 }

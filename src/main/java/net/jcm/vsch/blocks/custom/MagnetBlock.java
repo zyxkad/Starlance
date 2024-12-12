@@ -14,11 +14,13 @@ import net.jcm.vsch.util.rot.RotShapes;
 import net.lointain.cosmos.init.CosmosModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -27,13 +29,22 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 
-public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity> { //
+public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 
 	public MagnetBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(defaultBlockState()
+				.setValue(FACING, Direction.NORTH));
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+		pBuilder.add(FACING);
 	}
 
 	@Override
@@ -83,6 +94,16 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity> { //
 		}
 
 		super.onRemove(state, level, pos, newState, isMoving);
+	}
+
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		Direction dir = ctx.getNearestLookingDirection();
+		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
+			dir = dir.getOpposite();
+		}
+		return defaultBlockState()
+				.setValue(BlockStateProperties.FACING, dir);
 	}
 
 	/*@Override

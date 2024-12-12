@@ -3,6 +3,7 @@ package net.jcm.vsch.blocks.custom.template;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * @param <T> The block entity class that is responsible for spawning the entity, removing it, etc
  * @see BlockEntityWithEntity
  */
-public abstract class BlockWithEntity<T extends BlockEntityWithEntity<?>> extends Block implements EntityBlock {
+public abstract class BlockWithEntity<T extends BlockEntityWithEntity<?>> extends DirectionalBlock implements EntityBlock {
     public BlockWithEntity(Properties properties) {
         super(properties);
     }

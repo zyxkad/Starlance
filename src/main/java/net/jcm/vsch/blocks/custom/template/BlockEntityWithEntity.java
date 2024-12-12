@@ -26,7 +26,7 @@ public abstract class BlockEntityWithEntity<E extends Entity> extends BlockEntit
 
     public void spawnLinkedEntity() {
         if (level instanceof ServerLevel serverLevel) {
-            E entity = createLinkedEntity(serverLevel);
+            E entity = createLinkedEntity(serverLevel, worldPosition);
             entity.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5);
             serverLevel.addFreshEntity(entity);
             entityUUID = entity.getUUID();
@@ -50,7 +50,7 @@ public abstract class BlockEntityWithEntity<E extends Entity> extends BlockEntit
      * @param level Level, for help creating the entity object
      * @return
      */
-    public abstract E createLinkedEntity(ServerLevel level);
+    public abstract E createLinkedEntity(ServerLevel level, BlockPos pos);
 
 
     // Saving and loading the attached entity UUID on world reload:
