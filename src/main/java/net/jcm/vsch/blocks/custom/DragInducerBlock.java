@@ -181,10 +181,10 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		// TODO Auto-generated method stub
 		if (!level.isClientSide()) {
-			System.out.println("serverside ticker");
+			//System.out.println("serverside ticker");
 			return (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).serverTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity);
 		} else {
-			System.out.println("clientside ticker");
+			//System.out.println("clientside ticker");
 			return null;
 		}
 		//return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).clientTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity) : (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).serverTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity);

@@ -434,6 +434,92 @@ public class ThrusterScenes {
         scene.configureBasePlate(1, 0, 5);
         scene.removeShadow();
 
+        Selection basePlate = util.select.fromTo(0, 0, 0, 4, 0, 4);
+        Selection ship = util.select.fromTo(3, 1, 1, 1, 2, 2);
+
+        BlockPos thruster = util.grid.at(3, 1, 1);
+        BlockPos lever = util.grid.at(3, 2, 2);
+
+
+        scene.world.showSection(basePlate, Direction.UP);
+        scene.idle(5);
+        scene.world.showSection(ship, Direction.DOWN);
+
+        scene.idle(10);
+
+        scene.overlay.showText(60)
+                .text("By default, thrusters are in POSITION mode")
+                .pointAt(util.vector.centerOf(thruster))
+                .placeNearTarget()
+                .attachKeyFrame();
+
+        /*Selection beltAndBearing = util.select.fromTo(3, 3, 4, 3, 1, 6);
+        Selection largeCog = util.select.position(2, 0, 6);
+        BlockPos parentBearingPos = util.grid.at(3, 3, 4);
+        BlockPos bearingPos = util.grid.at(3, 4, 2);
+
+        scene.world.showSection(util.select.layer(0), Direction.UP);
+        scene.idle(5);
+        scene.world.showSection(beltAndBearing, Direction.DOWN);
+        scene.idle(10);
+
+        ElementLink<WorldSectionElement> contraption =
+                scene.world.showIndependentSection(util.select.fromTo(3, 3, 3, 3, 4, 3), Direction.SOUTH);
+        scene.world.configureCenterOfRotation(contraption, util.vector.centerOf(parentBearingPos));
+        scene.idle(20);
+        scene.world.glueBlockOnto(bearingPos, Direction.SOUTH, contraption);
+
+        scene.idle(15);
+
+        scene.overlay.showSelectionWithText(util.select.position(bearingPos), 60)
+                .text("Whenever Mechanical Bearings are themselves part of a moving Structure..")
+                .attachKeyFrame()
+                .placeNearTarget();
+        scene.idle(70);
+
+        scene.world.setKineticSpeed(largeCog, -8);
+        scene.world.setKineticSpeed(beltAndBearing, 16);
+        scene.world.rotateBearing(parentBearingPos, 360, 74);
+        scene.world.rotateSection(contraption, 0, 0, 360, 74);
+        scene.world.rotateBearing(bearingPos, -360, 74);
+        scene.idle(74);
+
+        scene.world.setKineticSpeed(largeCog, 0);
+        scene.world.setKineticSpeed(beltAndBearing, 0);
+        scene.overlay.showText(60)
+                .text("..they will attempt to keep themselves upright")
+                .pointAt(util.vector.blockSurface(bearingPos, Direction.NORTH))
+                .placeNearTarget();
+        scene.idle(70);
+
+        scene.overlay.showSelectionWithText(util.select.position(bearingPos.north()), 60)
+                .colored(PonderPalette.GREEN)
+                .text("Once again, the bearing will attach to the block in front of it")
+                .attachKeyFrame()
+                .placeNearTarget();
+        scene.idle(70);
+
+        ElementLink<WorldSectionElement> subContraption =
+                scene.world.showIndependentSection(util.select.fromTo(4, 4, 1, 2, 4, 1), Direction.SOUTH);
+        scene.world.configureCenterOfRotation(subContraption, util.vector.centerOf(parentBearingPos));
+        scene.world.configureStabilization(subContraption, util.vector.centerOf(bearingPos));
+        scene.idle(20);
+
+        scene.overlay.showText(80)
+                .text("As a result, the entire sub-Contraption will stay upright");
+
+        scene.world.setKineticSpeed(largeCog, -8);
+        scene.world.setKineticSpeed(beltAndBearing, 16);
+        scene.world.rotateBearing(parentBearingPos, 360 * 2, 74 * 2);
+        scene.world.rotateSection(contraption, 0, 0, 360 * 2, 74 * 2);
+        scene.world.rotateBearing(bearingPos, -360 * 2, 74 * 2);
+        scene.world.rotateSection(subContraption, 0, 0, 360 * 2, 74 * 2);
+
         scene.markAsFinished();
+        scene.idle(74 * 2);
+        scene.world.setKineticSpeed(largeCog, 0);
+        scene.world.setKineticSpeed(beltAndBearing, 0);
+
+        scene.markAsFinished();*/
     }
 }
