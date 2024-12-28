@@ -1,19 +1,13 @@
 package net.jcm.vsch.blocks.entity;
 
-import net.jcm.vsch.blocks.custom.MagnetBlock;
 import net.jcm.vsch.blocks.custom.template.BlockEntityWithEntity;
 import net.jcm.vsch.entity.MagnetEntity;
 import net.jcm.vsch.entity.VSCHEntities;
-import net.jcm.vsch.ship.DraggerData;
-import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class MagnetBlockEntity extends BlockEntityWithEntity<MagnetEntity> {
@@ -40,12 +34,12 @@ public class MagnetBlockEntity extends BlockEntityWithEntity<MagnetEntity> {
 		Vec3 center = pos.getCenter();
 		float radius = 0.5f;
 
-		if (level.getEntities(VSCHEntities.MAGNET_ENTITY.get(),
+		/*if (level.getEntities(VSCHEntities.MAGNET_ENTITY.get(),
 				new AABB(center.x - radius, center.y - radius, center.z - radius, center.x + radius, center.y + radius, center.z + radius),
 				entity -> true
 		).isEmpty()) {
 			spawnLinkedEntity();
-		};
+		};*/
 
 		// ----- Add thruster to the force appliers for the current level ----- //
 
@@ -67,6 +61,6 @@ public class MagnetBlockEntity extends BlockEntityWithEntity<MagnetEntity> {
 
 	@Override
 	public MagnetEntity createLinkedEntity(ServerLevel level, BlockPos pos) {
-		return new MagnetEntity(VSCHEntities.MAGNET_ENTITY.get(), level, pos);
+		return null;//new MagnetEntity(VSCHEntities.MAGNET_ENTITY.get(), level, pos);
 	}
 }

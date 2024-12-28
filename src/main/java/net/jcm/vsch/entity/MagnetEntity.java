@@ -49,9 +49,9 @@ public class MagnetEntity extends Entity {
 
             BlockState block = lv.getBlockState(pos);
 
-            if (!block.is(VSCHBlocks.MAGNET_BLOCK.get())) {
+            /*if (!block.is(VSCHBlocks.MAGNET_BLOCK.get())) {
                 this.kill();
-            }
+            }*/
         }
     }
 

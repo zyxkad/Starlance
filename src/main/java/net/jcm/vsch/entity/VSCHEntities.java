@@ -14,10 +14,10 @@ import java.util.function.Supplier;
 public class VSCHEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, VSCHMod.MODID);
 
-    public static final RegistryObject<EntityType<MagnetEntity>> MAGNET_ENTITY = registerEntity("magnet_entity",
+    /*public static final RegistryObject<EntityType<MagnetEntity>> MAGNET_ENTITY = registerEntity("magnet_entity",
             () -> EntityType.Builder.<MagnetEntity>of(MagnetEntity::new, MobCategory.MISC)
                     .sized(0.1F, 0.1F)
-                   );
+                   );*/
 
     // Makes it easier to register entities registry name
     private static <T extends Entity> RegistryObject<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> builder) {
