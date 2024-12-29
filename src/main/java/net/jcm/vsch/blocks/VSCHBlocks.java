@@ -4,16 +4,15 @@ import java.util.function.Supplier;
 
 import net.jcm.vsch.VSCHMod;
 
+import net.jcm.vsch.blocks.custom.*;
+import net.jcm.vsch.blocks.custom.PowerfulThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.jcm.vsch.blocks.custom.AirThrusterBlock;
-import net.jcm.vsch.blocks.custom.DragInducerBlock;
-import net.jcm.vsch.blocks.custom.PowerfulThrusterBlock;
-import net.jcm.vsch.blocks.custom.ThrusterBlock;
 import net.jcm.vsch.items.VSCHItems;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -44,6 +43,16 @@ public class VSCHBlocks {
 			() -> new DragInducerBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
 					.strength(5f)
 					.noOcclusion()));
+
+	public static final RegistryObject<Block> GRAVITY_INDUCER_BLOCK = registerBlock("gravity_inducer_block",
+			() -> new GravityInducerBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
+					.strength(5f)
+					.noOcclusion()));
+
+	/*public static final RegistryObject<Block> MAGNET_BLOCK = registerBlock("magnet_block",
+			() -> new MagnetBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
+					.strength(5f)
+					.noOcclusion()));*/
 
 
 	//below is just tools used in adding the block

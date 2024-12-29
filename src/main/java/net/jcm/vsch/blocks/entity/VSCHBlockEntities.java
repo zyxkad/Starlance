@@ -32,6 +32,11 @@ public class VSCHBlockEntities {
 					() -> BlockEntityType.Builder.of(DragInducerBlockEntity::new, VSCHBlocks.DRAG_INDUCER_BLOCK.get())
 					.build(null));
 
+	public static final RegistryObject<BlockEntityType<GravityInducerBlockEntity>> GRAVITY_INDUCER_BLOCK_ENTITY =
+			BLOCK_ENTITIES.register("gravity_inducer_block",
+					() -> BlockEntityType.Builder.of(GravityInducerBlockEntity::new, VSCHBlocks.GRAVITY_INDUCER_BLOCK.get())
+							.build(null));
+
 
 
 	public static void register(IEventBus eventBus) {

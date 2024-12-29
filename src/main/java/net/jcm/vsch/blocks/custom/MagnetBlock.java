@@ -1,9 +1,17 @@
 package net.jcm.vsch.blocks.custom;
 
 
+import net.jcm.vsch.blocks.custom.template.BlockWithEntity;
+import net.jcm.vsch.blocks.entity.DragInducerBlockEntity;
+import net.jcm.vsch.blocks.entity.MagnetBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
-import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
-
+import net.jcm.vsch.ship.DraggerData;
+import net.jcm.vsch.ship.ThrusterData;
+import net.jcm.vsch.ship.VSCHForceInducedShips;
+import net.jcm.vsch.util.rot.DirectionalShape;
+import net.jcm.vsch.util.rot.RotShape;
+import net.jcm.vsch.util.rot.RotShapes;
+import net.lointain.cosmos.init.CosmosModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,10 +21,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,28 +32,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.jcm.vsch.ship.VSCHForceInducedShips;
-import net.jcm.vsch.blocks.entity.DragInducerBlockEntity;
-import net.jcm.vsch.blocks.entity.ThrusterBlockEntity;
-import net.jcm.vsch.ship.DraggerData;
-import net.jcm.vsch.ship.ThrusterData;
-import net.jcm.vsch.util.rot.DirectionalShape;
-import net.jcm.vsch.util.rot.RotShape;
-import net.jcm.vsch.util.rot.RotShapes;
-import net.lointain.cosmos.init.CosmosModItems;
 
 
-public class DragInducerBlock extends Block implements EntityBlock { //
+public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 
-	//TODO: fix this bounding box
-	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-	private final DirectionalShape dragger_shape = DirectionalShape.south(SHAPE);
-
-
-	public DragInducerBlock(Properties properties) {
+	public MagnetBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(defaultBlockState()
+				.setValue(FACING, Direction.NORTH));
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+		pBuilder.add(FACING);
 	}
 
 	@Override
@@ -69,7 +66,7 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 
 		if (ships != null) {
 
-			if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
+			/*if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
 				ships.addDragger(pos, new DraggerData(
 						(signal > 0),
 						ThrusterData.ThrusterMode.POSITION //Position based thruster by default
@@ -79,7 +76,7 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 						(signal > 0),
 						ThrusterData.ThrusterMode.GLOBAL //Position based thruster by default
 						));
-			}
+			}*/
 
 		}
 	}
@@ -93,49 +90,21 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 		// I guess VS does this automatically when switching a shipyards dimension?
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships != null) {
-			ships.removeDragger(pos);
+			//ships.removeDragger(pos);
 		}
 
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		// If client side, ignore 
-		if (!(level instanceof ServerLevel)) return InteractionResult.PASS;
-		// If its the right item and mainhand
-		if (player.getMainHandItem().getItem() == CosmosModItems.ENERGY_METER.get() && hand == InteractionHand.MAIN_HAND) {
-			if(VSCHConfig.THRUSTER_TOGGLE.get()){
-				// Get the force handler
-				VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-
-				// If a force handler exists (might not if we aren't on a VS ship)
-				if (ships != null) {
-					DraggerData data = ships.getDraggerAtPos(pos);
-
-					// Probably unneeded, but checks are always good right?
-					if (data != null) {
-
-						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
-							data.mode = ThrusterData.ThrusterMode.GLOBAL;
-							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
-							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
-						} else {
-							data.mode = ThrusterData.ThrusterMode.POSITION;
-
-							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
-						}
-						return InteractionResult.CONSUME;
-					}
-				}
-			} else if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
-				player.displayClientMessage(Component.literal("Thruster Mode Toggling is disabled").withStyle(ChatFormatting.RED), true);
-			}
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		Direction dir = ctx.getNearestLookingDirection();
+		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
+			dir = dir.getOpposite();
 		}
-
-		return InteractionResult.PASS;
+		return defaultBlockState()
+				.setValue(BlockStateProperties.FACING, dir);
 	}
-
 
 	/*@Override
     public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
@@ -158,11 +127,11 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 
 		if (ships != null) {
-			DraggerData data = ships.getDraggerAtPos(pos);
+			/*DraggerData data = ships.getDraggerAtPos(pos);
 
 			if (data != null) {
-				data.on = (signal > 0);	
-			}
+				data.on = (signal > 0);
+			}*/
 		}
 	}
 
@@ -171,7 +140,7 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 	// Attach block entity
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new DragInducerBlockEntity(pos, state);
+		return new MagnetBlockEntity(pos, state);
 	}
 
 	/*public static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(Level level) {
@@ -182,7 +151,7 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 		// TODO Auto-generated method stub
 		if (!level.isClientSide()) {
 			//System.out.println("serverside ticker");
-			return (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).serverTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity);
+			return (level0, pos0, state0, blockEntity) -> ((MagnetBlockEntity)blockEntity).serverTick(level0, pos0, state0, (MagnetBlockEntity) blockEntity);
 		} else {
 			//System.out.println("clientside ticker");
 			return null;

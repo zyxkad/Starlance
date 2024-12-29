@@ -4,6 +4,10 @@ import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.compat.create.VSCHPonderRegistry;
 import net.jcm.vsch.compat.create.VSCHPonderTags;
 import net.jcm.vsch.compat.create.VSCHRegistrateBlocks;
+import net.jcm.vsch.entity.VSCHEntities;
+import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.valkyrienskies.core.impl.hooks.VSEvents;
 
@@ -39,6 +43,7 @@ public class VSCHMod {
 		VSCHBlockEntities.register(modBus);
 		VSCHConfig.register(ModLoadingContext.get());
 		VSCHTab.register(modBus);
+		VSCHEntities.register(modBus);
 		// Register commands (I took this code from another one of my mods, can't be bothered to make it consistent with the rest of this)
 		MinecraftForge.EVENT_BUS.register(ModCommands.class);
 
@@ -47,6 +52,7 @@ public class VSCHMod {
 		});
 
 		modBus.addListener(this::onClientSetup);
+		modBus.addListener(this::registerRenderers);
 
 		if (CompatMods.CREATE.isLoaded()) {
 			VSCHRegistrateBlocks.register();
@@ -60,6 +66,11 @@ public class VSCHMod {
 			VSCHPonderTags.register();
 		}
 	}
+
+	public void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+		//event.registerEntityRenderer(VSCHEntities.MAGNET_ENTITY.get(), NoopRenderer::new);
+	}
+
 
 }
 
