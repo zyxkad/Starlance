@@ -16,7 +16,8 @@ public class VSCHPonderRegistry {
                         VSCHRegistrateBlocks.AIR_THRUSTER_BLOCK,
                         VSCHRegistrateBlocks.POWERFUL_THRUSTER_BLOCK
                 )
-                .addStoryBoard("thrusters", ThrusterScenes::thrusters);
+                .addStoryBoard("thrusters", ThrusterScenes::thrusters)
+                .addStoryBoard("thruster_modes", ThrusterScenes::modes);
 
         HELPER.forComponents(
                 VSCHRegistrateBlocks.DRAG_INDUCER_BLOCK
