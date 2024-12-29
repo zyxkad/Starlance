@@ -1,7 +1,7 @@
-package net.jcm.vsch.blocks.custom.template;
+package net.jcm.vsch.blocks.custom;
 
 
-import net.jcm.vsch.blocks.custom.ThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
 import net.jcm.vsch.config.VSCHConfig;
 
 import net.minecraft.core.BlockPos;

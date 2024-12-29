@@ -15,6 +15,7 @@ import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.apigame.ShipTeleportData;
 import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
+import org.valkyrienskies.core.util.AABBdUtilKt;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.entity.handling.VSEntityHandler;
 import org.valkyrienskies.mod.common.entity.handling.VSEntityManager;
@@ -72,7 +73,7 @@ public class TeleportUtils {
 		// Get the AABB of the last tick and the AABB of the current tick
 		AABB prevWorldAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), ship.getShipAABB())).inflate(10);
 		AABB currentWorldAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).inflate(10);
-        AABB shipyardAABB = VectorConversionsMCKt.toMinecraft((AABBdc) ship.getShipAABB()).inflate(10);
+        AABB shipyardAABB = VectorConversionsMCKt.toMinecraft(AABBdUtilKt.toAABBd(ship.getShipAABB(), new AABBd())).inflate(10);
 
         // Combine the AABB's into one big one
 		//		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
@@ -115,8 +116,8 @@ public class TeleportUtils {
         // Shipyard entities (Example: paintings, create contraptions)
         shipyardentityOffsets.putAll(calculateOffsets(shipyardEntities,shipyardCenter,true));
         // Sub ships
-        subShipOffsets.putAll(calculateSubShipOffsets(level,VectorConversionsMCKt.toJOML(currentWorldAABB)));
-        teleportShipsToOffsets(subShipOffsets,level,newoldShipCenter,VSnewDimension);
+//        subShipOffsets.putAll(calculateSubShipOffsets(level,VectorConversionsMCKt.toJOML(currentWorldAABB)));
+//        teleportShipsToOffsets(subShipOffsets,level,newoldShipCenter,VSnewDimension);
         // ---------- //
 
 		// ----- Teleport ship ----- //

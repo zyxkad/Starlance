@@ -1,18 +1,11 @@
 package net.jcm.vsch.compat.jade;
 
 import net.jcm.vsch.VSCHMod;
-import net.jcm.vsch.blocks.VSCHBlocks;
-import net.jcm.vsch.blocks.custom.ThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
 import net.jcm.vsch.compat.jade.componentproviders.ThrusterBlockComponentProvider;
 import net.jcm.vsch.ship.ThrusterData;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import snownee.jade.api.*;
 
 

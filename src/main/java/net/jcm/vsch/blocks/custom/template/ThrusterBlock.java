@@ -1,4 +1,4 @@
-package net.jcm.vsch.blocks.custom;
+package net.jcm.vsch.blocks.custom.template;
 
 
 import net.jcm.vsch.config.VSCHConfig;
@@ -27,11 +27,9 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -42,7 +40,6 @@ import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
 import net.jcm.vsch.util.rot.RotShapes;
-import net.lointain.cosmos.init.CosmosModItems;
 
 
 public class ThrusterBlock extends DirectionalBlock implements EntityBlock {
