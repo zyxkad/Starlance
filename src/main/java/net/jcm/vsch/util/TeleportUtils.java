@@ -103,6 +103,9 @@ public class TeleportUtils {
 		seatedEntities.putAll(deSeatEntities(prevEntities));
 		seatedEntities.putAll(deSeatEntities(currentEntities));
 
+
+		//TODO: I don't know why theres so many duplicate functions here but when I tried to clean it up it fucked stuff
+
 		// Get offsets
 		entityOffsets.putAll(calculateOffsets(prevEntities,oldShipCenter,false));
 		entityOffsets.putAll(calculateOffsets(currentEntities,newoldShipCenter,false));
@@ -139,6 +142,7 @@ public class TeleportUtils {
 		Vec3 newShipyardCenter = VectorConversionsMCKt.toMinecraft(ship.getShipAABB().center(new Vector3d(0, 0, 0)));
 
         // ------- Actually teleport the entities -------//
+		//TODO: See todo further above
         teleportEntitiesToOffsets(entityOffsets,newShipCenter,newLevel);
         teleportEntitiesToOffsets(shipyardentityOffsets,newShipyardCenter,newLevel);
 		teleportEntitiesToOffsets(entityOffsets,newShipCenter,newLevel);
