@@ -1,22 +1,18 @@
 package net.jcm.vsch.compat.create;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.content.contraptions.elevator.ElevatorContactBlock;
-import com.simibubi.create.content.decoration.palettes.AllPaletteBlocks;
 import com.simibubi.create.content.redstone.analogLever.AnalogLeverBlockEntity;
 import com.simibubi.create.foundation.ponder.*;
 import com.simibubi.create.foundation.ponder.element.InputWindowElement;
 import com.simibubi.create.foundation.ponder.element.WorldSectionElement;
 import com.simibubi.create.foundation.ponder.instruction.EmitParticlesInstruction;
-import com.simibubi.create.foundation.ponder.instruction.PonderInstruction;
 import com.simibubi.create.foundation.utility.Pointing;
-import com.simibubi.create.foundation.utility.animation.LerpedFloat;
+import net.jcm.vsch.items.VSCHItems;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class ThrusterScenes {
     public static void thrusters(SceneBuilder scene, SceneBuildingUtil util) {
@@ -25,8 +21,6 @@ public class ThrusterScenes {
         //scene.scaleSceneView(.85f);
         scene.removeShadow();
         //scene.setSceneOffsetY(-1.5f);
-
-
 
         BlockPos middleThrusterLever = util.grid.at(2, 2, 2);
         BlockPos leftThrusterLever = util.grid.at(3, 2, 2);
@@ -121,312 +115,6 @@ public class ThrusterScenes {
         scene.idle(50);
 
         scene.markAsFinished();
-
-        /*BlockPos leverPos = util.grid.at(2, 1, 0);
-        BlockPos redstonePos = util.grid.at(2, 1, 1);
-        BlockPos doorBottomPos = util.grid.at(2, 1, 2);
-        BlockPos doorTopPos = util.grid.at(2, 2, 2);
-        BlockPos pulleyPos = util.grid.at(2, 11, 2);
-        BlockPos elevatorDoorBottomPos = util.grid.at(2, 7,     1);
-        BlockPos elevatorDoorTopPos = util.grid.at(2, 8, 1);
-        BlockPos outerContactLowerPos = util.grid.at(0, 1, 2);
-        BlockPos outerContactUpperPos = util.grid.at(0, 7, 2);
-
-        Selection lever = util.select.position(leverPos);
-        Selection redstone = util.select.position(redstonePos);
-        Selection leverAndRedstone = util.select.fromTo(leverPos, redstonePos);
-        Selection door = util.select.fromTo(doorBottomPos, doorTopPos);
-
-        Selection elevatorFloor = util.select.fromTo(3, 6, 3, 1, 6, 1);
-        Selection elevatorRoof = util.select.fromTo(3, 10, 3, 1, 10, 1);
-        Selection elevatorDoor = util.select.fromTo(2, 7, 1, 2, 8, 1);
-        Selection girder1 = util.select.fromTo(3, 7, 3, 3, 9, 3);
-        Selection girder2 = util.select.fromTo(3, 7, 1, 3, 9, 1);
-        Selection girder3 = util.select.fromTo(1, 7, 1, 1, 9, 1);
-        Selection girder4 = util.select.fromTo(1, 7, 3, 1, 9, 3);
-        Selection controls = util.select.fromTo(3, 7, 2, 3, 7, 2);
-        Selection innerContact = util.select.fromTo(1, 7, 2, 1, 7, 2);
-        Selection outerContactUpper = util.select.position(outerContactUpperPos);
-        Selection outerContactLower = util.select.position(outerContactLowerPos);
-
-        Selection powerVertical = util.select.fromTo(5, 0, 3, 5, 10, 3);
-        Selection cogs = util.select.fromTo(4, 10, 3, 4, 11, 2);
-        Selection elevatorPulley = util.select.fromTo(3, 11, 2, 2, 11, 2);
-
-        Selection lowerFloor = util.select.fromTo(4, 0, 0, 0, 0, 4);
-        Selection lowerFloorCutout = util.select.fromTo(1, 0, 3, 3, 0, 1);
-        Selection upperFloorOutside = util.select.fromTo(4, 6, 0, 0, 6, 4).substract(elevatorFloor);
-
-        Selection glassArea = util.select.fromTo(3, 6, 0, 1, 6, 0);
-
-        // ACTION!
-
-        //openDoor(scene, elevatorDoorBottomPos); // open elevator door in preparation
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.CALLING);
-        scene.world.setBlocks(glassArea, AllPaletteBlocks.FRAMED_GLASS.getDefaultState(), false);
-
-        // show baseplate and door
-
-        ElementLink<WorldSectionElement> camLink = scene.world.showIndependentSection(lowerFloor, Direction.UP);
-        scene.idle(5);
-        scene.world.showSection(door, Direction.WEST);
-        scene.idle(2);
-        scene.world.showSection(redstone, Direction.SOUTH);
-        scene.idle(2);
-        scene.world.showSection(lever, Direction.SOUTH);
-
-        scene.idle(10);
-
-        // explain that doors have multiple modes
-        scene.overlay.showText(80)
-                .colored(PonderPalette.WHITE)
-                .text("Doors have multiple modes of operation: Normal, Manual, and Special")
-                .pointAt(util.vector.topOf(doorBottomPos))
-                .attachKeyFrame()
-                .placeNearTarget();
-
-        scene.idle(80);
-
-        Vec3 blockSurface = util.vector.blockSurface(doorBottomPos, Direction.NORTH)
-                .add(0, 1 / 16f, 0);
-        scene.overlay.showFilterSlotInput(blockSurface, Direction.NORTH, 60);
-        scene.overlay.showControls(new InputWindowElement(blockSurface, Pointing.DOWN).scroll()
-                .withWrench(), 60);
-        scene.idle(10);
-        scene.overlay.showText(60)
-                .pointAt(blockSurface)
-                .placeNearTarget()
-                .attachKeyFrame()
-                .sharedText(Create.asResource("behaviour_modify_value_panel"));
-        scene.idle(70);
-
-        Vec3 upperDoorSurface = util.vector.blockSurface(doorTopPos, Direction.NORTH);
-
-        scene.overlay.showText(60)
-                .text("In normal mode (the default) and manual mode, manual operation of the door is possible")
-                .pointAt(upperDoorSurface.add(-8 / 16f, 0, 0))
-                .placeNearTarget()
-                .attachKeyFrame();
-        scene.idle(30);
-        scene.overlay.showControls(new InputWindowElement(upperDoorSurface, Pointing.DOWN).rightClick(), 20);
-        scene.idle(10);
-        //openDoor(scene, doorBottomPos);
-        scene.idle(30);
-        //closeDoor(scene, doorBottomPos);
-        scene.idle(10);
-
-        scene.overlay.showText(60)
-                .text("and redstone operation works in normal mode and special mode")
-                .pointAt(util.vector.blockSurface(leverPos, Direction.UP).subtract(0, 4 / 16f, 0))
-                .placeNearTarget()
-                .attachKeyFrame();
-        scene.idle(20);
-        scene.world.toggleRedstonePower(leverAndRedstone);
-        //openDoor(scene, doorBottomPos);
-        scene.idle(30);
-        scene.world.toggleRedstonePower(leverAndRedstone);
-        //closeDoor(scene, doorBottomPos);
-        scene.idle(30);
-
-        scene.world.hideSection(leverAndRedstone, Direction.NORTH);
-        scene.world.hideSection(door, Direction.WEST);
-        scene.idle(10);
-        scene.world.setBlocks(lowerFloorCutout, Blocks.AIR.defaultBlockState(), false);
-//        scene.world.hideSection(lowerFloorCutout, Direction.DOWN);
-
-        scene.idle(10);
-
-        SceneBuilder sceneBuilder = scene;
-
-        scene.addInstruction(new PonderInstruction() {
-
-            private int ticks = 0;
-            private LerpedFloat scale = LerpedFloat.linear().startWithValue(1.0);
-
-            @Override
-            public void onScheduled(PonderScene scene) {
-                super.onScheduled(scene);
-                scale.setValue(1.0);
-                scale.chase(.85, .3, LerpedFloat.Chaser.EXP);
-            }
-
-            @Override
-            public void reset(PonderScene scene) {
-                super.reset(scene);
-                scale.setValue(1.0);
-                scale.chase(.85, .3, LerpedFloat.Chaser.EXP);
-                sceneBuilder.scaleSceneView(1.0f);
-            }
-
-            @Override
-            public boolean isComplete() {
-                return scale.settled();
-            }
-            @Override
-            public void tick(PonderScene scene) {
-                scale.tickChaser();
-                sceneBuilder.scaleSceneView(scale.getValue());
-            }
-        });
-
-        scene.addKeyframe();
-
-        scene.idle(5);
-
-        scene.world.showSectionAndMerge(powerVertical, Direction.WEST, camLink);
-        scene.world.showSectionAndMerge(cogs, Direction.DOWN, camLink);
-        scene.world.showSectionAndMerge(elevatorPulley, Direction.DOWN, camLink);
-        scene.world.movePulley(pulleyPos, 1, 0);
-        scene.world.showSectionAndMerge(upperFloorOutside, Direction.DOWN, camLink);
-
-        scene.idle(15);
-
-        scene.world.moveSection(camLink, new Vec3(0, -7, 0), 10);
-
-        scene.idle(10);
-
-        ElementLink<WorldSectionElement> elevator = scene.world.showIndependentSection(elevatorFloor, Direction.UP);
-        scene.world.moveSection(elevator, new Vec3(0, -7, 0), 0);
-
-        scene.idle(5);
-
-        scene.world.showSectionAndMerge(girder1, Direction.DOWN, elevator);
-        scene.world.showSectionAndMerge(girder2, Direction.DOWN, elevator);
-        scene.world.showSectionAndMerge(girder3, Direction.DOWN, elevator);
-        scene.world.showSectionAndMerge(girder4, Direction.DOWN, elevator);
-
-        scene.idle(5);
-
-        scene.world.showSectionAndMerge(controls, Direction.WEST, elevator);
-        scene.world.showSectionAndMerge(innerContact, Direction.WEST, elevator);
-        scene.world.showSectionAndMerge(outerContactUpper, Direction.EAST, camLink);
-        scene.world.showSectionAndMerge(outerContactLower, Direction.EAST, camLink);
-
-        scene.idle(5);
-
-        scene.world.showSectionAndMerge(elevatorRoof, Direction.NORTH, elevator);
-        scene.world.showSectionAndMerge(elevatorDoor, Direction.SOUTH, elevator);
-
-        scene.idle(20);
-        scene.addKeyframe();
-
-        scene.idle(15);
-
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.CALLING);
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.POWERING);
-
-        //closeDoor(scene, elevatorDoorBottomPos);
-
-        // move elevator down
-        scene.world.movePulley(pulleyPos, 6, 60);
-        scene.world.moveSection(elevator, new Vec3(0, 1, 0), 60);
-        scene.world.moveSection(camLink, new Vec3(0, 7, 0), 60);
-
-        scene.idle(10);
-
-        scene.overlay.showText(80)
-                .colored(PonderPalette.BLUE)
-                .text("Doors in normal and special modes open and close when a contraption moves or stops")
-                .pointAt(util.vector.blockSurface(elevatorDoorTopPos.below(6), Direction.NORTH))
-                .placeNearTarget();
-        scene.idle(50);
-        //openDoor(scene, elevatorDoorBottomPos);
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.POWERING);
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.CALLING);
-        scene.idle(60);
-
-        // move elevator up
-
-        // call elevator with upper, remove power from lower contact
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.CALLING);
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.POWERING);
-
-        scene.world.movePulley(pulleyPos, -6, 60);
-        scene.world.moveSection(elevator, new Vec3(0, -1, 0), 60);
-        scene.world.moveSection(camLink, new Vec3(0, -7, 0), 60);
-
-        scene.idle(10);
-
-        scene.overlay.showText(80)
-                .colored(PonderPalette.BLUE)
-                .text("Doors in manual mode only change when a player interacts with them")
-                .pointAt(util.vector.blockSurface(elevatorDoorTopPos.below(6), Direction.NORTH))
-                .placeNearTarget()
-                .attachKeyFrame();
-        scene.idle(50);
-
-        // disable calling state of upper contact, enable powering state of upper contact
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.POWERING);
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.CALLING);
-
-        scene.idle(60);
-
-        // call elevator down, and move it
-
-        //closeDoor(scene, elevatorDoorBottomPos);
-
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.CALLING);
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.POWERING);
-
-        scene.world.movePulley(pulleyPos, 6, 60);
-        scene.world.moveSection(elevator, new Vec3(0, 1, 0), 60);
-        scene.world.moveSection(camLink, new Vec3(0, 7, 0), 60);
-
-        scene.idle(30);
-
-        scene.overlay.showControls(new InputWindowElement(util.vector.topOf(elevatorDoorBottomPos.below(6))
-                .add(8 / 16f, 0, 0), Pointing.DOWN).rightClick(), 60);
-        scene.overlay.showText(70)
-                .colored(PonderPalette.RED)
-                .text("Doors in special mode cannot be toggled simply by using them")
-                .pointAt(util.vector.blockSurface(elevatorDoorTopPos.below(6), Direction.NORTH))
-                .placeNearTarget()
-                .attachKeyFrame();
-        scene.idle(5);
-        scene.effects.indicateRedstone(elevatorDoorBottomPos.below(5).north());
-
-        scene.idle(25);
-
-        // mark arrival of elevator by opening door and modifying contacts
-        //openDoor(scene, elevatorDoorBottomPos);
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.POWERING);
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.CALLING);
-        scene.idle(45);
-
-        // move the elevator up again, and call it
-        //closeDoor(scene, elevatorDoorBottomPos);
-
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.CALLING);
-        scene.world.cycleBlockProperty(outerContactLowerPos, ElevatorContactBlock.POWERING);
-
-        scene.world.movePulley(pulleyPos, -6, 60);
-        scene.world.moveSection(elevator, new Vec3(0, -1, 0), 60);
-        scene.world.moveSection(camLink, new Vec3(0, -7, 0), 60);
-
-        scene.idle(15);
-
-        scene.overlay.showControls(new InputWindowElement(util.vector.topOf(elevatorDoorBottomPos.below(6))
-                .add(8 / 16f, 0, 0), Pointing.DOWN).rightClick().whileSneaking(), 50);
-        scene.overlay.showText(60)
-                .colored(PonderPalette.WHITE)
-                .text("Sneaking, however, allows the player to toggle the door anyway")
-                .pointAt(util.vector.blockSurface(elevatorDoorTopPos.below(6), Direction.NORTH))
-                .placeNearTarget()
-                .attachKeyFrame();
-
-        //openDoor(scene, elevatorDoorBottomPos);
-        scene.effects.indicateSuccess(elevatorDoorBottomPos.below(5).north());
-
-        scene.idle(55);
-
-        // change contact state to mark arrival
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.POWERING);
-        scene.world.cycleBlockProperty(outerContactUpperPos, ElevatorContactBlock.CALLING);
-        scene.idle(15);*/
-
-        /*
-        scene.idle(90);
-        scene.debug.debugSchematic();// */
     }
 
     public static void modes(SceneBuilder scene, SceneBuildingUtil util) {
@@ -443,83 +131,193 @@ public class ThrusterScenes {
 
         scene.world.showSection(basePlate, Direction.UP);
         scene.idle(5);
-        scene.world.showSection(ship, Direction.DOWN);
+        ElementLink<WorldSectionElement> shipLink = scene.world.showIndependentSection(ship, Direction.DOWN);
 
         scene.idle(10);
 
         scene.overlay.showText(60)
                 .text("By default, thrusters are in POSITION mode")
                 .pointAt(util.vector.centerOf(thruster))
-                .placeNearTarget()
                 .attachKeyFrame();
 
-        /*Selection beltAndBearing = util.select.fromTo(3, 3, 4, 3, 1, 6);
-        Selection largeCog = util.select.position(2, 0, 6);
-        BlockPos parentBearingPos = util.grid.at(3, 3, 4);
-        BlockPos bearingPos = util.grid.at(3, 4, 2);
+        scene.idle(60+20);
 
-        scene.world.showSection(util.select.layer(0), Direction.UP);
+        scene.overlay.showText(60)
+                .text("This means they will apply force based on where they are")
+                .pointAt(util.vector.centerOf(thruster))
+                .attachKeyFrame();
+
+        scene.idle(30);
+
+        scene.overlay.showOutline(PonderPalette.RED, 1, util.select.position(thruster), 60);
+
         scene.idle(5);
-        scene.world.showSection(beltAndBearing, Direction.DOWN);
+
+        drawArrow(scene.overlay, util.vector.centerOf(thruster), util.vector.centerOf(3, 1, 5), PonderPalette.RED, 55);
+
+        scene.idle(55+10);
+
+        scene.world.configureCenterOfRotation(shipLink, new Vec3(1, 1, 4));
+        scene.world.rotateSection(shipLink, 0, -60, 0, 20);
+        scene.world.moveSection(shipLink, new Vec3(-2, 0, 9), 20);
+
+
+        scene.effects.emitParticles(
+                util.vector.centerOf(3, 1, 2),
+                EmitParticlesInstruction.Emitter.simple(
+                        CosmosModParticleTypes.THRUSTED.get(),
+                        new Vec3(0, 0, -10)
+                ),
+                10,
+                7
+        );
+
+        scene.idle(7);
+
+        scene.effects.emitParticles(
+                util.vector.centerOf(3, 1, 5),
+                EmitParticlesInstruction.Emitter.simple(
+                        CosmosModParticleTypes.THRUSTED.get(),
+                        new Vec3(3, 0, -7)
+                ),
+                10,
+                5
+        );
+
+        scene.idle(5);
+
+        scene.effects.emitParticles(
+                util.vector.centerOf(3, 1, 8),
+                EmitParticlesInstruction.Emitter.simple(
+                        CosmosModParticleTypes.THRUSTED.get(),
+                        new Vec3(5, 0, -5)
+                ),
+                10,
+                5
+        );
+
+        scene.idle(5+3+10);
+
+        scene.world.hideIndependentSectionImmediately(shipLink);
+        shipLink = scene.world.showIndependentSection(ship, Direction.DOWN);
+
         scene.idle(10);
 
-        ElementLink<WorldSectionElement> contraption =
-                scene.world.showIndependentSection(util.select.fromTo(3, 3, 3, 3, 4, 3), Direction.SOUTH);
-        scene.world.configureCenterOfRotation(contraption, util.vector.centerOf(parentBearingPos));
-        scene.idle(20);
-        scene.world.glueBlockOnto(bearingPos, Direction.SOUTH, contraption);
-
-        scene.idle(15);
-
-        scene.overlay.showSelectionWithText(util.select.position(bearingPos), 60)
-                .text("Whenever Mechanical Bearings are themselves part of a moving Structure..")
-                .attachKeyFrame()
-                .placeNearTarget();
-        scene.idle(70);
-
-        scene.world.setKineticSpeed(largeCog, -8);
-        scene.world.setKineticSpeed(beltAndBearing, 16);
-        scene.world.rotateBearing(parentBearingPos, 360, 74);
-        scene.world.rotateSection(contraption, 0, 0, 360, 74);
-        scene.world.rotateBearing(bearingPos, -360, 74);
-        scene.idle(74);
-
-        scene.world.setKineticSpeed(largeCog, 0);
-        scene.world.setKineticSpeed(beltAndBearing, 0);
         scene.overlay.showText(60)
-                .text("..they will attempt to keep themselves upright")
-                .pointAt(util.vector.blockSurface(bearingPos, Direction.NORTH))
-                .placeNearTarget();
-        scene.idle(70);
+                .text("However, this can cause unwanted rotation")
+                .pointAt(util.vector.centerOf(2,1,2));
 
-        scene.overlay.showSelectionWithText(util.select.position(bearingPos.north()), 60)
-                .colored(PonderPalette.GREEN)
-                .text("Once again, the bearing will attach to the block in front of it")
-                .attachKeyFrame()
-                .placeNearTarget();
-        scene.idle(70);
+        scene.idle(60+20);
 
-        ElementLink<WorldSectionElement> subContraption =
-                scene.world.showIndependentSection(util.select.fromTo(4, 4, 1, 2, 4, 1), Direction.SOUTH);
-        scene.world.configureCenterOfRotation(subContraption, util.vector.centerOf(parentBearingPos));
-        scene.world.configureStabilization(subContraption, util.vector.centerOf(bearingPos));
-        scene.idle(20);
+        scene.addKeyframe();
 
-        scene.overlay.showText(80)
-                .text("As a result, the entire sub-Contraption will stay upright");
+        scene.overlay.showControls(
+                new InputWindowElement(
+                        util.vector.topOf(thruster),
+                        Pointing.DOWN
+                )
+                .rightClick()
+                .withItem(new ItemStack(VSCHItems.WRENCH.get())),
+                30
+        );
 
-        scene.world.setKineticSpeed(largeCog, -8);
-        scene.world.setKineticSpeed(beltAndBearing, 16);
-        scene.world.rotateBearing(parentBearingPos, 360 * 2, 74 * 2);
-        scene.world.rotateSection(contraption, 0, 0, 360 * 2, 74 * 2);
-        scene.world.rotateBearing(bearingPos, -360 * 2, 74 * 2);
-        scene.world.rotateSection(subContraption, 0, 0, 360 * 2, 74 * 2);
+        scene.idle(30+10);
+
+        scene.overlay.showText(60)
+                .text("Using a wrench, a thruster can be changed to GLOBAL mode")
+                .pointAt(util.vector.centerOf(thruster));
+
+        scene.idle(60+20);
+
+        scene.overlay.showText(60)
+                .text("In GLOBAL mode it applies force without position")
+                .pointAt(util.vector.centerOf(thruster))
+                .attachKeyFrame();
+
+        scene.idle(30);
+
+        scene.overlay.showOutline(PonderPalette.GREEN, 1, ship.substract(util.select.layer(2)), 60);
+
+        scene.idle(5);
+
+        drawArrow(scene.overlay, util.vector.centerOf(2, 1, 2), util.vector.centerOf(2, 1, 5), PonderPalette.GREEN, 55);
+
+        scene.idle(55+10);
+
+        scene.world.moveSection(shipLink, new Vec3(0, 0, 10), 20);
+
+        scene.effects.emitParticles(
+                util.vector.centerOf(3, 1, 2),
+                EmitParticlesInstruction.Emitter.simple(
+                        CosmosModParticleTypes.THRUSTED.get(),
+                        new Vec3(0, 0, -10)
+                ),
+                10,
+                10
+        );
+
+        scene.idle(10);
+
+        scene.effects.emitParticles(
+                util.vector.centerOf(3, 1, 7),
+                EmitParticlesInstruction.Emitter.simple(
+                        CosmosModParticleTypes.THRUSTED.get(),
+                        new Vec3(0, 0, -10)
+                ),
+                10,
+                10
+        );
+
+        scene.idle(10+10);
+
+        scene.world.hideIndependentSectionImmediately(shipLink);
+        shipLink = scene.world.showIndependentSection(ship, Direction.DOWN);
+
+        scene.idle(10);
+
+        scene.overlay.showText(60)
+                .text("This prevents unwanted rotation")
+                .pointAt(util.vector.centerOf(2,1,2))
+                .attachKeyFrame();
+
+        scene.idle(60+20);
 
         scene.markAsFinished();
-        scene.idle(74 * 2);
-        scene.world.setKineticSpeed(largeCog, 0);
-        scene.world.setKineticSpeed(beltAndBearing, 0);
-
-        scene.markAsFinished();*/
     }
+
+    private static void drawArrow(SceneBuilder.OverlayInstructions overlay, Vec3 start, Vec3 end, PonderPalette color, int duration) {
+        //Draw main line
+        overlay.showLine(color, start, end, duration);
+
+        float headLength = 0.5F;
+
+        // ----- ChatGPT math ----- //
+
+        // Calculate direction vector
+        Vector3f direction = new Vector3f(end.toVector3f()).sub(start.toVector3f()).normalize();
+
+        // Choose a perpendicular vector
+        Vector3f up = new Vector3f(0, 1, 0); // Default perpendicular vector
+        if (Math.abs(direction.dot(up)) > 0.99) {
+            up.set(1, 0, 0); // Fallback to another perpendicular vector if direction aligns with up
+        }
+
+        Vector3f perpendicular = new Vector3f(direction).cross(up).normalize().mul(headLength);
+
+        // Adjust for 45-degree arrowhead angles
+        Vector3f arrowLeft = new Vector3f(end.toVector3f())
+                .add(new Vector3f(perpendicular).sub(direction).normalize().mul(headLength));
+        Vector3f arrowRight = new Vector3f(end.toVector3f())
+                .add(new Vector3f(perpendicular).negate().sub(direction).normalize().mul(headLength));
+
+        // ---------- //
+
+        overlay.showLine(color, end, new Vec3(arrowLeft), duration);
+
+        // We have to go B -> A instead of A -> B because multiple lines can't share the same starting position
+        // (For some VERY ANNOYING, STUPID, UNDOCUMENTED reason)
+        overlay.showLine(color, new Vec3(arrowRight), end, duration);
+
+    }
+
 }
