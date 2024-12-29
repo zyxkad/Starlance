@@ -5,7 +5,8 @@ import java.util.function.Supplier;
 import net.jcm.vsch.VSCHMod;
 
 import net.jcm.vsch.blocks.custom.*;
-import net.jcm.vsch.blocks.custom.template.PowerfulThrusterBlock;
+import net.jcm.vsch.blocks.custom.PowerfulThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -40,6 +41,11 @@ public class VSCHBlocks {
 
 	public static final RegistryObject<Block> DRAG_INDUCER_BLOCK = registerBlock("drag_inducer_block",
 			() -> new DragInducerBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
+					.strength(5f)
+					.noOcclusion()));
+
+	public static final RegistryObject<Block> GRAVITY_INDUCER_BLOCK = registerBlock("gravity_inducer_block",
+			() -> new GravityInducerBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.COPPER)
 					.strength(5f)
 					.noOcclusion()));
 

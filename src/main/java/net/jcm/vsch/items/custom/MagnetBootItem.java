@@ -20,7 +20,6 @@ public class MagnetBootItem extends ArmorItem {
     @Override
     @SuppressWarnings("removal")
     public void onArmorTick(ItemStack stack, Level level, Player player) {
-
         // Ignore spectator mode
         // I don't exactly know what this var does, but it trigger in spectator mode.
         // If it causes problems, replace it with 'isSpectator()'
@@ -65,7 +64,7 @@ public class MagnetBootItem extends ArmorItem {
 			double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue();
 
 			Vec3 force = new Vec3(0, scaledForce, 0);
-
+			System.out.println("Armour: "+force);
 
 
 			player.setDeltaMovement(player.getDeltaMovement().add(force));

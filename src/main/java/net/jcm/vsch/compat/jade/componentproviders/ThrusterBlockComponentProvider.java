@@ -1,8 +1,7 @@
 package net.jcm.vsch.compat.jade.componentproviders;
 
-import net.jcm.vsch.blocks.custom.ThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
 import net.jcm.vsch.compat.jade.JadeCompat;
-import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
