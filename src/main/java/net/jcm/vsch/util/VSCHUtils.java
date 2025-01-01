@@ -112,7 +112,7 @@ public class VSCHUtils {
 	 */
 	public static AABBd transformToAABBd(ShipTransform transform, AABBic shipAABB) {
 		if (shipAABB == null) {
-			logger.warn("[CH] Ship AABB was null, returning empty AABBd, this may break things");
+			logger.warn("[Starlance] Ship AABB was null, returning empty AABBd, this may break things");
 			return new AABBd();
 		}
 		// From AABBic (Int, constant) to AABBd (Double)
@@ -148,6 +148,8 @@ public class VSCHUtils {
 	}
 
 	/**
+	 * NOT USED ANYMORE, ALWAYS RETURNS TRUE. To be removed at a later date
+  *
 	 * Performs multiple checks on an entity to see if it can/should be moved
 	 * through dimensions with a VS ship. Checks if the entity:
 	 * <ul>
@@ -163,26 +165,9 @@ public class VSCHUtils {
 	 * @param entity The entity to check
 	 * @return True if the entity passed all checks, otherwise False
 	 */
+	@Deprecated
 	public static boolean CanEntityBeTaken(Entity entity) {
-
-		// If the entity has dragging info (they should)
-		// Use entity dragging info
-		// NOT NEEDED ANYMORE (it interfered with seats)
-		// IEntityDraggingInformationProvider dragInfoProv =
-		// (IEntityDraggingInformationProvider) entity;
-		// EntityDraggingInformation DragInfo = dragInfoProv.getDraggingInformation();
-		// If the entity isn't riding another
-		//if (entity.getVehicle() == null) {
-		// Not sure why this check exists, but its a vanilla function(?) so I'll use it
-		// here anyway
-		// If it causes problems in the future, get it out of here
-		// Future: It caused problems
-		/*
-		 * if (entity.canChangeDimensions()) { return true; }
-		 */
-		//return true;
-		//}
-		return true;//entity instanceof IEntityDraggingInformationProvider;
+		return true;
 	}
 
 	/**
@@ -521,6 +506,11 @@ public class VSCHUtils {
 		}
 	}
 
+	/**
+  * Using the ServerLevel, returns the nearest entity of <code>entityType</code> from the <code>sourceEntity</code> in the <code>maxDistance</code>. 
+  * If no entities are found, returns null.  
+  * @todo change this to use a <code>Vec3</code> instead of <code>sourceEntity</code>
+  */
 	public static Entity getNearestEntityOfType(ServerLevel level, EntityType<?> entityType, Entity sourceEntity, double maxDistance) {
 		// Define the search bounding box
 		AABB searchBox = sourceEntity.getBoundingBox().inflate(maxDistance);
