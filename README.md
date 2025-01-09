@@ -6,10 +6,13 @@ Current (done) features:
 - Redstone air thrusters (weak thruster) (global and position modes)
 - Planet collision: VS ships can enter planets (working on controlling landing location)
 - Drag Inducer block, weak thruster that always thrusts retrograde when redstone powered
+- Different VS gravity per dimensions
+- Create ponders (for optional compat)
 
 WIP features:
-  - Different VS gravity per dimensions
+- Multi-ship teleporting (e.g. attached VMod ships)
 
 Planned features:
 - Captains chair, allows warping of VS ships and priority over planet coll GUI
 - CC Compat
+- Fixed multiplayer :(
