@@ -66,7 +66,7 @@ public class PlanetCollision {
 			// If they don't have the menu already open,
 			if (!(nearestPlayer.containerMenu instanceof LandingSelectorMenu)) {
 				// Open the menu and disable normal CH collision for them:
-				logger.info("[VSCH]: opened menu instead of CH");
+				logger.info("[Starlance]: opened menu instead of CH");
 
 				BlockPos _bpos = BlockPos.containing(nearestPlayer.getX(), nearestPlayer.getY(), nearestPlayer.getZ());
 				NetworkHooks.openScreen((ServerPlayer) nearestPlayer, new MenuProvider() {

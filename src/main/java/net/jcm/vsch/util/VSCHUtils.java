@@ -106,7 +106,6 @@ public class VSCHUtils {
 	 * 
 	 * @param transform The ship transform to use
 	 * @param shipAABB  The <b>shipyard</b> AABBic of the ship
-	 * @param toWorld 	If we are transforming into the world position, or staying ship position.
 	 * @author Brickyboy
 	 * @return The world based AABBd
 	 */
@@ -440,10 +439,13 @@ public class VSCHUtils {
 	}
 
 	/**
+	 * DEPRECATED, will crash on cosmic horizons 0.7.2+
+	 *
 	 * Gets all landing locations available from a planet and gives them to the entry_world global variable.
 	 * @param world The LevelAccessor to get the cosmos world variables from
 	 * @param target_planet The CompoundTag of the planet you are entering
 	 */
+	@Deprecated(forRemoval = true)
 	public static void setEntryLocations(LevelAccessor world, CompoundTag target_planet) {
 		WorldVariables worldVars = CosmosModVariables.WorldVariables.get(world);
 

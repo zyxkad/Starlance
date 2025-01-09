@@ -7,10 +7,12 @@
   "mixins": [
     "MixinCreateNewShipWithBlocks",
     "MixinGetY",
+    "MixinLightRenderer",
     "MixinLivingEntityProcedure",
     "MixinSpaceSuitLogic"
   ],
   "client": [
+    "MixinAerialLightRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -20,8 +20,7 @@ public class VSCHEvents {
 	@SubscribeEvent
 	public static void onServerTick(TickEvent.ServerTickEvent event) {
 		for (ServerLevel level: event.getServer().getAllLevels()) {
-			//System.out.println(level.getPlayers(LivingEntity::isAlive));
-			if (level.getRandomPlayer() != null) {
+			if (level.getRandomPlayer() != null) { // HACKY HACK HACK. TODO: Test multiplayer more
 				AtmosphericCollision.atmosphericCollisionTick(level, level);
 				PlanetCollision.planetCollisionTick(level, level);
 
