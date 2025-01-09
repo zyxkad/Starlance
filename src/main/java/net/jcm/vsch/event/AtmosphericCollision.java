@@ -20,11 +20,17 @@ public class AtmosphericCollision {
 
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
 
+	public static void interateShips(ServerLevel level) {
+		for (Ship ship: VSGameUtilsKt.getAllShips(level)) {
+
+		}
+	}
+
 	/**
 	 * Checks all VS ships for the given level, if any of them are above their
 	 * dimensions atmosphere (as set in a CH datapack), they will be moved to the
 	 * specified origin in the travel to dimension.
-	 * 
+	 *
 	 * @param level
 	 * @param world
 	 */
@@ -48,17 +54,10 @@ public class AtmosphericCollision {
 			if (atmo_data_map.contains(shipDim)) {
 
 				Tag dim_atmo_data = atmo_data_map.get(shipDim);
+
+				// TODO: Gson is bad bad performance change this soon please future me!!
 				com.google.gson.JsonObject atmospheric_data = new com.google.gson.Gson().fromJson(dim_atmo_data.getAsString(), com.google.gson.JsonObject.class);
 
-				// ----- Convert atmo data into a proper json object ----- //
-				// TODO: Gson is bad bad performance change this soon please future me!!
-				/*if (dim_atmo_data instanceof CompoundTag _compTag) {
-					atmospheric_data = new com.google.gson.Gson().fromJson(_compTag.getAsString(), com.google.gson.JsonObject.class);
-				} else {
-					atmospheric_data = new com.google.gson.JsonObject();
-					// We didn't want your stupid broken !CompoundTag anyway
-					//return;
-				}*/
 
 				// If the ship is above the planets atmo height:
 				if (ship.getTransform().getPositionInWorld().y() > atmospheric_data.get("atmosphere_y").getAsDouble()) {
@@ -70,7 +69,7 @@ public class AtmosphericCollision {
 
 					String gotoDimension = atmospheric_data.get("travel_to").getAsString();
 
-					/*ServerPlayer player = level.getRandomPlayer(); // HACKY HACK HACK. TODO: Test multiplayer
+					/*ServerPlayer player = level.getRandomPlayer();
 					// System.out.println(totalAABB);
 					// System.out.println(level.getEntities(null, totalAABB));
 					if (player != null) {

@@ -122,10 +122,15 @@ repositories {
     flatDir{
         dir 'lib'
     }
-    maven { url 'https://modmaven.dev/' }
+    maven {
+        url 'https://modmaven.dev/'
+    }
 
     maven {
         url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
     }
 
 
@@ -211,9 +216,10 @@ dependencies {
 //    compileOnly fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
     compileOnly fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
     
-    //
-    //implementation fg.deobf('net.lointain:cosmichorizons:0.0.6')
-    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6.9")
+
+    // Why the fuck does 0.0.7.2 not work for implementation
+    //compileOnly fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6.9")
+    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.7.2")
     
 
     //using lodestone for now until vsfx comes out
