@@ -9,7 +9,8 @@
     "MixinGetY",
     "MixinLightRenderer",
     "MixinLivingEntityProcedure",
-    "MixinSpaceSuitLogic"
+    "MixinSpaceSuitLogic",
+    "accessor.ServerShipObjectWorldAccessor"
   ],
   "client": [
     "MixinAerialLightRenderer"
