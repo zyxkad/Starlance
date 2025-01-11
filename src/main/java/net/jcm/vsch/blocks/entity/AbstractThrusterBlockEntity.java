@@ -65,10 +65,8 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		if (this.power == newPower) {
 			return;
 		}
-		System.out.println("newPower: " + newPower);
 		this.power = newPower;
 		if (update) {
-			System.out.println("sending updated");
 			this.setChanged();
 			this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
 		}
@@ -81,7 +79,6 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public void load(CompoundTag data) {
-		System.out.println("loading: " + data);
 		this.setPower(data.getFloat("Power"), false);
 		super.load(data);
 	}
@@ -143,7 +140,6 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			return;
 		}
 
-		System.out.println("getPower(): " + getPower());
 		// If we are unpowered, do no particles
 		if (getPower() == 0.0) {
 			return;
