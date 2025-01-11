@@ -119,7 +119,7 @@ public class PlanetCollision {
 					return;
 				}
 				logger.info("[VSCH]: Teleporting VS ship into planet!");
-				TeleportUtils.DimensionTeleportShip(ship, level, dimension, posX, posY, posZ);
+				TeleportUtils.teleportShipAndConstrained(ship, level, dimension, posX, posY, posZ);
 				vars.landing_coords = "^";
 				vars.check_collision = true;
 				vars.syncPlayerVariables(nearestPlayer);

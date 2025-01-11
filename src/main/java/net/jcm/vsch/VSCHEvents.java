@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber
 public class VSCHEvents {
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onServerTick(TickEvent.ServerTickEvent event) {
 		for (ServerLevel level: event.getServer().getAllLevels()) {
 			if (level.getRandomPlayer() != null) { // HACKY HACK HACK. TODO: Test multiplayer more

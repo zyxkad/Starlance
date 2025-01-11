@@ -15,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AtmosphericCollision {
 
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
@@ -76,7 +79,8 @@ public class AtmosphericCollision {
 
 					}*/
 
-					TeleportUtils.DimensionTeleportShip(ship, level, gotoDimension, posX, posY, posZ);
+					TeleportUtils.teleportShipAndConstrained(ship, level, gotoDimension, posX, posY, posZ);
+
 
 				}
 			}
