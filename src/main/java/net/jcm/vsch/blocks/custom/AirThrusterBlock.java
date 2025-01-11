@@ -1,7 +1,7 @@
 package net.jcm.vsch.blocks.custom;
 
 
-import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
 import net.jcm.vsch.config.VSCHConfig;
 
 import net.minecraft.core.BlockPos;
@@ -20,38 +20,16 @@ import net.jcm.vsch.util.rot.RotShape;
 import net.jcm.vsch.util.rot.RotShapes;
 
 
-public class AirThrusterBlock extends ThrusterBlock {
+public class AirThrusterBlock extends AbstractThrusterBlock<AirThrusterBlockEntity> {
 	//TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(3.0, 0.0, 3.0, 13.0, 8.0, 13.0);
-	private final DirectionalShape Thruster_SHAPE = DirectionalShape.down(SHAPE);
 
 	public AirThrusterBlock(Properties properties) {
-		super(properties);
-		// TODO Auto-generated constructor stub
+		super(properties, DirectionalShape.down(SHAPE));
 	}
 
 	@Override
-	public float getThrottle(BlockState state, int signal) {
-		return signal * VSCHConfig.AIR_THRUSTER_STRENGTH.get().intValue();
-	}
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return Thruster_SHAPE.get(state.getValue(BlockStateProperties.FACING));
-	}
-
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+	public AirThrusterBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new AirThrusterBlockEntity(pos, state);
 	}
-
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		if (!level.isClientSide()) {
-			return (level0, pos0, state0, blockEntity) -> ((AirThrusterBlockEntity)blockEntity).serverTick(level0, pos0, state0, (AirThrusterBlockEntity) blockEntity);
-		} else {
-			return (level0, pos0, state0, blockEntity) -> ((AirThrusterBlockEntity)blockEntity).clientTick(level0, pos0, state0, (AirThrusterBlockEntity) blockEntity);
-		}
-	}
-
-
 }

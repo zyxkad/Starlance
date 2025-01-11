@@ -25,39 +25,17 @@ import net.minecraft.world.phys.Vec3;
 
 public interface ParticleBlockEntity {
 
-
-	default public void clientTick(Level level, BlockPos pos, BlockState state, ParticleBlockEntity be) {
+	default void clientTick(Level level, BlockPos pos, BlockState state, ParticleBlockEntity be) {
 		tickParticles(level, pos, state);
 	}
 
-	default public void serverTick(Level level, BlockPos pos, BlockState state, ParticleBlockEntity be) {
-		tickForce(level, pos, state);
-	}
-
-	public default void tickForce(Level level, BlockPos pos, BlockState state) {
-		// TODO: fix this bad. It both sets the throttle of all thrusters to 0 until a block update
-
-		if (!(level instanceof ServerLevel)) return;
-
-		// ----- Add thruster to the force appliers for the current level ----- //
-
-		//int signal = level.getBestNeighborSignal(pos);
-		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-
-		if (ships != null) {
-			if (ships.getThrusterAtPos(pos) == null) { 
-
-				ships.addThruster(pos, new ThrusterData(
-						VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
-						0,
-						state.getValue(EnumProperty.create("mode", ThrusterMode.class))
-						));
-
-			}
+	default void serverTick(Level level, BlockPos pos, BlockState state, ParticleBlockEntity be) {
+		if (level instanceof ServerLevel) {
+			tickForce(level, pos, state);
 		}
-
 	}
 
-	public void tickParticles(Level level, BlockPos pos, BlockState state);
+	void tickForce(Level level, BlockPos pos, BlockState state);
 
+	void tickParticles(Level level, BlockPos pos, BlockState state);
 }

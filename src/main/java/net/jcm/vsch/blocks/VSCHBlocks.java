@@ -4,9 +4,12 @@ import java.util.function.Supplier;
 
 import net.jcm.vsch.VSCHMod;
 
-import net.jcm.vsch.blocks.custom.*;
+import net.jcm.vsch.blocks.custom.AirThrusterBlock;
+import net.jcm.vsch.blocks.custom.DragInducerBlock;
+import net.jcm.vsch.blocks.custom.GravityInducerBlock;
+import net.jcm.vsch.blocks.custom.MagnetBlock;
 import net.jcm.vsch.blocks.custom.PowerfulThrusterBlock;
-import net.jcm.vsch.blocks.custom.template.ThrusterBlock;
+import net.jcm.vsch.blocks.custom.ThrusterBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

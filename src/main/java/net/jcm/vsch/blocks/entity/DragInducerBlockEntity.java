@@ -47,15 +47,12 @@ public class DragInducerBlockEntity extends BlockEntity {
 
 		if (ships != null) {
 			if (ships.getDraggerAtPos(pos) == null) {
-
 				ships.addDragger(pos, new DraggerData(
-						(signal > 0),
+						signal > 0,
 						ThrusterData.ThrusterMode.POSITION //The mode currently isn't used
 						));
 
 			}
 		}
-
 	}
-
 }

@@ -33,15 +33,10 @@ public class VSCHEvents {
 		GravityInducer.gravitydata = CosmosModVariables.WorldVariables.get(event.getServer().overworld()).gravity_data;
 	}
 
-
-
-
 	//	@SubscribeEvent
 	//	public static void shipLoad(VSEvents.ShipLoadEvent event) {
 	////		Gravity.setAll(event.getServer().overworld());
 	//	}
-
-
 }
 
 

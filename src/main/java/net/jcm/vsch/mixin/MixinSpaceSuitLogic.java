@@ -43,50 +43,43 @@ public class MixinSpaceSuitLogic {
 			return;
 		}
 
-		final LivingEntity living_entity;
-
-		if (!(entity instanceof LivingEntity)) {
+		if (!(entity instanceof LivingEntity livingEntity)) {
 			cir.setReturnValue(false);
 			return; //stop java from complaining
-		} else {
-			living_entity = (LivingEntity) entity;
 		}
 
-		String dimension_id = entity.level().dimension().location().toString();
+		String dimension = entity.level().dimension().location().toString();
 
-		boolean in_space = false;
+		boolean inSpace = false;
 
-		if (WorldVariables.get(world).dimension_type.contains(dimension_id)) {
-			String dimension_type = WorldVariables.get(world).dimension_type.get(dimension_id).getAsString();
-			in_space = dimension_type.equals("space");
+		if (WorldVariables.get(world).dimension_type.contains(dimension)) {
+			String dimension_type = WorldVariables.get(world).dimension_type.getString(dimension);
+			inSpace = dimension_type.equals("space");
 		}
 
-		if (in_space && !(living_entity.getVehicle() instanceof RocketSeatEntity)) {
-			ArrayList<EquipmentSlot> armor_slots = new ArrayList<EquipmentSlot>();
-			armor_slots.add(EquipmentSlot.HEAD);
-			armor_slots.add(EquipmentSlot.CHEST);
-			armor_slots.add(EquipmentSlot.LEGS);
-			armor_slots.add(EquipmentSlot.FEET);
+		if (inSpace && !(livingEntity.getVehicle() instanceof RocketSeatEntity)) {
+			ArrayList<EquipmentSlot> armorSlots = new ArrayList<EquipmentSlot>();
+			armorSlots.add(EquipmentSlot.HEAD);
+			armorSlots.add(EquipmentSlot.CHEST);
+			armorSlots.add(EquipmentSlot.LEGS);
+			armorSlots.add(EquipmentSlot.FEET);
 
-			for (EquipmentSlot slot : armor_slots) {
-				ItemStack stack = living_entity.getItemBySlot(slot);
+			for (EquipmentSlot slot : armorSlots) {
+				ItemStack stack = livingEntity.getItemBySlot(slot);
 
-				if (!stack.isEmpty()) {
+				if (stack.isEmpty()) {
+					cir.setReturnValue(false);
+					return; // leaving for loop
+				}
 
-					if (!(stack.getItem() instanceof SteelSuitItem)) {
-						if (!(stack.getItem() instanceof TitaniumSuitItem)) {
-							if (!(stack.getItem() instanceof NickelSuitItem)) {
+				boolean isSpaceSuitItem = 
+					stack.getItem() instanceof SteelSuitItem ||
+					stack.getItem() instanceof TitaniumSuitItem ||
+					stack.getItem() instanceof NickelSuitItem ||
+					stack.getItem() instanceof MagnetBootItem;
 
-								// "Why is this entire mixin just for this one check?" you ask? :revenge~1: :clueless:
-								if (!(stack.getItem() instanceof MagnetBootItem)) {
-									cir.setReturnValue(false);
-									return; // leaving for loop
-								}
-							}
-						}
-					}
-					//System.out.println(stack.getItem() instanceof SteelSuitItem);
-				} else {
+				// "Why is this entire mixin just for this one check?" you ask? :revenge~1: :clueless:
+				if (!isSpaceSuitItem) {
 					cir.setReturnValue(false);
 					return; // leaving for loop
 				}
@@ -94,10 +87,9 @@ public class MixinSpaceSuitLogic {
 
 		} else {
 			cir.setReturnValue(false);
+			return;
 		}
 
-		if (cir.getReturnValue() == null) { // Dont ask
-			cir.setReturnValue(true);
-		}
+		cir.setReturnValue(true);
 	}
 }

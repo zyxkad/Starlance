@@ -15,6 +15,6 @@ public class DraggerData {
 	}
 
 	public String toString() {
-		return " State: "+this.on+" Mode: "+this.mode;
+		return " State: " + this.on + " Mode: " + this.mode;
 	}
 }

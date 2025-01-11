@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
@@ -27,8 +28,12 @@ import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
+
+import java.util.List;
+
 public class PlanetCollision {
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
+
 	public static void planetCollisionTick(ServerLevel level, LevelAccessor world) {
 		String dimension = level.dimension().location().toString();
 		for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
@@ -37,15 +42,9 @@ public class PlanetCollision {
 			Vec3 shipCenter = currentAABB.getCenter();
 
 			CompoundTag nearestPlanet = VSCHUtils.getNearestPlanet(world, shipCenter, dimension);
-
-
-
 			if (nearestPlanet == null) {
 				return;
 			}
-
-			// System.out.println(nearestPlanet);
-
 
 			// Only continue rest of code if this ship is colliding with a planet
 			if (!VSCHUtils.isCollidingWithPlanet(nearestPlanet, shipCenter)) {
@@ -54,7 +53,6 @@ public class PlanetCollision {
 			}
 
 			Player nearestPlayer = getShipPlayer(ship, level);
-
 			if (nearestPlayer == null) {
 				return;
 			}
@@ -146,14 +144,9 @@ public class PlanetCollision {
 		// Combine the AABB's into one big one
 		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
 
-		Player nearestPlayer = null;
-		// Find all entities nearby the ship
-		for (Entity entity : level.getEntities(null, totalAABB)) {
-			if (entity instanceof Player player) {
-				nearestPlayer = player;
-				break;
-			}
-		}
+		List<Player> players = level.getEntities(EntityTypeTest.forClass(Player.class), totalAABB, (player) -> true);
+		// Maybe nearest player
+		Player nearestPlayer = players.size() > 0 ? players.get(0) : null;
 		return nearestPlayer;
 	}
 }

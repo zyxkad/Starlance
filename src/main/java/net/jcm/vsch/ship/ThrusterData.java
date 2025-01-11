@@ -39,6 +39,6 @@ public class ThrusterData {
 	}
 
 	public String toString() {
-		return "Direction: "+this.dir+" Throttle: "+this.throttle+" Mode: "+this.mode;
+		return "Direction: " + this.dir + " Throttle: " + this.throttle + " Mode: " + this.mode;
 	}
 }

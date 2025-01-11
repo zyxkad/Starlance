@@ -70,8 +70,6 @@ public class VSCHMod {
 	public void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
 		//event.registerEntityRenderer(VSCHEntities.MAGNET_ENTITY.get(), NoopRenderer::new);
 	}
-
-
 }
 
 
