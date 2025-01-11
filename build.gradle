@@ -119,33 +119,38 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     mavenCentral()
-    flatDir{
-        dir 'lib'
-    }
-    maven {
-        url 'https://modmaven.dev/'
+    flatDir {
+        dir "lib"
     }
 
     maven {
+        url = "https://modmaven.dev/"
+    }
+
+    maven {
+        name = "Modrinth Maven"
         url = "https://api.modrinth.com/maven"
         content {
-            includeGroup "maven.modrinth"
+            includeGroup("maven.modrinth")
         }
     }
 
-
-
     maven {
-        url "https://cursemaven.com"
+        name = "CurseForge Maven"
+        url = "https://cursemaven.com"
         content {
-            includeGroup "curse.maven"
+            includeGroup("curse.maven")
         }
     }
 
-    // For create
     maven {
-        name = 'tterrag maven'
-        url = 'https://maven.tterrag.com/'
+        name = "create maven"
+        url = "https://maven.tterrag.com/"
+        content {
+            includeGroup("com.simibubi.create")
+            includeGroup("com.jozufozu.flywheel")
+            includeGroup("com.tterrag.registrate")
+        }
     }
 
     maven {
@@ -154,16 +159,26 @@ repositories {
     }
 
     maven {
-        name = 'Kotlin for Forge'
-        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+        name = "Kotlin for Forge"
+        url = "https://thedarkcolour.github.io/KotlinForForge/"
+        content {
+            includeModule("thedarkcolour", "kotlinforforge")
+        }
     }
 
     maven {
         name = "Valkyrien Skies Internal"
-        url = 'https://maven.valkyrienskies.org'
+        url = "https://maven.valkyrienskies.org"
     }
 
-
+    maven {
+        name = "Squiddev maven cct"
+        url = "https://maven.squiddev.cc/"
+        content {
+            includeGroup("cc.tweaked")
+            includeModule("org.squiddev", "Cobalt")
+        }
+    }
 }
 
 dependencies {
@@ -188,13 +203,11 @@ dependencies {
 
     implementation "org.joml:joml:1.10.5"
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
-    implementation 'thedarkcolour:kotlinforforge:4.10.0'
-    ////implementation fg.deobf("curse.maven:cc-tweaked-282001:5379173")
+    implementation "thedarkcolour:kotlinforforge:4.10.0"
+    implementation fg.deobf("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cc_version}")
     //implementation fg.deobf('maven.modrinth:cosmic-horizons(cosmos):0.0.5')
 
     //compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")
-
-
 
     //RUNTIME
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
@@ -202,7 +215,6 @@ dependencies {
 //    runtimeOnly fg.deobf("maven.modrinth:architectury-api:9.2.14+forge")
     runtimeOnly fg.deobf("maven.modrinth:jade-addons-forge:5.3.1+forge")
     //runtimeOnly fg.deobf("curse.maven:rubidium-574856:4494903")
-    //runtimeOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
     //runtimeOnly fg.deobf("curse.maven:ctm-267602:3933537")
     // Le mod de V for testing
     //implementation fg.deobf("maven.modrinth:vmod:mGgUMpre")
