@@ -1,26 +1,29 @@
 package net.jcm.vsch.util;
 
+import net.jcm.vsch.mixin.accessor.ServerShipObjectWorldAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.core.api.ships.QueryableShipData;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.apigame.ShipTeleportData;
+import org.valkyrienskies.core.apigame.constraints.VSConstraint;
 import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.entity.handling.VSEntityHandler;
 import org.valkyrienskies.mod.common.entity.handling.VSEntityManager;
 import org.valkyrienskies.mod.common.entity.handling.WorldEntityHandler;
+import org.valkyrienskies.mod.common.util.EntityDraggingInformation;
+import org.valkyrienskies.mod.common.util.IEntityDraggingInformationProvider;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TeleportUtils {
 
@@ -32,6 +35,42 @@ public class TeleportUtils {
      */
     public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
         DimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
+    }
+
+    public static void teleportShipAndConstrained(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
+        ServerShipObjectWorldAccessor shipWorld = (ServerShipObjectWorldAccessor) VSGameUtilsKt.getShipObjectWorld(level);
+        teleportShipAndConstrained(ship, level, newDim, x, y, z, new ArrayList<>(), shipWorld.getShipIdToConstraints(), shipWorld.getConstraints());
+    }
+
+    /**
+     * Recursively teleport nearby ships, keeping track of which ones were already teleported.
+     * @param currentShip Current ship (duh)
+     * @param level  The ships current level
+     * @param newDim Normal dimension id string format (not VS format)
+     * @param x x position in world to tp the ship to
+     * @param y y position in world to tp the ship to
+     * @param z z position in world to tp the ship to
+     * @param teleported Already teleported ships
+     * @param shipIdToConstraints Pass the shipid -> constraint function along instead of computing it every iteration
+     * @param constraintIdToConstraint Pass the shipid -> constraint function along instead of computing it every iteration
+     */
+    private static void teleportShipAndConstrained(Ship currentShip, ServerLevel level, String newDim, double x, double y, double z, List<Ship> teleported, Map<Long, Set<Integer>> shipIdToConstraints, Map<Integer, VSConstraint> constraintIdToConstraint) {
+        if (teleported.contains(currentShip)) return;
+        teleported.add(currentShip);
+        Set<Integer> constraints = shipIdToConstraints.get(currentShip.getId());
+        if (constraints == null) return;
+        constraints.iterator().forEachRemaining(id -> {
+            VSConstraint constraint = constraintIdToConstraint.get(id);
+            QueryableShipData<ServerShip> allShips = VSGameUtilsKt.getShipObjectWorld(level).getAllShips();
+            Ship ship0 = allShips.getById(constraint.getShipId0());
+            System.out.println("ship0: " + ship0.getId());
+            Ship ship1 = allShips.getById(constraint.getShipId1());
+            System.out.println("ship1: " + ship1.getId());
+            Vector3d offset = ship0.getTransform().getPositionInWorld().sub(ship1.getTransform().getPositionInWorld(), new Vector3d());
+            teleportShipAndConstrained(ship0, level, newDim, x - offset.x, y - offset.y, z - offset.z, teleported, shipIdToConstraints, constraintIdToConstraint);
+            teleportShipAndConstrained(ship1, level, newDim, x + offset.x, y + offset.y, z + offset.z, teleported, shipIdToConstraints, constraintIdToConstraint);
+        });
+        DimensionTeleportShip(currentShip, level, newDim, x, y, z);
     }
 
     /**
@@ -85,8 +124,9 @@ public class TeleportUtils {
 
         // Save entities that actually need to be teleported
 
-        entityOffsets.putAll(calculateOffsets(level,prevWorldAABB,oldShipCenter,false));
-        entityOffsets.putAll(calculateOffsets(level,currentWorldAABB,newoldShipCenter,false));
+        entityOffsets.putAll(calculateOffsetsNonShipyard(level, (ServerShip) ship, oldShipCenter));
+        entityOffsets.putAll(calculateOffsetsNonShipyard(level, (ServerShip) ship, newoldShipCenter));
+//        entityOffsets.putAll(calculateOffsets(level,currentWorldAABB,newoldShipCenter,false));
         shipyardentityOffsets.putAll(calculateOffsets(level,currentWorldAABB,newoldShipCenter,true));
         // ---------- //
 
@@ -115,10 +155,29 @@ public class TeleportUtils {
 
     }
 
+
+    public static HashMap<Entity, Vec3> calculateOffsetsNonShipyard(ServerLevel level, ServerShip ship, Vec3 center) {
+        ServerShipWorldCore shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
+        HashMap<Entity, Vec3> offsets = new HashMap<>();
+        for (Entity entity : level.getAllEntities()) {
+            IEntityDraggingInformationProvider draggingProvider = (IEntityDraggingInformationProvider) entity;
+            if (!draggingProvider.vs$shouldDrag()) continue;
+
+            EntityDraggingInformation information = draggingProvider.getDraggingInformation();
+            Long lastStoodId = information.getLastShipStoodOn();
+            if (lastStoodId == null) continue;
+            ServerShip stoodOnShip = shipObjectWorld.getLoadedShips().getById(information.getLastShipStoodOn());
+            if (ship != stoodOnShip) continue;
+            Vec3 entityShipOffset = entity.position().subtract(center);
+            offsets.put(entity, entityShipOffset);
+        }
+        return offsets;
+    }
+
     public static HashMap<Entity, Vec3> calculateOffsets(ServerLevel level, AABB aabb, Vec3 center, Boolean shipyard) {
 
         // Find all entities nearby the ship
-        HashMap<Entity, Vec3> offsets = new HashMap<Entity, Vec3>();
+        HashMap<Entity, Vec3> offsets = new HashMap<>();
         for (Entity entity : level.getEntities(null, aabb)) {
 
             VSEntityHandler handler = VSEntityManager.INSTANCE.getHandler(entity);
