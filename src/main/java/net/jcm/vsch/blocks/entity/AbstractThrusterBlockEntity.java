@@ -107,17 +107,15 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		if (ships == null) {
 			return;
 		}
+
+		// TODO: listen block update instead of check every single tick
 		float newPower = getPowerByRedstone(level, pos);
 		setPower(newPower);
+
 		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
-		if (getPower() > 0) {
-			if (!isLit) { //If we aren't lit
-				level.setBlockAndUpdate(pos, state.setValue(AbstractThrusterBlock.LIT, true));
-			}
-		} else {
-			if (isLit) { //If we ARE lit
-				level.setBlockAndUpdate(pos, state.setValue(AbstractThrusterBlock.LIT, false));
-			}
+		boolean powered = getPower() > 0;
+		if (powered != isLit) {
+			level.setBlockAndUpdate(pos, state.setValue(AbstractThrusterBlock.LIT, powered));
 		}
 		if (ships.getThrusterAtPos(pos) == null) { 
 			ships.addThruster(pos, thrusterData);
