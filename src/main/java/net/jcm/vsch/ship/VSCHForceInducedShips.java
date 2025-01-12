@@ -1,5 +1,6 @@
 package net.jcm.vsch.ship;
 
+import java.util.Map;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -26,22 +27,19 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addThruster(BlockPos, ThrusterData)} or {@link #removeThruster(BlockPos)} or {@link #getThrusterAtPos(BlockPos)}
 	 */
-	public HashMap<BlockPos, ThrusterData> thrusters = new HashMap<>();
+	public Map<BlockPos, ThrusterData> thrusters = new ConcurrentHashMap<>();
 
 	/**
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addDragger(BlockPos, DraggerData)} or {@link #removeDragger(BlockPos)} or {@link #getDraggerAtPos(BlockPos)}
 	 */
-	public HashMap<BlockPos, DraggerData> draggers = new HashMap<>();
-
-	private String dimensionId = "minecraft:overworld";
+	public Map<BlockPos, DraggerData> draggers = new ConcurrentHashMap<>();
 
 	@Override
 	public void applyForces(@NotNull PhysShip physicShip) {
-		var physShip = (PhysShipImpl) physicShip;
+		PhysShipImpl physShip = (PhysShipImpl) physicShip;
 		// Apply thrusters force
 		thrusters.forEach((pos, data) -> {
-
 			// Get current thrust from thruster
 			float throttle = data.throttle;
 			if (throttle == 0.0f) {
@@ -54,7 +52,6 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 			if (VSCHConfig.LIMIT_SPEED.get()) {
 				Vector3dc linearVelocity = physShip.getPoseVel().getVel();
-
 
 				if (Math.abs(linearVelocity.get(linearVelocity.maxComponent())) > VSCHConfig.MAX_SPEED.get().intValue()) {
 					// I fixed this bad. If it breaks later, blame me I guess
@@ -86,14 +83,12 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 		// Apply draggers force
 		draggers.forEach((pos, data) -> {
-
 			Vector3dc linearVelocity = physShip.getPoseVel().getVel();
 			Vector3dc angularVelocity = physShip.getPoseVel().getOmega();
 
 			if (!data.on) {
 				return;
 			}
-
 
 			// Get position relative to center of mass
 
@@ -117,7 +112,6 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 			physShip.applyInvariantForce(force);
 			physShip.applyInvariantTorque(rotForce);
-
 		});
 	}
 
@@ -169,12 +163,13 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	}
 
 	public static VSCHForceInducedShips get(Level level, BlockPos pos) {
+		ServerLevel serverLevel = (ServerLevel) level;
 		// Don't ask, I don't know
-		ServerShip ship = (ServerShip) ((VSGameUtilsKt.getShipObjectManagingPos(level, pos) != null) ? VSGameUtilsKt.getShipObjectManagingPos(level, pos) : VSGameUtilsKt.getShipManagingPos(level, pos));
+		ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(serverLevel, pos);
+		if (ship == null) {
+			ship = VSGameUtilsKt.getShipManagingPos(serverLevel, pos);
+		}
 		// Seems counter-intutive at first. But basically, it returns null if it wasn't a ship. Otherwise, it gets the attachment OR creates and then gets it
-		return (ship != null) ? getOrCreate(ship) : null;
+		return ship != null ? getOrCreate(ship) : null;
 	}
-
-
-
 }
