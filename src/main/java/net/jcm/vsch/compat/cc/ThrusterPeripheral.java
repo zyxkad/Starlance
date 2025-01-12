@@ -1,4 +1,4 @@
-package net.jcm.vsch.compat.computer;
+package net.jcm.vsch.compat.cc;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -46,13 +46,13 @@ public class ThrusterPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction
-	public boolean getComputerMode() {
-		return this.entity.getComputerMode();
+	public boolean getPeripheralMode() {
+		return this.entity.getPeripheralMode();
 	}
 
 	@LuaFunction
-	public void setComputerMode(boolean mode) {
-		this.entity.setComputerMode(mode);
+	public void setPeripheralMode(boolean mode) {
+		this.entity.setPeripheralMode(mode);
 	}
 
 	@LuaFunction
@@ -61,12 +61,12 @@ public class ThrusterPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction
-	public String setPower(double power) {
-		if (!this.entity.getComputerMode()) {
-			return "Computer mode is off";
+	public void setPower(double power) throws LuaException {
+		if (!this.entity.getPeripheralMode()) {
+			// Instead of returning a string as an error, which is weird.
+			throw new LuaException("Peripheral mode is off, redstone control only");
 		}
 		this.entity.setPower((float) power);
-		return null;
 	}
 
 	@LuaFunction

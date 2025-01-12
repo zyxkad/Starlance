@@ -3,12 +3,9 @@ package net.jcm.vsch.blocks.entity;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Capabilities;
 
-import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
 import net.jcm.vsch.compat.CompatMods;
-import net.jcm.vsch.compat.computer.ThrusterPeripheral;
-import net.jcm.vsch.config.VSCHConfig;
-import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
+import net.jcm.vsch.compat.cc.ThrusterPeripheral;
 import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
@@ -17,22 +14,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
 import org.joml.Vector3d;
-import org.joml.Vector4d;
-import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
@@ -42,8 +34,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	private final ThrusterData thrusterData;
 	private volatile float power = 0;
 	private volatile boolean powerChanged = false;
-	private volatile boolean computerMode = false;
-	private boolean lastComputerMode = false;
+
+	// Peripheral mode determines if the throttle is controlled by redstone, or by CC computers
+	private volatile boolean isPeripheralMode = false;
+	private boolean wasPeripheralMode = false;
 	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
 
 	protected AbstractThrusterBlockEntity(String typeStr, BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -89,13 +83,13 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		}
 	}
 
-	public boolean getComputerMode() {
-		return this.computerMode;
+	public boolean getPeripheralMode() {
+		return this.isPeripheralMode;
 	}
 
-	public void setComputerMode(boolean on) {
-		if (this.computerMode != on) {
-			this.computerMode = on;
+	public void setPeripheralMode(boolean on) {
+		if (this.isPeripheralMode != on) {
+			this.isPeripheralMode = on;
 			this.setChanged();
 		}
 	}
@@ -122,7 +116,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	@Override
 	public void load(CompoundTag data) {
 		this.setPower(data.getFloat("Power"), false);
-		this.computerMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("ComputerMode");
+		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("ComputerMode");
 		this.thrusterData.throttle = this.getThrottle();
 		super.load(data);
 	}
@@ -131,7 +125,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
 		data.putFloat("Power", this.getPower());
-		data.putBoolean("ComputerMode", this.getComputerMode());
+		data.putBoolean("ComputerMode", this.getPeripheralMode());
 	}
 
 	@Override
@@ -158,21 +152,25 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	}
 
 	public void neighborChanged(Block block, BlockPos pos, boolean moving) {
-		if (!this.computerMode) {
+		if (!this.isPeripheralMode) {
 			this.updatePowerByRedstone();
 		}
 	}
 
 	@Override
 	public void tickForce(Level level, BlockPos pos, BlockState state) {
-		if (this.lastComputerMode != this.computerMode && !this.computerMode) {
+		// If we have changed peripheral mode, and we aren't peripheral mode
+		if (this.wasPeripheralMode != this.isPeripheralMode && !this.isPeripheralMode) {
 			this.updatePowerByRedstone();
 		}
-		this.lastComputerMode = this.computerMode;
+		this.wasPeripheralMode = this.isPeripheralMode;
+
+
 		if (this.powerChanged) {
 			this.powerChanged = false;
 			this.thrusterData.throttle = this.getThrottle();
 		}
+
 		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
 		boolean powered = getPower() > 0;
 		if (powered != isLit) {
