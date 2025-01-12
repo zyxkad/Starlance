@@ -154,16 +154,21 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		return InteractionResult.CONSUME;
 	}
 
+	@Override
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbor, BlockPos neighborPos, boolean moving) {
+		AbstractThrusterBlockEntity be = (AbstractThrusterBlockEntity) world.getBlockEntity(pos);
+		be.neighborChanged(neighbor, neighborPos, moving);
+	}
 
 	/*@Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
-        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
-        int tier = state.getValue(TournamentProperties.TIER);
-        if (tier > 1) {
-            drops.add(new ItemStack(TournamentItems.UPGRADE_THRUSTER.get(), tier - 1));
-        }
-        return drops;
-    }*/
+	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+		List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
+		int tier = state.getValue(TournamentProperties.TIER);
+		if (tier > 1) {
+			drops.add(new ItemStack(TournamentItems.UPGRADE_THRUSTER.get(), tier - 1));
+		}
+		return drops;
+	}*/
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {

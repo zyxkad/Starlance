@@ -1,18 +1,16 @@
 package net.jcm.vsch.blocks.entity;
 
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.Capabilities;
+
 import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
-import org.joml.Vector3d;
-import org.joml.Vector4d;
-import org.valkyrienskies.core.api.ships.ServerShip;
-import org.valkyrienskies.core.api.ships.Ship;
-import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
-
+import net.jcm.vsch.compat.CompatMods;
+import net.jcm.vsch.compat.computer.ThrusterPeripheral;
 import net.jcm.vsch.config.VSCHConfig;
+import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
-import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,23 +27,40 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+
+import org.joml.Vector3d;
+import org.joml.Vector4d;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
+	private final String typeString;
 	private final ThrusterData thrusterData;
 	private float power = 0;
+	private volatile boolean computerMode = false;
+	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
 
-	protected AbstractThrusterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+	protected AbstractThrusterBlockEntity(String typeStr, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 
+		this.typeString = typeStr;
 		this.thrusterData = new ThrusterData(
 			VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
 			0,
 			state.getValue(AbstractThrusterBlock.MODE));
 	}
 
+	public String getTypeString() {
+		return this.typeString;
+	}
+
 	public abstract float getMaxThrottle();
 
-	public float getThrottle() {
+	public synchronized float getThrottle() {
 		//return state.getValue(TournamentProperties.TIER) * signal * mult.get().floatValue();
 		return getPower() * getMaxThrottle();
 	}
@@ -52,15 +68,15 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	/**
 	 * @return thruster power between 0.0~1.0
 	 */
-	public float getPower() {
-		return power;
+	public synchronized float getPower() {
+		return this.power;
 	}
 
 	public void setPower(float power) {
 		setPower(power, true);
 	}
 
-	protected void setPower(float power, boolean update) {
+	protected synchronized void setPower(float power, boolean update) {
 		float newPower = Math.min(Math.max(power, 0), 1);
 		if (this.power == newPower) {
 			return;
@@ -70,16 +86,24 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			this.setChanged();
 			this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
 		}
-		this.thrusterData.throttle = getThrottle();
 	}
 
-	private static float getPowerByRedstone(Level level, BlockPos pos) {
-		return (float)(level.getBestNeighborSignal(pos)) / 15;
+	public boolean getComputerMode() {
+		return this.computerMode;
+	}
+
+	public void setComputerMode(boolean on) {
+		if (this.computerMode != on) {
+			this.computerMode = on;
+			this.setChanged();
+		}
 	}
 
 	@Override
 	public void load(CompoundTag data) {
 		this.setPower(data.getFloat("Power"), false);
+		this.computerMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("ComputerMode");
+		this.thrusterData.throttle = this.getThrottle();
 		super.load(data);
 	}
 
@@ -87,6 +111,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
 		data.putFloat("Power", this.getPower());
+		data.putBoolean("ComptuerMode", this.getComputerMode());
 	}
 
 	@Override
@@ -102,21 +127,37 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	}
 
 	@Override
-	public void tickForce(Level level, BlockPos pos, BlockState state) {
-		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-		if (ships == null) {
-			return;
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
+		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
+			if (!lazyPeripheral.isPresent()) {
+				lazyPeripheral = LazyOptional.of(() -> new ThrusterPeripheral(this));
+			}
+			return lazyPeripheral.cast();
 		}
+		return super.getCapability(cap, direction);
+	}
 
-		// TODO: listen block update instead of check every single tick
-		float newPower = getPowerByRedstone(level, pos);
-		setPower(newPower);
+	public void neighborChanged(Block block, BlockPos pos, boolean moving) {
+		if (!this.computerMode) {
+			float newPower = getPowerByRedstone(this.getLevel(), this.getBlockPos());
+			setPower(newPower);
+			this.thrusterData.throttle = this.getThrottle();
+		}
+	}
 
+	@Override
+	public void tickForce(Level level, BlockPos pos, BlockState state) {
 		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
 		boolean powered = getPower() > 0;
 		if (powered != isLit) {
 			level.setBlockAndUpdate(pos, state.setValue(AbstractThrusterBlock.LIT, powered));
 		}
+
+		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+		if (ships == null) {
+			return;
+		}
+
 		if (ships.getThrusterAtPos(pos) == null) { 
 			ships.addThruster(pos, thrusterData);
 		}
@@ -180,5 +221,9 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 				x, y, z,
 				speed.x, speed.y, speed.z
 				);
+	}
+
+	private static float getPowerByRedstone(Level level, BlockPos pos) {
+		return (float)(level.getBestNeighborSignal(pos)) / 15;
 	}
 }

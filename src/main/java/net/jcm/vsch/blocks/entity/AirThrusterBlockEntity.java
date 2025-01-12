@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	public AirThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super(VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+		super("air_thruster", VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state);
 	}
 
 	@Override

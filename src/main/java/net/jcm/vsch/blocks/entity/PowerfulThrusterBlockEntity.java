@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	public PowerfulThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super(VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+		super("powerful_thruster", VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state);
 	}
 
 	@Override
