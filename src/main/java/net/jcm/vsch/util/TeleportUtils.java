@@ -26,20 +26,9 @@ import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 import java.util.*;
 
 public class TeleportUtils {
-
-    /**
-     * See
-     * {@link #DimensionTeleportShip(Ship, ServerLevel, String, double, double, double)
-     * DimensionTeleportShip} for documentation. This overload simply takes in a
-     * Vec3 instead of 3 doubles.
-     */
-    public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
-        DimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
-    }
-
     public static void teleportShipAndConstrained(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
         ServerShipObjectWorldAccessor shipWorld = (ServerShipObjectWorldAccessor) VSGameUtilsKt.getShipObjectWorld(level);
-        teleportShipAndConstrained(ship, level, newDim, x, y, z, new ArrayList<>(), shipWorld.getShipIdToConstraints(), shipWorld.getConstraints());
+        teleportShipAndConstrained(ship, level, newDim, x, y, z, new HashSet<>(), shipWorld.getShipIdToConstraints(), shipWorld.getConstraints());
     }
 
     /**
@@ -54,23 +43,36 @@ public class TeleportUtils {
      * @param shipIdToConstraints Pass the shipid -> constraint function along instead of computing it every iteration
      * @param constraintIdToConstraint Pass the shipid -> constraint function along instead of computing it every iteration
      */
-    private static void teleportShipAndConstrained(Ship currentShip, ServerLevel level, String newDim, double x, double y, double z, List<Ship> teleported, Map<Long, Set<Integer>> shipIdToConstraints, Map<Integer, VSConstraint> constraintIdToConstraint) {
-        if (teleported.contains(currentShip)) return;
+    private static void teleportShipAndConstrained(Ship currentShip, ServerLevel level, String newDim, double x, double y, double z, Collection<Ship> teleported, Map<Long, Set<Integer>> shipIdToConstraints, Map<Integer, VSConstraint> constraintIdToConstraint) {
+        if (teleported.contains(currentShip)) {
+            return;
+        }
         teleported.add(currentShip);
         Set<Integer> constraints = shipIdToConstraints.get(currentShip.getId());
-        if (constraints == null) return;
-        constraints.iterator().forEachRemaining(id -> {
-            VSConstraint constraint = constraintIdToConstraint.get(id);
-            QueryableShipData<ServerShip> allShips = VSGameUtilsKt.getShipObjectWorld(level).getAllShips();
-            Ship ship0 = allShips.getById(constraint.getShipId0());
-            System.out.println("ship0: " + ship0.getId());
-            Ship ship1 = allShips.getById(constraint.getShipId1());
-            System.out.println("ship1: " + ship1.getId());
-            Vector3d offset = ship0.getTransform().getPositionInWorld().sub(ship1.getTransform().getPositionInWorld(), new Vector3d());
-            teleportShipAndConstrained(ship0, level, newDim, x - offset.x, y - offset.y, z - offset.z, teleported, shipIdToConstraints, constraintIdToConstraint);
-            teleportShipAndConstrained(ship1, level, newDim, x + offset.x, y + offset.y, z + offset.z, teleported, shipIdToConstraints, constraintIdToConstraint);
-        });
-        DimensionTeleportShip(currentShip, level, newDim, x, y, z);
+        if (constraints != null) {
+            constraints.iterator().forEachRemaining(id -> {
+                VSConstraint constraint = constraintIdToConstraint.get(id);
+                QueryableShipData<ServerShip> allShips = VSGameUtilsKt.getShipObjectWorld(level).getAllShips();
+                Ship ship0 = allShips.getById(constraint.getShipId0());
+                System.out.println("ship0: " + ship0.getId());
+                Ship ship1 = allShips.getById(constraint.getShipId1());
+                System.out.println("ship1: " + ship1.getId());
+                Vector3d offset = ship0.getTransform().getPositionInWorld().sub(ship1.getTransform().getPositionInWorld(), new Vector3d());
+                teleportShipAndConstrained(ship0, level, newDim, x - offset.x, y - offset.y, z - offset.z, teleported, shipIdToConstraints, constraintIdToConstraint);
+                teleportShipAndConstrained(ship1, level, newDim, x + offset.x, y + offset.y, z + offset.z, teleported, shipIdToConstraints, constraintIdToConstraint);
+            });
+        }
+        dimensionTeleportShip(currentShip, level, newDim, x, y, z);
+    }
+
+    /**
+     * See
+     * {@link #dimensionTeleportShip(Ship, ServerLevel, String, double, double, double)
+     * dimensionTeleportShip} for documentation. This overload simply takes in a
+     * Vec3 instead of 3 doubles.
+     */
+    public static void dimensionTeleportShip(Ship ship, ServerLevel level, String newDim, Vec3 newPos) {
+        dimensionTeleportShip(ship, level, newDim, newPos.x, newPos.y, newPos.z);
     }
 
     /**
@@ -92,8 +94,7 @@ public class TeleportUtils {
      * @param z z position in world to tp the ship to
      *
      */
-    public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
-
+    public static void dimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
         // ----- Prepare dimension destination ----- //
 
         // Convert back into a stupid stupid VS dimension string
@@ -149,12 +150,9 @@ public class TeleportUtils {
         Vec3 newShipCenter = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()).getCenter();
         Vec3 newShipyardCenter = VectorConversionsMCKt.toMinecraft(ship.getShipAABB().center(new Vector3d(0, 0, 0)));
 
-        teleportEntitiesToOffsets(entityOffsets,newShipCenter,newLevel);
-        teleportEntitiesToOffsets(shipyardentityOffsets,newShipyardCenter,newLevel);
-
-
+        teleportEntitiesToOffsets(entityOffsets, newShipCenter, newLevel);
+        teleportEntitiesToOffsets(shipyardentityOffsets, newShipyardCenter, newLevel);
     }
-
 
     public static HashMap<Entity, Vec3> calculateOffsetsNonShipyard(ServerLevel level, ServerShip ship, Vec3 center) {
         ServerShipWorldCore shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
@@ -208,21 +206,18 @@ public class TeleportUtils {
                     offsets.put(entity, entityShipOffset);
                 }
             }
-
-
         }
         return offsets;
     }
 
     public static void teleportEntitiesToOffsets(Map<Entity, Vec3> entityOffsets, Vec3 center, ServerLevel newLevel){
         for (Entity entity : entityOffsets.keySet()) {
-            if (entity instanceof ServerPlayer) {
-
-                Vec3 shipOffset = entityOffsets.get(entity);
+            if (entity instanceof ServerPlayer player) {
+                Vec3 shipOffset = entityOffsets.get(player);
                 Vec3 newPosition = center.add(shipOffset);
 
                 // Players need a different teleport command to entities
-                ((ServerPlayer) entity).teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, entity.getYRot(), entity.getXRot());
+                player.teleportTo(newLevel, newPosition.x, newPosition.y, newPosition.z, player.getYRot(), player.getXRot());
             } else {
                 Vec3 shipOffset = entityOffsets.get(entity);
                 Vec3 newPosition = center.add(shipOffset);
