@@ -19,7 +19,7 @@ public class ThrusterPeripheral implements IPeripheral {
 
 	@Override
 	public String getType() {
-		return "thruster";
+		return "starlance_thruster";
 	}
 
 	@LuaFunction
