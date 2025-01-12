@@ -40,7 +40,8 @@ import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private final String typeString;
 	private final ThrusterData thrusterData;
-	private float power = 0;
+	private volatile float power = 0;
+	private volatile boolean powerChanged = false;
 	private volatile boolean computerMode = false;
 	private boolean lastComputerMode = false;
 	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
@@ -77,15 +78,14 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		setPower(power, true);
 	}
 
-	protected synchronized void setPower(float power, boolean update) {
+	protected void setPower(float power, boolean update) {
 		float newPower = Math.min(Math.max(power, 0), 1);
 		if (this.power == newPower) {
 			return;
 		}
 		this.power = newPower;
 		if (update) {
-			this.setChanged();
-			this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
+			this.markPowerChanged();
 		}
 	}
 
@@ -98,6 +98,12 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			this.computerMode = on;
 			this.setChanged();
 		}
+	}
+
+	protected void markPowerChanged() {
+		this.powerChanged = true;
+		this.setChanged();
+		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
 	}
 
 	@Override
@@ -150,6 +156,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			this.updatePowerByRedstone();
 		}
 		this.lastComputerMode = this.computerMode;
+		if (this.powerChanged) {
+			this.powerChanged = false;
+			this.thrusterData.throttle = this.getThrottle();
+		}
 		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
 		boolean powered = getPower() > 0;
 		if (powered != isLit) {
@@ -168,8 +178,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	private void updatePowerByRedstone() {
 		float newPower = getPowerByRedstone(this.getLevel(), this.getBlockPos());
-		setPower(newPower);
-		this.thrusterData.throttle = this.getThrottle();
+		this.setPower(newPower);
 	}
 
 	protected ParticleOptions getThrusterParticleType() {
