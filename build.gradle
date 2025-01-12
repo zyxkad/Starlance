@@ -187,8 +187,6 @@ dependencies {
     // cri
     //annotationProcessor(implementation("com.github.LlamaLad7:MixinExtras:0.1.1"))
 
-
-
     implementation         ("org.valkyrienskies.core:api:${vs_core_version}")
     implementation         ("org.valkyrienskies.core:impl:${vs_core_version}")
     implementation         ("org.valkyrienskies.core:api-game:${vs_core_version}")
@@ -221,6 +219,7 @@ dependencies {
 
     //Create for testing
     compileOnly fg.deobf("maven.modrinth:create:1.20.1-0.5.1.j")
+    runtimeOnly fg.deobf("maven.modrinth:create:1.20.1-0.5.1.j")
 
     //Create for ponders
     //NOT in runtime. For runtime use the modrinth. Just cause its easier to test if it works without create that way
