@@ -42,6 +42,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	private final ThrusterData thrusterData;
 	private float power = 0;
 	private volatile boolean computerMode = false;
+	private boolean lastComputerMode = false;
 	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
 
 	protected AbstractThrusterBlockEntity(String typeStr, BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -60,7 +61,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	public abstract float getMaxThrottle();
 
-	public synchronized float getThrottle() {
+	public float getThrottle() {
 		//return state.getValue(TournamentProperties.TIER) * signal * mult.get().floatValue();
 		return getPower() * getMaxThrottle();
 	}
@@ -68,7 +69,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	/**
 	 * @return thruster power between 0.0~1.0
 	 */
-	public synchronized float getPower() {
+	public float getPower() {
 		return this.power;
 	}
 
@@ -111,7 +112,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
 		data.putFloat("Power", this.getPower());
-		data.putBoolean("ComptuerMode", this.getComputerMode());
+		data.putBoolean("ComputerMode", this.getComputerMode());
 	}
 
 	@Override
@@ -139,14 +140,16 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	public void neighborChanged(Block block, BlockPos pos, boolean moving) {
 		if (!this.computerMode) {
-			float newPower = getPowerByRedstone(this.getLevel(), this.getBlockPos());
-			setPower(newPower);
-			this.thrusterData.throttle = this.getThrottle();
+			this.updatePowerByRedstone();
 		}
 	}
 
 	@Override
 	public void tickForce(Level level, BlockPos pos, BlockState state) {
+		if (this.lastComputerMode != this.computerMode && !this.computerMode) {
+			this.updatePowerByRedstone();
+		}
+		this.lastComputerMode = this.computerMode;
 		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
 		boolean powered = getPower() > 0;
 		if (powered != isLit) {
@@ -161,6 +164,12 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		if (ships.getThrusterAtPos(pos) == null) { 
 			ships.addThruster(pos, thrusterData);
 		}
+	}
+
+	private void updatePowerByRedstone() {
+		float newPower = getPowerByRedstone(this.getLevel(), this.getBlockPos());
+		setPower(newPower);
+		this.thrusterData.throttle = this.getThrottle();
 	}
 
 	protected ParticleOptions getThrusterParticleType() {
