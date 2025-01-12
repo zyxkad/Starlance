@@ -4,7 +4,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
 import net.jcm.vsch.blocks.entity.AbstractThrusterBlockEntity;
 import net.jcm.vsch.ship.ThrusterData;
 
@@ -32,7 +31,7 @@ public class ThrusterPeripheral implements IPeripheral {
 
 	@LuaFunction(mainThread = true)
 	public String getMode() {
-		return this.entity.getBlockState().getValue(AbstractThrusterBlock.MODE).toString();
+		return this.entity.getThrusterMode().toString();
 	}
 
 	@LuaFunction(mainThread = true)
@@ -43,7 +42,7 @@ public class ThrusterPeripheral implements IPeripheral {
 		} catch (IllegalArgumentException e) {
 			throw new LuaException("unknown thruster mode");
 		}
-		this.entity.getBlockState().setValue(AbstractThrusterBlock.MODE, tmode);
+		this.entity.setThrusterMode(tmode);
 	}
 
 	@LuaFunction
