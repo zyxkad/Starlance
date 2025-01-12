@@ -106,6 +106,19 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
 	}
 
+	public ThrusterData.ThrusterMode getThrusterMode() {
+		return this.getBlockState().getValue(AbstractThrusterBlock.MODE);
+	}
+
+	public void setThrusterMode(ThrusterData.ThrusterMode mode) {
+		this.getLevel().setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AbstractThrusterBlock.MODE, mode));
+		this.thrusterData.mode = mode;
+	}
+
+	public ThrusterData getThrusterData() {
+		return this.thrusterData;
+	}
+
 	@Override
 	public void load(CompoundTag data) {
 		this.setPower(data.getFloat("Power"), false);

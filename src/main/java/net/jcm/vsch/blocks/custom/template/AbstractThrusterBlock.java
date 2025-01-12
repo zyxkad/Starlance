@@ -129,24 +129,20 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		}
 
 		// Get thruster
-		ThrusterData thruster = ships.getThrusterAtPos(pos);
-
-		// Probably unneeded, but checks are always good right?
+		AbstractThrusterBlockEntity thruster = (AbstractThrusterBlockEntity) level.getBlockEntity(pos);
 		if (thruster == null) {
 			return InteractionResult.PASS;
 		}
 
 		// Get current state (block property)
-		ThrusterMode blockMode = state.getValue(MODE);
+		ThrusterMode blockMode = thruster.getThrusterMode();
 
 		// Toggle it between POSITION and GLOBAL
 		blockMode = blockMode.toggle();
 
 		// Save the block property into the block
-		level.setBlockAndUpdate(pos, state.setValue(MODE, blockMode));
-
-		// Set the thruster data to the new toggled property
-		thruster.mode = blockMode;
+		// And set the thruster data to the new toggled property
+		thruster.setThrusterMode(blockMode);
 
 		//Send a chat message to them. The wrench class will handle the actionbar
 		player.sendSystemMessage(Component.translatable("vsch.message.toggle").append(Component.translatable("vsch."+blockMode.toString().toLowerCase())));

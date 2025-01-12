@@ -1,9 +1,12 @@
 package net.jcm.vsch.compat.computer;
 
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
+import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
 import net.jcm.vsch.blocks.entity.AbstractThrusterBlockEntity;
+import net.jcm.vsch.ship.ThrusterData;
 
 public class ThrusterPeripheral implements IPeripheral {
 	private final AbstractThrusterBlockEntity entity;
@@ -25,6 +28,22 @@ public class ThrusterPeripheral implements IPeripheral {
 	@LuaFunction
 	public String getThrusterType() {
 		return this.entity.getTypeString();
+	}
+
+	@LuaFunction(mainThread = true)
+	public String getMode() {
+		return this.entity.getBlockState().getValue(AbstractThrusterBlock.MODE).toString();
+	}
+
+	@LuaFunction(mainThread = true)
+	public void setMode(String mode) throws LuaException {
+		ThrusterData.ThrusterMode tmode;
+		try {
+			tmode = ThrusterData.ThrusterMode.valueOf(mode.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new LuaException("unknown thruster mode");
+		}
+		this.entity.getBlockState().setValue(AbstractThrusterBlock.MODE, tmode);
 	}
 
 	@LuaFunction

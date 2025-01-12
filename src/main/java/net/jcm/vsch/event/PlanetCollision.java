@@ -83,18 +83,7 @@ public class PlanetCollision {
 			}
 			// Otherwise, we just skip them since the playerMenuTick will take care of them.
 			playerMenuTick(nearestPlayer, ship, level, nearestPlanet);
-
-			// System.out.println(isColliding);
-			// System.out.println(nearestPlayer);
-
 		}
-
-		// System.out.println("T: ");
-		// System.out.println(VSCHUtils.isCollidingWithPlanet(planet, new Vec3(0, 0,
-		// 0)));
-		// System.out.println(VSCHUtils.isCollidingWithPlanet(planet, new Vec3(0, 1000,
-		// 0)));
-
 	}
 
 	public static void playerMenuTick(Player player, Ship ship, ServerLevel level, CompoundTag planet) {
