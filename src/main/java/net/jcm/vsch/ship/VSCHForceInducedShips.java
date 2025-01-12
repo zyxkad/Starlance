@@ -1,7 +1,7 @@
 package net.jcm.vsch.ship;
 
 import java.util.Map;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -18,6 +18,7 @@ import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.util.VSCHUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 @SuppressWarnings("deprecation")
@@ -34,6 +35,12 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	 * Instead, look at {@link #addDragger(BlockPos, DraggerData)} or {@link #removeDragger(BlockPos)} or {@link #getDraggerAtPos(BlockPos)}
 	 */
 	public Map<BlockPos, DraggerData> draggers = new ConcurrentHashMap<>();
+
+	public String dimensionId;
+
+	public VSCHForceInducedShips(String dimensionId) {
+		this.dimensionId = dimensionId;
+	}
 
 	@Override
 	public void applyForces(@NotNull PhysShip physicShip) {
@@ -151,8 +158,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	public static VSCHForceInducedShips getOrCreate(ServerShip ship, String dimensionId) {
 		VSCHForceInducedShips attachment = ship.getAttachment(VSCHForceInducedShips.class);
 		if (attachment == null) {
-			attachment = new VSCHForceInducedShips();
-			attachment.dimensionId = dimensionId;
+			attachment = new VSCHForceInducedShips(dimensionId);
 			ship.saveAttachment(VSCHForceInducedShips.class, attachment);
 		}
 		return attachment;
