@@ -36,7 +36,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	 */
 	public Map<BlockPos, DraggerData> draggers = new ConcurrentHashMap<>();
 
-	public String dimensionId;
+	private final String dimensionId;
 
 	public VSCHForceInducedShips(String dimensionId) {
 		this.dimensionId = dimensionId;
