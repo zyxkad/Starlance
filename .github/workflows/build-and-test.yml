@@ -10,6 +10,8 @@ on:
 
 jobs:
   test:
+    name: Check & Test
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,7 +21,14 @@ jobs:
         run: ./gradlew check
   build:
     if: ${{ github.event_name != 'push' }}
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
       - name: Gradle Build
         run: ./gradlew build "-Dmod_artifact_suffix=-$(git rev-parse --short ${{ github.sha }})"
       - name: Upload Build Artifacts
