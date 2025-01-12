@@ -61,7 +61,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 				int maxSpeed = VSCHConfig.MAX_SPEED.get().intValue();
 
-				if (linearVelocity.length() >= maxSpeed) {
+				if (Math.abs(linearVelocity.length()) >= maxSpeed) {
 
 					double dotProduct = tForce.dot(linearVelocity);
 
@@ -69,16 +69,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 						if (data.mode == ThrusterData.ThrusterMode.GLOBAL) {
 
-							//50 tps, phys engine runs at 60 usually so this will slow ships down a little extra when the server is running smoothly. Shouldn't be an issue
-							double deltaTime = 0.02;
-							double mass = physShip.getInertia().getShipMass();
-
-							//Invert the parallel projection of tForce onto linearVelocity and scales it so that the resulting speed is exactly
-							// equal to length of linearVelocity, but still in the direction the ship would have been going without the speed limit
-							tForce.set(new Vector3d(linearVelocity).add(new Vector3d(tForce).mul(deltaTime / mass)).normalize(maxSpeed * mass / deltaTime));
-
-							// Apply the force at no specific position
-							physShip.applyInvariantForce(tForce);
+							applyScaledForce(physShip, linearVelocity, tForce, maxSpeed);
 
 						} else {
 							// POSITION should be the only other value
@@ -87,10 +78,35 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 									.add(0.5, 0.5, 0.5, new Vector3d())
 									.sub(physShip.getTransform().getPositionInShip());
 
-							physShip.applyInvariantForceToPos(tForce, tPos);
+
+							Vector3d parallel = new Vector3d(tPos).mul(tForce.dot(tPos) / tForce.dot(tForce));
+
+							Vector3d perpendicular = new Vector3d(tForce).sub(parallel);
+
+							// rotate the ship
+							physShip.applyInvariantForceToPos(perpendicular, tPos);
+
+							// apply global force, since the force is perfectly lined up with the centre of gravity
+							applyScaledForce(physShip, linearVelocity, parallel, maxSpeed);
+
 						}
+						return;
 					}
 				}
+			}
+
+			// Switch between applying force at position and just applying the force
+			if (data.mode == ThrusterData.ThrusterMode.POSITION) {
+				Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
+						.add(0.5, 0.5, 0.5, new Vector3d())
+						.sub(physShip.getTransform().getPositionInShip());
+
+				physShip.applyInvariantForceToPos(tForce, tPos);
+
+				//ThrusterData.ThrusterMode.GLOBAL should be the only other value:
+			} else {
+				// Apply the force at no specific position
+				physShip.applyInvariantForce(tForce);
 			}
 		});
 
@@ -132,6 +148,19 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 			physShip.applyInvariantTorque(rotForce);
 
 		});
+	}
+
+	private static void applyScaledForce(PhysShipImpl physShip, Vector3dc linearVelocity, Vector3d tForce, int maxSpeed) {
+		assert ValkyrienSkiesMod.getCurrentServer() != null;
+		double deltaTime = 1.0 / (VSGameUtilsKt.getVsPipeline(ValkyrienSkiesMod.getCurrentServer()).computePhysTps());
+		double mass = physShip.getInertia().getShipMass();
+
+		//Invert the parallel projection of tForce onto linearVelocity and scales it so that the resulting speed is exactly
+		// equal to length of linearVelocity, but still in the direction the ship would have been going without the speed limit
+		Vector3d targetVelocity = (new Vector3d(linearVelocity).add(new Vector3d(tForce).mul(deltaTime / mass)).normalize(maxSpeed)).sub(linearVelocity);
+
+		// Apply the force at no specific position
+		physShip.applyInvariantForce(targetVelocity.mul(mass / deltaTime));
 	}
 
 	// ----- Thrusters ----- //
