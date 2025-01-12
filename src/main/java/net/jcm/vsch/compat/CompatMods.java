@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public enum CompatMods {
+    COMPUTERCRAFT("computercraft"),
     CREATE("create"),
     JADE("jade");
 

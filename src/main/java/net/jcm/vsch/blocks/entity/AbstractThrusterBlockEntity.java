@@ -1,0 +1,260 @@
+package net.jcm.vsch.blocks.entity;
+
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.Capabilities;
+
+import net.jcm.vsch.blocks.VSCHBlocks;
+import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
+import net.jcm.vsch.compat.CompatMods;
+import net.jcm.vsch.compat.computer.ThrusterPeripheral;
+import net.jcm.vsch.config.VSCHConfig;
+import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
+import net.jcm.vsch.ship.ThrusterData;
+import net.jcm.vsch.ship.VSCHForceInducedShips;
+import net.lointain.cosmos.init.CosmosModParticleTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+
+import org.joml.Vector3d;
+import org.joml.Vector4d;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
+
+public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
+	private final String typeString;
+	private final ThrusterData thrusterData;
+	private volatile float power = 0;
+	private volatile boolean powerChanged = false;
+	private volatile boolean computerMode = false;
+	private boolean lastComputerMode = false;
+	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
+
+	protected AbstractThrusterBlockEntity(String typeStr, BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
+
+		this.typeString = typeStr;
+		this.thrusterData = new ThrusterData(
+			VectorConversionsMCKt.toJOMLD(state.getValue(DirectionalBlock.FACING).getNormal()),
+			0,
+			state.getValue(AbstractThrusterBlock.MODE));
+	}
+
+	public String getTypeString() {
+		return this.typeString;
+	}
+
+	public abstract float getMaxThrottle();
+
+	public float getThrottle() {
+		//return state.getValue(TournamentProperties.TIER) * signal * mult.get().floatValue();
+		return getPower() * getMaxThrottle();
+	}
+
+	/**
+	 * @return thruster power between 0.0~1.0
+	 */
+	public float getPower() {
+		return this.power;
+	}
+
+	public void setPower(float power) {
+		setPower(power, true);
+	}
+
+	protected void setPower(float power, boolean update) {
+		float newPower = Math.min(Math.max(power, 0), 1);
+		if (this.power == newPower) {
+			return;
+		}
+		this.power = newPower;
+		if (update) {
+			this.markPowerChanged();
+		}
+	}
+
+	public boolean getComputerMode() {
+		return this.computerMode;
+	}
+
+	public void setComputerMode(boolean on) {
+		if (this.computerMode != on) {
+			this.computerMode = on;
+			this.setChanged();
+		}
+	}
+
+	protected void markPowerChanged() {
+		this.powerChanged = true;
+		this.setChanged();
+		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
+	}
+
+	public ThrusterData.ThrusterMode getThrusterMode() {
+		return this.getBlockState().getValue(AbstractThrusterBlock.MODE);
+	}
+
+	public void setThrusterMode(ThrusterData.ThrusterMode mode) {
+		this.getLevel().setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AbstractThrusterBlock.MODE, mode));
+		this.thrusterData.mode = mode;
+	}
+
+	public ThrusterData getThrusterData() {
+		return this.thrusterData;
+	}
+
+	@Override
+	public void load(CompoundTag data) {
+		this.setPower(data.getFloat("Power"), false);
+		this.computerMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("ComputerMode");
+		this.thrusterData.throttle = this.getThrottle();
+		super.load(data);
+	}
+
+	@Override
+	public void saveAdditional(CompoundTag data) {
+		super.saveAdditional(data);
+		data.putFloat("Power", this.getPower());
+		data.putBoolean("ComputerMode", this.getComputerMode());
+	}
+
+	@Override
+	public CompoundTag getUpdateTag() {
+		CompoundTag data = super.getUpdateTag();
+		data.putFloat("Power", this.getPower());
+		return data;
+	}
+
+	@Override
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
+		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
+			if (!lazyPeripheral.isPresent()) {
+				lazyPeripheral = LazyOptional.of(() -> new ThrusterPeripheral(this));
+			}
+			return lazyPeripheral.cast();
+		}
+		return super.getCapability(cap, direction);
+	}
+
+	public void neighborChanged(Block block, BlockPos pos, boolean moving) {
+		if (!this.computerMode) {
+			this.updatePowerByRedstone();
+		}
+	}
+
+	@Override
+	public void tickForce(Level level, BlockPos pos, BlockState state) {
+		if (this.lastComputerMode != this.computerMode && !this.computerMode) {
+			this.updatePowerByRedstone();
+		}
+		this.lastComputerMode = this.computerMode;
+		if (this.powerChanged) {
+			this.powerChanged = false;
+			this.thrusterData.throttle = this.getThrottle();
+		}
+		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
+		boolean powered = getPower() > 0;
+		if (powered != isLit) {
+			level.setBlockAndUpdate(pos, state.setValue(AbstractThrusterBlock.LIT, powered));
+		}
+
+		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
+		if (ships == null) {
+			return;
+		}
+
+		if (ships.getThrusterAtPos(pos) == null) { 
+			ships.addThruster(pos, thrusterData);
+		}
+	}
+
+	private void updatePowerByRedstone() {
+		float newPower = getPowerByRedstone(this.getLevel(), this.getBlockPos());
+		this.setPower(newPower);
+	}
+
+	protected ParticleOptions getThrusterParticleType() {
+		return CosmosModParticleTypes.THRUSTED.get();
+	}
+
+	protected ParticleOptions getThrusterSmokeParticleType() {
+		return CosmosModParticleTypes.THRUST_SMOKE.get();
+	}
+
+	@Override
+	public void tickParticles(Level level, BlockPos pos, BlockState state) {
+		Ship ship = VSGameUtilsKt.getShipManagingPos(level, pos);
+		// If we aren't on a ship, then we skip
+		if (ship == null) {
+			return;
+		}
+
+		// If we are unpowered, do no particles
+		if (getPower() == 0.0) {
+			return;
+		}
+
+		// BlockPos is always at the corner, getCenter gives us a Vec3 thats centered YAY
+		Vec3 center = pos.getCenter();
+		// Transform that shipyard pos into a world pos
+		Vector3d worldPos = ship.getTransform().getShipToWorld().transformPosition(new Vector3d(center.x, center.y, center.z));
+
+		// Get blockstate direction, NORTH, SOUTH, UP, DOWN, etc
+		Direction dir = state.getValue(DirectionalBlock.FACING);
+		Vector3d direction = ship.getTransform().getShipToWorldRotation().transform(new Vector3d(dir.getStepX(), dir.getStepY(), dir.getStepZ()));
+
+		spawnParticles(worldPos, direction);
+	}
+
+	protected void spawnParticles(Vector3d pos, Vector3d direction) {
+		// Offset the XYZ by a little bit so its at the end of the thruster block
+		double x = pos.x - direction.x;
+		double y = pos.y - direction.y;
+		double z = pos.z - direction.z;
+
+		Vector3d speed = new Vector3d(direction).mul(-getPower());
+
+		speed.mul(0.6);
+
+		// All that for one particle per tick...
+		level.addParticle(
+				getThrusterParticleType(),
+				x, y, z,
+				speed.x, speed.y, speed.z
+				);
+
+		speed.mul(1.06);
+
+		// Ok ok, two particles per tick
+		level.addParticle(
+				getThrusterSmokeParticleType(),
+				x, y, z,
+				speed.x, speed.y, speed.z
+				);
+	}
+
+	private static float getPowerByRedstone(Level level, BlockPos pos) {
+		return (float)(level.getBestNeighborSignal(pos)) / 15;
+	}
+}

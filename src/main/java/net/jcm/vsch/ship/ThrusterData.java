@@ -29,8 +29,8 @@ public class ThrusterData {
 	}
 
 	public final Vector3d dir;
-	public float throttle;
-	public ThrusterMode mode;
+	public volatile float throttle;
+	public volatile ThrusterMode mode;
 
 	public ThrusterData(Vector3d dir, float throttle, ThrusterMode mode) {
 		this.dir = dir;
@@ -39,6 +39,6 @@ public class ThrusterData {
 	}
 
 	public String toString() {
-		return "Direction: "+this.dir+" Throttle: "+this.throttle+" Mode: "+this.mode;
+		return "Direction: " + this.dir + " Throttle: " + this.throttle + " Mode: " + this.mode;
 	}
 }

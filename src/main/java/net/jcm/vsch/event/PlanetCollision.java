@@ -14,10 +14,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
@@ -27,8 +29,12 @@ import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
+
+import java.util.List;
+
 public class PlanetCollision {
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
+
 	public static void planetCollisionTick(ServerLevel level, LevelAccessor world) {
 		String dimension = level.dimension().location().toString();
 		for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
@@ -37,26 +43,19 @@ public class PlanetCollision {
 			Vec3 shipCenter = currentAABB.getCenter();
 
 			CompoundTag nearestPlanet = VSCHUtils.getNearestPlanet(world, shipCenter, dimension);
-
-
-
 			if (nearestPlanet == null) {
 				return;
 			}
 
-			// System.out.println(nearestPlanet);
-
+			Player nearestPlayer = getShipPlayer(ship, level);
+			if (nearestPlayer == null) {
+				return;
+			}
 
 			// Only continue rest of code if this ship is colliding with a planet
 			if (!VSCHUtils.isCollidingWithPlanet(nearestPlanet, shipCenter)) {
-				playerMenuTick(ship, level, nearestPlanet);
+				playerMenuTick(nearestPlayer, ship, level, nearestPlanet);
 				continue;
-			}
-
-			Player nearestPlayer = getShipPlayer(ship, level);
-
-			if (nearestPlayer == null) {
-				return;
 			}
 
 			CosmosModVariables.PlayerVariables vars = VSCHUtils.getOrSetPlayerCap(nearestPlayer);
@@ -68,7 +67,7 @@ public class PlanetCollision {
 				// Open the menu and disable normal CH collision for them:
 				logger.info("[Starlance]: opened menu instead of CH");
 
-				BlockPos _bpos = BlockPos.containing(nearestPlayer.getX(), nearestPlayer.getY(), nearestPlayer.getZ());
+				final BlockPos bpos = BlockPos.containing(nearestPlayer.getX(), nearestPlayer.getY(), nearestPlayer.getZ());
 				NetworkHooks.openScreen((ServerPlayer) nearestPlayer, new MenuProvider() {
 					@Override
 					public Component getDisplayName() {
@@ -77,37 +76,19 @@ public class PlanetCollision {
 
 					@Override
 					public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-						return new LandingSelectorMenu(id, inventory, new FriendlyByteBuf(Unpooled.buffer()).writeBlockPos(_bpos));
+						return new LandingSelectorMenu(id, inventory, new FriendlyByteBuf(Unpooled.buffer()).writeBlockPos(bpos));
 					}
-				}, _bpos);
+				}, bpos);
 
 			}
 			// Otherwise, we just skip them since the playerMenuTick will take care of them.
-			playerMenuTick(ship, level, nearestPlanet);
-
-
-			// System.out.println(isColliding);
-			// System.out.println(nearestPlayer);
-
+			playerMenuTick(nearestPlayer, ship, level, nearestPlanet);
 		}
-
-		// System.out.println("T: ");
-		// System.out.println(VSCHUtils.isCollidingWithPlanet(planet, new Vec3(0, 0,
-		// 0)));
-		// System.out.println(VSCHUtils.isCollidingWithPlanet(planet, new Vec3(0, 1000,
-		// 0)));
-
 	}
 
-	public static void playerMenuTick(Ship ship, ServerLevel level, CompoundTag planet) {
-		Player nearestPlayer = getShipPlayer(ship, level);
-
-		if (nearestPlayer == null) {
-			return;
-		}
-
-		if (nearestPlayer.containerMenu instanceof LandingSelectorMenu) {
-			CosmosModVariables.PlayerVariables vars = VSCHUtils.getOrSetPlayerCap(nearestPlayer);
+	public static void playerMenuTick(Player player, Ship ship, ServerLevel level, CompoundTag planet) {
+		if (player.containerMenu instanceof LandingSelectorMenu) {
+			CosmosModVariables.PlayerVariables vars = VSCHUtils.getOrSetPlayerCap(player);
 
 			System.out.println(vars.landing_coords);
 			if (!vars.landing_coords.equals("^") && !vars.landing_coords.equals("=")) {
@@ -124,11 +105,9 @@ public class PlanetCollision {
 				TeleportUtils.teleportShipAndConstrained(ship, level, dimension, posX, posY, posZ);
 				vars.landing_coords = "^";
 				vars.check_collision = true;
-				vars.syncPlayerVariables(nearestPlayer);
+				vars.syncPlayerVariables(player);
 			}
 		}
-
-
 	}
 
 	/**
@@ -146,14 +125,9 @@ public class PlanetCollision {
 		// Combine the AABB's into one big one
 		AABB totalAABB = currentWorldAABB.minmax(prevWorldAABB);
 
-		Player nearestPlayer = null;
-		// Find all entities nearby the ship
-		for (Entity entity : level.getEntities(null, totalAABB)) {
-			if (entity instanceof Player player) {
-				nearestPlayer = player;
-				break;
-			}
-		}
+		List<Player> players = level.getEntities(EntityTypeTest.forClass(Player.class), totalAABB, EntitySelector.NO_SPECTATORS);
+		// Maybe nearest player
+		Player nearestPlayer = players.size() > 0 ? players.get(0) : null;
 		return nearestPlayer;
 	}
 }

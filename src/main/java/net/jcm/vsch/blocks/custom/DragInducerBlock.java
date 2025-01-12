@@ -119,11 +119,11 @@ public class DragInducerBlock extends Block implements EntityBlock { //
 						if (data.mode == ThrusterData.ThrusterMode.POSITION) {
 							data.mode = ThrusterData.ThrusterMode.GLOBAL;
 							//TODO: Find a way to change this message if the last message was the same (so it looks like a new message)
-							player.displayClientMessage(Component.literal("Set thruster to GLOBAL").withStyle(ChatFormatting.GOLD), true);
+							player.displayClientMessage(Component.literal("Set dragger to GLOBAL").withStyle(ChatFormatting.GOLD), true);
 						} else {
 							data.mode = ThrusterData.ThrusterMode.POSITION;
 
-							player.displayClientMessage(Component.literal("Set thruster to POSITION").withStyle(ChatFormatting.YELLOW), true);
+							player.displayClientMessage(Component.literal("Set dragger to POSITION").withStyle(ChatFormatting.YELLOW), true);
 						}
 						return InteractionResult.CONSUME;
 					}

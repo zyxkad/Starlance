@@ -1,5 +1,6 @@
 package net.jcm.vsch.items.custom;
 
+import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
 import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -18,8 +19,6 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class WrenchItem extends Item {
 
-	public static final EnumProperty<ThrusterMode> MODE = EnumProperty.create("mode", ThrusterMode.class);
-
 	public WrenchItem(Properties pProperties) {
 		super(pProperties);
 	}
@@ -28,6 +27,10 @@ public class WrenchItem extends Item {
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
 
 		if (!isSelected) {
+			return;
+		}
+
+		if (!(entity instanceof Player player)) {
 			return;
 		}
 
@@ -44,12 +47,9 @@ public class WrenchItem extends Item {
 			if (VSGameUtilsKt.isBlockInShipyard(level, blockPos)) {
 				// Does it have a thruster mode property
 				// This seems wrong, but oh well
-				if (blockState.hasProperty(MODE)) {
-					// If our entity is a player
-					if (entity instanceof Player player) {
-						// Send actionbar of its state
-						player.displayClientMessage(Component.translatable("vsch.message.mode").append(Component.translatable("vsch."+blockState.getValue(MODE).toString().toLowerCase())), true);
-					}
+				if (blockState.hasProperty(AbstractThrusterBlock.MODE)) {
+					// Send actionbar of its state
+					player.displayClientMessage(Component.translatable("vsch.message.mode").append(Component.translatable("vsch." + blockState.getValue(AbstractThrusterBlock.MODE).toString().toLowerCase())), true);
 				}
 			}
 		}

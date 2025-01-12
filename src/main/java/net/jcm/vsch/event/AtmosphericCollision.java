@@ -6,7 +6,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 import net.lointain.cosmos.network.CosmosModVariables;
-import net.lointain.cosmos.network.CosmosModVariables.WorldVariables;
 import net.jcm.vsch.VSCHMod;
 import net.jcm.vsch.util.VSCHUtils;
 
@@ -48,29 +47,25 @@ public class AtmosphericCollision {
 			// Atmo collision JSON for overworld:
 			// "minecraft:overworld":'{"atmosphere_y":560,"travel_to":"cosmos:solar_sys_d","origin_x":-24100,"origin_y":1000,"origin_z":5100,"overlay_texture_id":"earth_bar","shipbit_y":24,"ship_min_y":120}'
 
-			WorldVariables worldVariables = CosmosModVariables.WorldVariables.get(world);
-			CompoundTag atmo_data_map = worldVariables.atmospheric_collision_data_map;
+			CosmosModVariables.WorldVariables worldVariables = CosmosModVariables.WorldVariables.get(world);
+			CompoundTag atmoDatas = worldVariables.atmospheric_collision_data_map;
 
 			String shipDim = VSCHUtils.VSDimToDim(ship.getChunkClaimDimension());
 
 			// If our current dimension has atmo data (e.g. a space dimension attached)
-			if (atmo_data_map.contains(shipDim)) {
+			if (atmoDatas.contains(shipDim)) {
 
-				Tag dim_atmo_data = atmo_data_map.get(shipDim);
-
-				// TODO: Gson is bad bad performance change this soon please future me!!
-				com.google.gson.JsonObject atmospheric_data = new com.google.gson.Gson().fromJson(dim_atmo_data.getAsString(), com.google.gson.JsonObject.class);
-
+				CompoundTag atmoData = atmoDatas.getCompound(shipDim);
 
 				// If the ship is above the planets atmo height:
-				if (ship.getTransform().getPositionInWorld().y() > atmospheric_data.get("atmosphere_y").getAsDouble()) {
+				if (ship.getTransform().getPositionInWorld().y() > atmoData.getDouble("atmosphere_y")) {
 
 					// ----- Get destination x, y, z and dimension ----- //
-					double posX = atmospheric_data.get("origin_x").getAsDouble(); // + Mth.nextInt(RandomSource.create(), -10, 10)
-					double posY = atmospheric_data.get("origin_y").getAsDouble(); // + Mth.nextInt(RandomSource.create(), -5, 5)
-					double posZ = atmospheric_data.get("origin_z").getAsDouble(); // + Mth.nextInt(RandomSource.create(), -10, 10)
+					double posX = atmoData.getDouble("origin_x"); // + Mth.nextInt(RandomSource.create(), -10, 10)
+					double posY = atmoData.getDouble("origin_y"); // + Mth.nextInt(RandomSource.create(), -5, 5)
+					double posZ = atmoData.getDouble("origin_z"); // + Mth.nextInt(RandomSource.create(), -10, 10)
 
-					String gotoDimension = atmospheric_data.get("travel_to").getAsString();
+					String gotoDimension = atmoData.getString("travel_to");
 
 					/*ServerPlayer player = level.getRandomPlayer();
 					// System.out.println(totalAABB);

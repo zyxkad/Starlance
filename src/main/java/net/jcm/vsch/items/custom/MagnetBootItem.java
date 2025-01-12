@@ -13,6 +13,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class MagnetBootItem extends ArmorItem {
 
+	private static final double MAGNET_DISTANCE = 0.1;
+
     public MagnetBootItem(ArmorMaterial pMaterial, Type pType, Properties pProperties) {
         super(pMaterial, pType, pProperties);
     }
@@ -45,7 +47,7 @@ public class MagnetBootItem extends ArmorItem {
 				ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
 				ClipContext.Fluid.NONE,     // Ignore fluids
 				player
-				));
+		));
 
 		if (hitResult.getType() == HitResult.Type.BLOCK) {
 
@@ -54,7 +56,7 @@ public class MagnetBootItem extends ArmorItem {
 			double distanceY = startPos.y - blockY;
 
 			// If magnet is turned off and we are more than 0.1 distance, do nothing
-			if ((!magnetOn) && (distanceY > 0.1)) {
+			if (!magnetOn && distanceY > MAGNET_DISTANCE) {
 				return;
 			}
 
@@ -66,18 +68,12 @@ public class MagnetBootItem extends ArmorItem {
 			Vec3 force = new Vec3(0, scaledForce, 0);
 			System.out.println("Armour: "+force);
 
-
 			player.setDeltaMovement(player.getDeltaMovement().add(force));
 
-
-
 			//System.out.println("Hit block");
-
 
 			//System.out.println(slotId);
 			//level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
 		}
-
-
 	}
 }

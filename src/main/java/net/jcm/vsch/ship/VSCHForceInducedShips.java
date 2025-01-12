@@ -1,5 +1,6 @@
 package net.jcm.vsch.ship;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
@@ -19,6 +20,7 @@ import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.util.VSCHUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 @SuppressWarnings("deprecation")
@@ -28,22 +30,27 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addThruster(BlockPos, ThrusterData)} or {@link #removeThruster(BlockPos)} or {@link #getThrusterAtPos(BlockPos)}
 	 */
-	public ConcurrentHashMap<BlockPos, ThrusterData> thrusters = new ConcurrentHashMap<>();
+	public Map<BlockPos, ThrusterData> thrusters = new ConcurrentHashMap<>();
 
 	/**
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addDragger(BlockPos, DraggerData)} or {@link #removeDragger(BlockPos)} or {@link #getDraggerAtPos(BlockPos)}
 	 */
-	public ConcurrentHashMap<BlockPos, DraggerData> draggers = new ConcurrentHashMap<>();
+	public Map<BlockPos, DraggerData> draggers = new ConcurrentHashMap<>();
 
-	private String dimensionId = "minecraft:overworld";
+	private String dimensionId = null;
+
+	public VSCHForceInducedShips() {}
+
+	public VSCHForceInducedShips(String dimensionId) {
+		this.dimensionId = dimensionId;
+	}
 
 	@Override
 	public void applyForces(@NotNull PhysShip physicShip) {
-		var physShip = (PhysShipImpl) physicShip;
+		PhysShipImpl physShip = (PhysShipImpl) physicShip;
 		// Apply thrusters force
 		thrusters.forEach((pos, data) -> {
-
 			// Get current thrust from thruster
 			float throttle = data.throttle;
 			if (throttle == 0.0f) {
@@ -115,14 +122,12 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 		// Apply draggers force
 		draggers.forEach((pos, data) -> {
-
 			Vector3dc linearVelocity = physShip.getPoseVel().getVel();
 			Vector3dc angularVelocity = physShip.getPoseVel().getOmega();
 
 			if (!data.on) {
 				return;
 			}
-
 
 			// Get position relative to center of mass
 
@@ -146,7 +151,6 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 
 			physShip.applyInvariantForce(force);
 			physShip.applyInvariantTorque(rotForce);
-
 		});
 	}
 
@@ -199,8 +203,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	public static VSCHForceInducedShips getOrCreate(ServerShip ship, String dimensionId) {
 		VSCHForceInducedShips attachment = ship.getAttachment(VSCHForceInducedShips.class);
 		if (attachment == null) {
-			attachment = new VSCHForceInducedShips();
-			attachment.dimensionId = dimensionId;
+			attachment = new VSCHForceInducedShips(dimensionId);
 			ship.saveAttachment(VSCHForceInducedShips.class, attachment);
 		}
 		return attachment;
@@ -211,12 +214,13 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	}
 
 	public static VSCHForceInducedShips get(Level level, BlockPos pos) {
+		ServerLevel serverLevel = (ServerLevel) level;
 		// Don't ask, I don't know
-		ServerShip ship = (ServerShip) ((VSGameUtilsKt.getShipObjectManagingPos(level, pos) != null) ? VSGameUtilsKt.getShipObjectManagingPos(level, pos) : VSGameUtilsKt.getShipManagingPos(level, pos));
+		ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(serverLevel, pos);
+		if (ship == null) {
+			ship = VSGameUtilsKt.getShipManagingPos(serverLevel, pos);
+		}
 		// Seems counter-intutive at first. But basically, it returns null if it wasn't a ship. Otherwise, it gets the attachment OR creates and then gets it
-		return (ship != null) ? getOrCreate(ship) : null;
+		return ship != null ? getOrCreate(ship) : null;
 	}
-
-
-
 }

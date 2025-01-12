@@ -3,8 +3,6 @@ package net.jcm.vsch.entity;
 import net.jcm.vsch.blocks.VSCHBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.LongTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -68,8 +66,8 @@ public class MagnetEntity extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        compoundTag.put("attachPosX", IntTag.valueOf(pos.getX()));
-        compoundTag.put("attachPosY", IntTag.valueOf(pos.getY()));
-        compoundTag.put("attachPosZ", IntTag.valueOf(pos.getZ()));
+        compoundTag.putInt("attachPosX", pos.getX());
+        compoundTag.putInt("attachPosY", pos.getY());
+        compoundTag.putInt("attachPosZ", pos.getZ());
     }
 }

@@ -38,9 +38,9 @@ public class VSCHConfig {
 
 		THRUSTER_TOGGLE = BUILDER.comment("Thruster Mode Toggling").define("thruster_mode_toggle", true);
 		THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineInList("thruster_default_mode","POSITION",modes);
-		THRUSTER_STRENGTH = BUILDER.comment("Thruster force multiplier. redstone * this (Newtons)").define("thruster_strength", 5000);
-		AIR_THRUSTER_STRENGTH = BUILDER.comment("Air thruster force multiplier. redstone * this (Newtons)").define("air_thruster_strength", 500);
-		POWERFUL_THRUSTER_STRENGTH = BUILDER.comment("Powerful thruster force multiplier. redstone * this (Newtons)").define("powerful_thruster_strength", 20000);
+		THRUSTER_STRENGTH = BUILDER.comment("Thruster max force. (Newtons)").define("thruster_strength", 75000);
+		AIR_THRUSTER_STRENGTH = BUILDER.comment("Air thruster max force. (Newtons)").define("air_thruster_strength", 7500);
+		POWERFUL_THRUSTER_STRENGTH = BUILDER.comment("Powerful thruster max force. (Newtons)").define("powerful_thruster_strength", 300000);
 
 		BUILDER.pop();
 

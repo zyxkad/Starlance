@@ -20,73 +20,74 @@ import java.util.List;
 
 public class GravityInducerBlockEntity extends BlockEntity implements ParticleBlockEntity {
 
-    public GravityInducerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(VSCHBlockEntities.GRAVITY_INDUCER_BLOCK_ENTITY.get(), pos, blockState);
-    }
+	public GravityInducerBlockEntity(BlockPos pos, BlockState blockState) {
+		super(VSCHBlockEntities.GRAVITY_INDUCER_BLOCK_ENTITY.get(), pos, blockState);
+	}
 
-    @Override
-    public void tickForce(Level level, BlockPos pos, BlockState state) {
-        LoadedServerShip ship = (LoadedServerShip) VSGameUtilsKt.getShipObjectManagingPos(level,pos);
-        if(ship == null){return;}
-        List<Entity> entities = level.getEntities(null, VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()));
-        for(Entity entity : entities){
-            if(entity instanceof ServerPlayer player){
-                if (player.noPhysics) {
-                    continue;
-                }
+	@Override
+	public void tickForce(Level level, BlockPos pos, BlockState state) {
+		LoadedServerShip ship = (LoadedServerShip) VSGameUtilsKt.getShipObjectManagingPos(level,pos);
+		if (ship == null) {
+			return;
+		}
+		List<Entity> entities = level.getEntities(null, VectorConversionsMCKt.toMinecraft(ship.getWorldAABB()));
+		for (Entity entity : entities) {
+			if (entity instanceof ServerPlayer player) {
+				if (player.noPhysics) {
+					continue;
+				}
+				// I don't know why there isn't a simpler check for this
+				if (player.getAbilities().flying) {
+					continue;
+				}
+			}
+			double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
+			Vec3 startPos = entity.position(); // Starting position (player's position)
+			Vec3 endPos = startPos.add(0, -maxDistance, 0); // End position (straight down)
+			HitResult hitResult = level.clip(new ClipContext(
+					startPos,
+					endPos,
+					ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
+					ClipContext.Fluid.NONE,     // Ignore fluids
+					entity
+			));
 
-                // I don't know why there isn't a simpler check for this
-                if (player.getAbilities().flying) {
-                    continue;
-                }
-            }
-            double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
-            Vec3 startPos = entity.position(); // Starting position (player's position)
-            Vec3 endPos = startPos.add(0, -maxDistance, 0); // End position (straight down)
-            HitResult hitResult = level.clip(new ClipContext(
-                    startPos,
-                    endPos,
-                    ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
-                    ClipContext.Fluid.NONE,     // Ignore fluids
-                    entity
-            ));
+			boolean magnetOn = true;
 
-            boolean magnetOn = true;
+			if (hitResult.getType() == HitResult.Type.BLOCK) {
 
-            if (hitResult.getType() == HitResult.Type.BLOCK) {
+				double blockY = hitResult.getLocation().y;
+				double distanceY = startPos.y - blockY;
 
-                double blockY = hitResult.getLocation().y;
-                double distanceY = startPos.y - blockY;
+				// If magnet is turned off and we are more than 0.1 distance, do nothing
+				if ((!magnetOn) && (distanceY > 0.1)) {
+					return;
+				}
 
-                // If magnet is turned off and we are more than 0.1 distance, do nothing
-                if ((!magnetOn) && (distanceY > 0.1)) {
-                    return;
-                }
+				//mAtH
+				double multiplier = 1.0 - (distanceY / maxDistance);
 
-                //mAtH
-                double multiplier = 1.0 - (distanceY / maxDistance);
+				double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue() ;
 
-                double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue() ;
-
-                Vec3 force = new Vec3(0, scaledForce, 0);
-                System.out.println("Block: "+force);
-
-
-                entity.setDeltaMovement(entity.getDeltaMovement().add(force));
-                entity.hurtMarked = true;
+				Vec3 force = new Vec3(0, scaledForce, 0);
+				System.out.println("Block: "+force);
 
 
-                //System.out.println("Hit block");
+				entity.setDeltaMovement(entity.getDeltaMovement().add(force));
+				entity.hurtMarked = true;
 
 
-                //System.out.println(slotId);
-                //level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
-            }
-        }
-    }
+				//System.out.println("Hit block");
 
-    @Override
-    public void tickParticles(Level level, BlockPos pos, BlockState state) {
 
-    }
+				//System.out.println(slotId);
+				//level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
+			}
+		}
+	}
+
+	@Override
+	public void tickParticles(Level level, BlockPos pos, BlockState state) {
+
+	}
 }
