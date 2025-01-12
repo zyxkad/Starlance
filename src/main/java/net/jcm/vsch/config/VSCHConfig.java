@@ -59,6 +59,6 @@ public class VSCHConfig {
 		SPEC = BUILDER.build();
 	}
 	public static void register(ModLoadingContext context){
-		context.registerConfig(ModConfig.Type.SERVER, VSCHConfig.SPEC, "vsch-config.toml");
+		context.registerConfig(ModConfig.Type.COMMON, VSCHConfig.SPEC, "vsch-config.toml");
 	}
 }
