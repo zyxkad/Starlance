@@ -230,7 +230,7 @@ dependencies {
 
     // Why the fuck does 0.0.7.2 not work for implementation
     //compileOnly fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6.9")
-    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.7.2")
+    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.7.3")
     
 
     //using lodestone for now until vsfx comes out

@@ -76,7 +76,7 @@ license="${mod_license}"
 	modId = "cosmos"
 	mandatory = true
 	# For some reason {vs2_version} from gradle.properties doesn't exist here
-	versionRange = "[0.0.6,)"
+	versionRange = "[0.0.7.3,)"
 	ordering = "AFTER"
 	side = "BOTH"
 
