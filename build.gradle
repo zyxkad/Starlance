@@ -203,7 +203,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.3"
     implementation "thedarkcolour:kotlinforforge:4.10.0"
     implementation fg.deobf("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cc_version}")
-    //implementation fg.deobf('maven.modrinth:cosmic-horizons(cosmos):0.0.5')
+    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:${cosmos_version}")
+    implementation fg.deobf("com.simibubi.create:create-${create_minecraft_version}:${create_version}:all")
 
     //compileOnly fg.deobf("curse.maven:female-gender-forge-481655:4603538")
 
@@ -217,21 +218,8 @@ dependencies {
     // Le mod de V for testing
     //implementation fg.deobf("maven.modrinth:vmod:mGgUMpre")
 
-    //Create for testing
-    compileOnly fg.deobf("maven.modrinth:create:1.20.1-0.5.1.j")
-    runtimeOnly fg.deobf("maven.modrinth:create:1.20.1-0.5.1.j")
-
     //Create for ponders
-    //NOT in runtime. For runtime use the modrinth. Just cause its easier to test if it works without create that way
-//    compileOnly fg.deobf("com.simibubi.create:create-${create_minecraft_version}:${create_version}:slim") { transitive = false }
-//    compileOnly fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
     compileOnly fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
-    
-
-    // Why the fuck does 0.0.7.2 not work for implementation
-    //compileOnly fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.6.9")
-    implementation fg.deobf("maven.modrinth:cosmic-horizons-cosmos:0.0.7.3")
-    
 
     //using lodestone for now until vsfx comes out
     //implementation fg.deobf("team.lodestar.lodestone:lodestone:${minecraft_version}-${lodestone_version}")
@@ -239,8 +227,6 @@ dependencies {
     //for figuring out what is laggy
     //okay so this causes it to fnuuy itself
     //runtimeOnly("curse.maven:spark-361579:3824951")
-
-
 }
 
 configurations {
@@ -266,6 +252,10 @@ tasks.named('processResources', ProcessResources).configure {
             loader_version_range: loader_version_range,
             mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
             mod_authors: mod_authors, mod_description: mod_description,
+            vs2_version: vs2_version,
+            cosmos_version: cosmos_version,
+            cc_version: cc_version,
+            create_version: create_version,
     ]
 
     inputs.properties replaceProperties
