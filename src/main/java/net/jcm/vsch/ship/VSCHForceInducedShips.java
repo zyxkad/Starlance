@@ -1,6 +1,6 @@
 package net.jcm.vsch.ship;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -11,7 +11,9 @@ import org.valkyrienskies.core.api.ships.PhysShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.ShipForcesInducer;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
+import org.valkyrienskies.core.impl.program.VSCoreImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.jcm.vsch.config.VSCHConfig;
@@ -26,13 +28,13 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addThruster(BlockPos, ThrusterData)} or {@link #removeThruster(BlockPos)} or {@link #getThrusterAtPos(BlockPos)}
 	 */
-	public HashMap<BlockPos, ThrusterData> thrusters = new HashMap<>();
+	public ConcurrentHashMap<BlockPos, ThrusterData> thrusters = new ConcurrentHashMap<>();
 
 	/**
 	 * Don't mess with this unless you know what your doing. I'm making it public for all the people that do know what their doing.
 	 * Instead, look at {@link #addDragger(BlockPos, DraggerData)} or {@link #removeDragger(BlockPos)} or {@link #getDraggerAtPos(BlockPos)}
 	 */
-	public HashMap<BlockPos, DraggerData> draggers = new HashMap<>();
+	public ConcurrentHashMap<BlockPos, DraggerData> draggers = new ConcurrentHashMap<>();
 
 	private String dimensionId = "minecraft:overworld";
 
@@ -52,33 +54,44 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 			Vector3d tForce = physShip.getTransform().getShipToWorld().transformDirection(data.dir, new Vector3d());
 			tForce.mul(throttle);
 
+
+			Vector3dc linearVelocity = physShip.getPoseVel().getVel();
+
 			if (VSCHConfig.LIMIT_SPEED.get()) {
-				Vector3dc linearVelocity = physShip.getPoseVel().getVel();
 
+				int maxSpeed = VSCHConfig.MAX_SPEED.get().intValue();
 
-				if (Math.abs(linearVelocity.get(linearVelocity.maxComponent())) > VSCHConfig.MAX_SPEED.get().intValue()) {
-					// I fixed this bad. If it breaks later, blame me I guess
-					double dotProduct = linearVelocity.dot(tForce);
+				if (linearVelocity.length() >= maxSpeed) {
+
+					double dotProduct = tForce.dot(linearVelocity);
+
 					if (dotProduct > 0) {
-						return;
+
+						if (data.mode == ThrusterData.ThrusterMode.GLOBAL) {
+
+							//50 tps, phys engine runs at 60 usually so this will slow ships down a little extra when the server is running smoothly. Shouldn't be an issue
+							double deltaTime = 0.02;
+							double mass = physShip.getInertia().getShipMass();
+
+							//Invert the parallel projection of tForce onto linearVelocity and scales it so that the resulting speed is exactly
+							// equal to length of linearVelocity, but still in the direction the ship would have been going without the speed limit
+							tForce.set(new Vector3d(linearVelocity).add(new Vector3d(tForce).mul(deltaTime / mass)).normalize(maxSpeed * mass / deltaTime));
+
+							// Apply the force at no specific position
+							physShip.applyInvariantForce(tForce);
+
+						} else {
+							// POSITION should be the only other value
+
+							Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
+									.add(0.5, 0.5, 0.5, new Vector3d())
+									.sub(physShip.getTransform().getPositionInShip());
+
+							physShip.applyInvariantForceToPos(tForce, tPos);
+						}
 					}
 				}
 			}
-
-			// Switch between applying force at position and just applying the force
-			if (data.mode == ThrusterData.ThrusterMode.POSITION) {
-				Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
-						.add(0.5, 0.5, 0.5, new Vector3d())
-						.sub(physShip.getTransform().getPositionInShip());
-
-				physShip.applyInvariantForceToPos(tForce, tPos);
-
-				//ThrusterData.ThrusterMode.GLOBAL should be the only other value:
-			} else {
-				// Apply the force at no specific position
-				physShip.applyInvariantForce(tForce);
-			}
-
 		});
 
 		// Prep for draggers
