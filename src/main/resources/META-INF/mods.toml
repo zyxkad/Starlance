@@ -67,7 +67,6 @@ license = "${mod_license}"
 [[dependencies.${mod_id}]]
 	modId = "valkyrienskies"
 	mandatory = true
-	# For some reason {vs2_version} from gradle.properties doesn't exist here
 	versionRange = "(,${vs2_version}]"
 	ordering = "AFTER"
 	side = "BOTH"
