@@ -1,6 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
-import net.jcm.vsch.blocks.VSCHBlocks;
+import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -8,7 +8,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
