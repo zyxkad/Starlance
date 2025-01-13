@@ -73,7 +73,7 @@ jobs:
             Please note that files only stay for around 90 days!
 
             | Name      | Link                    |
-            ---------------------------------------
+            |-----------|-------------------------|
             | Commit    | ${{ env.HEAD_SHA }}     |
             | Logs      | ${{ env.JOB_PATH }}     |
             ${{ env.ARTIFACT_URL && format('| Jar Files | {0} |', env.ARTIFACT_URL) || '' }}
