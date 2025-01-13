@@ -6,8 +6,8 @@ import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 
 public class DraggerData {
 
-	public boolean on;
-	public ThrusterMode mode;
+	public volatile boolean on;
+	public volatile ThrusterMode mode;
 
 	public DraggerData(boolean on, ThrusterMode mode) {
 		this.on = on;

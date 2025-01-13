@@ -9,11 +9,13 @@ import net.jcm.vsch.compat.cc.ThrusterPeripheral;
 import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
@@ -57,7 +59,6 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	public abstract float getMaxThrottle();
 
 	public float getThrottle() {
-		//return state.getValue(TournamentProperties.TIER) * signal * mult.get().floatValue();
 		return getPower() * getMaxThrottle();
 	}
 
@@ -116,7 +117,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	@Override
 	public void load(CompoundTag data) {
 		this.setPower(data.getFloat("Power"), false);
-		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("ComputerMode");
+		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("PeripheralMode");
 		this.thrusterData.throttle = this.getThrottle();
 		super.load(data);
 	}
@@ -125,7 +126,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
 		data.putFloat("Power", this.getPower());
-		data.putBoolean("ComputerMode", this.getPeripheralMode());
+		data.putBoolean("PeripheralMode", this.getPeripheralMode());
 	}
 
 	@Override
@@ -158,13 +159,12 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	}
 
 	@Override
-	public void tickForce(Level level, BlockPos pos, BlockState state) {
+	public void tickForce(ServerLevel level, BlockPos pos, BlockState state) {
 		// If we have changed peripheral mode, and we aren't peripheral mode
 		if (this.wasPeripheralMode != this.isPeripheralMode && !this.isPeripheralMode) {
 			this.updatePowerByRedstone();
 		}
 		this.wasPeripheralMode = this.isPeripheralMode;
-
 
 		if (this.powerChanged) {
 			this.powerChanged = false;
@@ -183,7 +183,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		}
 
 		if (ships.getThrusterAtPos(pos) == null) { 
-			ships.addThruster(pos, thrusterData);
+			ships.addThruster(pos, this.thrusterData);
 		}
 	}
 

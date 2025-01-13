@@ -3,6 +3,7 @@ package net.jcm.vsch.blocks.custom.template;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.jcm.vsch.blocks.entity.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.entity.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.items.VSCHItems;
 import net.jcm.vsch.ship.ThrusterData;
@@ -152,6 +153,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbor, BlockPos neighborPos, boolean moving) {
+		super.neighborChanged(state, world, pos, neighbor, neighborPos, moving);
 		AbstractThrusterBlockEntity be = (AbstractThrusterBlockEntity) world.getBlockEntity(pos);
 		be.neighborChanged(neighbor, neighborPos, moving);
 	}
@@ -174,7 +176,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		}
 		return defaultBlockState()
 				.setValue(BlockStateProperties.FACING, dir)
-				.setValue(MODE, ThrusterMode.valueOf(VSCHConfig.THRUSTER_MODE.get()));
+				.setValue(MODE, VSCHConfig.THRUSTER_MODE.get());
 	}
 
 	// Attach block entity
@@ -183,6 +185,6 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 
 	@Override
 	public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-		return level.isClientSide() ? ((level0, pos0, state0, be) -> ((AbstractThrusterBlockEntity) be).clientTick(level0, pos0, state0, (AbstractThrusterBlockEntity) be)) : ((level0, pos0, state0, be) -> ((AbstractThrusterBlockEntity) be).serverTick(level0, pos0, state0, (AbstractThrusterBlockEntity) be));
+		return level.isClientSide() ? (ParticleBlockEntity::clientTick) : ParticleBlockEntity::serverTick;
 	}
 }

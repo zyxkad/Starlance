@@ -1,10 +1,12 @@
 package net.jcm.vsch.config;
 
+import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
+
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec SPEC;
 
 	public static final ForgeConfigSpec.ConfigValue<Boolean> THRUSTER_TOGGLE;
-	public static final ForgeConfigSpec.ConfigValue<String> THRUSTER_MODE;
+	public static final ForgeConfigSpec.ConfigValue<ThrusterMode> THRUSTER_MODE;
 	public static final ForgeConfigSpec.ConfigValue<Number> THRUSTER_STRENGTH;
 	public static final ForgeConfigSpec.ConfigValue<Number> AIR_THRUSTER_STRENGTH;
 	public static final ForgeConfigSpec.ConfigValue<Number> POWERFUL_THRUSTER_STRENGTH;
@@ -28,16 +30,11 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec.ConfigValue<Number> MAGNET_BOOT_DISTANCE;
 	public static final ForgeConfigSpec.ConfigValue<Number> MAGNET_BOOT_MAX_FORCE;
 
-	private static final Collection<String> modes = new ArrayList<String>(2);
-
 	static {
-		modes.add("POSITION");
-		modes.add("GLOBAL");
-
 		BUILDER.push("Thrusters");
 
 		THRUSTER_TOGGLE = BUILDER.comment("Thruster Mode Toggling").define("thruster_mode_toggle", true);
-		THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineInList("thruster_default_mode","POSITION",modes);
+		THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineEnum("thruster_default_mode", ThrusterMode.POSITION);
 		THRUSTER_STRENGTH = BUILDER.comment("Thruster max force. (Newtons)").define("thruster_strength", 75000);
 		AIR_THRUSTER_STRENGTH = BUILDER.comment("Air thruster max force. (Newtons)").define("air_thruster_strength", 7500);
 		POWERFUL_THRUSTER_STRENGTH = BUILDER.comment("Powerful thruster max force. (Newtons)").define("powerful_thruster_strength", 300000);

@@ -13,7 +13,6 @@
     "accessor.ServerShipObjectWorldAccessor"
   ],
   "client": [
-    "MixinAerialLightRenderer"
   ],
   "injectors": {
     "defaultRequire": 1
