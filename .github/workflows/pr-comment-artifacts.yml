@@ -1,5 +1,7 @@
 # https://github.com/orgs/community/discussions/51403
 
+name: Comment Artifacts
+
 on:
   workflow_run:
     types:
@@ -32,6 +34,7 @@ jobs:
             select(.workflow_run.id==${PREVIOUS_JOB_ID}) |
             select(.expired==false) |
             .id")
+          echo "ARTIFACT ID: $ARTIFACT_ID"
           ARTIFACT_URL="https://github.com/$OWNER/$REPO/actions/runs/$PREVIOUS_JOB_ID/artifacts/$ARTIFACT_ID"
 
           echo "ARTIFACT URL: $ARTIFACT_URL"
