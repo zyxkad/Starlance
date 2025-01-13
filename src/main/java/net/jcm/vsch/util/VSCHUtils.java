@@ -438,33 +438,6 @@ public class VSCHUtils {
 		return (distanceSqrX <= range && distanceSqrY <= range && distanceSqrZ <= range);
 	}
 
-	/**
-	 * DEPRECATED, will crash on cosmic horizons 0.7.2+
-	 *
-	 * Gets all landing locations available from a planet and gives them to the entry_world global variable.
-	 * @param world The LevelAccessor to get the cosmos world variables from
-	 * @param target_planet The CompoundTag of the planet you are entering
-	 */
-	@Deprecated(forRemoval = true)
-	public static void setEntryLocations(LevelAccessor world, CompoundTag target_planet) {
-		WorldVariables worldVars = CosmosModVariables.WorldVariables.get(world);
-
-		Tag travel_to = target_planet.get("travel_to");
-
-		String travel_to_str = "";
-		if (travel_to instanceof StringTag _stringTag) {
-			travel_to_str = _stringTag.getAsString();
-		}
-
-		Tag locations = (worldVars.antena_locations.get(travel_to_str));
-		if (locations instanceof ListTag _listTag) {
-			worldVars.entry_world =  _listTag;
-			worldVars.syncData(world);
-		} else {
-			logger.error("[VSCH:VSCHUtils:396] Locations were not ListTags, travel_to was possibly empty");
-			return;
-		}
-	}
 
 	/**
 	 * Gets a players Cosmos variables capability, or if it doesn't exist, creates a new one.
