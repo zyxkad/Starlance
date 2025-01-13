@@ -3,7 +3,7 @@ name: Build And Test
 on:
   workflow_dispatch:
   push:
-  pull_request: # do not use pull_request_target since it won't up to date with PR
+  pull_request: # do not use pull_request_target since it probably won't up to date with PR
     types:
       - opened
       - synchronize

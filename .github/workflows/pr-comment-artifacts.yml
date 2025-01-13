@@ -76,6 +76,6 @@ jobs:
             ---------------------------------------
             | Commit    | ${{ env.HEAD_SHA }}     |
             | Logs      | ${{ env.JOB_PATH }}     |
-            ${{ env.ARTIFACT_URL && "| Jar Files | " + env.ARTIFACT_URL + " |" || "" }}
+            ${{ env.ARTIFACT_URL && '| Jar Files | ' + env.ARTIFACT_URL + ' |' || '' }}
 
-            [badge]: https://img.shields.io/badge/${{ github.event.workflow_run.conclusion + "-" + (github.event.workflow_run.conclusion == 'success' && "3fb950" || "f85149") }}?style=for-the-badge&logo=github&label=build
+            [badge]: https://img.shields.io/badge/${{ github.event.workflow_run.conclusion + '-' + (github.event.workflow_run.conclusion == 'success' && '3fb950' || 'f85149') }}?style=for-the-badge&logo=github&label=build
