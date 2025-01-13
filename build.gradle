@@ -39,12 +39,10 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: "org.jetbrains.kotlin.jvm"
 
-
-
 //group = mod_version
 
 base {
-    archivesName = mod_id //+ version
+    archivesName = "Starlance-${mod_version}${mod_artifact_suffix}"
 }
 
 java {
