@@ -28,7 +28,7 @@ public class DragInducerBlockEntity extends BlockEntity implements ParticleBlock
 	private final DraggerData draggerData;
 	private volatile boolean enabled = false;
 	private volatile boolean isPeripheralMode = false;
-	private boolean wasPeripheralMode = false;
+	private boolean wasPeripheralMode = true;
 	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
 
 	public DragInducerBlockEntity(BlockPos pos, BlockState state) {
