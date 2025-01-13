@@ -34,7 +34,10 @@ jobs:
             select(.workflow_run.id==${PREVIOUS_JOB_ID}) |
             select(.expired==false) |
             .id")
+
           echo "ARTIFACT ID: $ARTIFACT_ID"
+          echo "ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
+
           ARTIFACT_URL="https://github.com/$OWNER/$REPO/actions/runs/$PREVIOUS_JOB_ID/artifacts/$ARTIFACT_ID"
 
           echo "ARTIFACT URL: $ARTIFACT_URL"
@@ -80,6 +83,6 @@ jobs:
             |-----------|-------------------------|
             | Commit    | ${{ env.HEAD_SHA }}     |
             | Logs      | ${{ env.JOB_PATH }}     |
-            ${{ env.ARTIFACT_URL && format('| Jar Files | {0} |', env.ARTIFACT_URL) || '' }}
+            ${{ env.ARTIFACT_ID && format('| Jar Files | {0} |', env.ARTIFACT_URL) || '' }}
 
             [badge]: https://img.shields.io/badge/${{ format('{0}-{1}', github.event.workflow_run.conclusion, github.event.workflow_run.conclusion == 'success' && '3fb950' || 'f85149') }}?style=for-the-badge&logo=github&label=build
