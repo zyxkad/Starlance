@@ -28,10 +28,11 @@ jobs:
           echo "Previous Job ID: $PREVIOUS_JOB_ID"
           echo "PREVIOUS_JOB_ID=$PREVIOUS_JOB_ID" >> "$GITHUB_ENV"
 
-          ARTIFACT_URL=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] |
+          ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] |
             select(.workflow_run.id==${PREVIOUS_JOB_ID}) |
             select(.expired==false) |
-            .archive_download_url")
+            .id")
+          ARTIFACT_URL="https://github.com/$OWNER/$REPO/actions/runs/$PREVIOUS_JOB_ID/artifacts/$ARTIFACT_ID"
 
           echo "ARTIFACT URL: $ARTIFACT_URL"
           echo "ARTIFACT_URL=$ARTIFACT_URL" >> "$GITHUB_ENV"
