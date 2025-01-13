@@ -2,19 +2,15 @@ package net.jcm.vsch.ship;
 
 import org.joml.Vector3d;
 
-import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
-
 public class DraggerData {
 
 	public volatile boolean on;
-	public volatile ThrusterMode mode;
 
-	public DraggerData(boolean on, ThrusterMode mode) {
+	public DraggerData(boolean on) {
 		this.on = on;
-		this.mode = mode;
 	}
 
 	public String toString() {
-		return " State: " + this.on + " Mode: " + this.mode;
+		return " State: " + this.on;
 	}
 }

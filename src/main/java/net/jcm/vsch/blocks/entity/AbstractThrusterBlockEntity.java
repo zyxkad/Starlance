@@ -182,7 +182,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			return;
 		}
 
-		if (ships.getThrusterAtPos(pos) == null) { 
+		if (ships.getThrusterAtPos(pos) == null) {
 			ships.addThruster(pos, this.thrusterData);
 		}
 	}

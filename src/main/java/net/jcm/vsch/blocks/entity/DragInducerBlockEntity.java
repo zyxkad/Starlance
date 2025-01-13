@@ -33,7 +33,7 @@ public class DragInducerBlockEntity extends BlockEntity implements ParticleBlock
 
 	public DragInducerBlockEntity(BlockPos pos, BlockState state) {
 		super(VSCHBlockEntities.DRAG_INDUCER_BLOCK_ENTITY.get(), pos, state);
-		this.draggerData = new DraggerData(false, VSCHConfig.THRUSTER_MODE.get());
+		this.draggerData = new DraggerData(false);
 	}
 
 	public boolean isEnabled() {
