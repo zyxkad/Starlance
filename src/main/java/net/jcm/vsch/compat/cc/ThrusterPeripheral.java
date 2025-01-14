@@ -4,7 +4,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import net.jcm.vsch.blocks.entity.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
 import net.jcm.vsch.ship.ThrusterData;
 
 public class ThrusterPeripheral implements IPeripheral {
