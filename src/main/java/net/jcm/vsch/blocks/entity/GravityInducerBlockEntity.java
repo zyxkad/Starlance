@@ -3,6 +3,7 @@ package net.jcm.vsch.blocks.entity;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
@@ -24,8 +25,8 @@ public class GravityInducerBlockEntity extends BlockEntity implements ParticleBl
 	}
 
 	@Override
-	public void tickForce(Level level, BlockPos pos, BlockState state) {
-		LoadedServerShip ship = (LoadedServerShip) VSGameUtilsKt.getShipObjectManagingPos(level,pos);
+	public void tickForce(ServerLevel level, BlockPos pos, BlockState state) {
+		LoadedServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(level, pos);
 		if (ship == null) {
 			return;
 		}
