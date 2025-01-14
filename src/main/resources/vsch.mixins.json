@@ -6,6 +6,7 @@
   "refmap": "vsch.refmap.json",
   "mixins": [
     "MixinCreateNewShipWithBlocks",
+    "MixinEntity",
     "MixinGetY",
     "MixinLightRenderer",
     "MixinLivingEntityProcedure",
