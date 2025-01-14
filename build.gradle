@@ -258,7 +258,7 @@ tasks.named('processResources', ProcessResources).configure {
             vs2_version: vs2_version,
             cosmos_version: cosmos_version,
             cc_version: cc_version,
-            create_version: create_version,
+            create_version: create_version.split("-").first(), //Our version is 0.5.1j-55, but we support any 0.5.1j
     ]
 
     inputs.properties replaceProperties
