@@ -2,6 +2,9 @@ package net.jcm.vsch.items.custom;
 
 import net.jcm.vsch.config.VSCHConfig;
 import net.lointain.cosmos.item.SteelarmourItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -34,7 +37,7 @@ public class MagnetBootItem extends ArmorItem {
 			return false;
 		}
 		CompoundTag tag = stack.getTag();
-		return tag && tag.getBoolean(TAG_ENABLED);
+		return tag != null && tag.getBoolean(TAG_ENABLED);
 	}
 
 	public boolean getReady(ItemStack stack) {
@@ -42,7 +45,7 @@ public class MagnetBootItem extends ArmorItem {
 			return false;
 		}
 		CompoundTag tag = stack.getTag();
-		return tag && tag.getBoolean(TAG_READY);
+		return tag != null && tag.getBoolean(TAG_READY);
 	}
 
 	@Override
@@ -67,7 +70,7 @@ public class MagnetBootItem extends ArmorItem {
 
 		Vec3 direction = new Vec3(0, -1, 0); // TODO: maybe we can change the direction to match the ship that player stands on?
 		Vec3 startPos = player.position(); // Starting position (player's position)
-		Vec3 endPos = startPos.add(direction.multiply(maxDistance)); // End position (straight down)
+		Vec3 endPos = startPos.add(direction.scale(maxDistance)); // End position (straight down)
 
 		HitResult hitResult = level.clip(new ClipContext(
 			startPos,
@@ -100,7 +103,7 @@ public class MagnetBootItem extends ArmorItem {
 		double distance = startPos.distanceToSqr(hitResult.getLocation());
 		double scaledForce = Math.min(maxDistance * maxDistance / distance * MIN_FORCE, getMaxForce());
 
-		Vec3 force = direction.multiply(scaledForce);
+		Vec3 force = direction.scale(scaledForce);
 
 		player.setDeltaMovement(player.getDeltaMovement().add(force));
 

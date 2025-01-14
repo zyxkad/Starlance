@@ -1,7 +1,7 @@
 package net.jcm.vsch.blocks.custom;
 
 import net.jcm.vsch.blocks.entity.DragInducerBlockEntity;
-import net.jcm.vsch.blocks.entity.ParticleBlockEntity;
+import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.ship.DraggerData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;

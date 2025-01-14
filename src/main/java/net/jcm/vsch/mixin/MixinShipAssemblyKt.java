@@ -52,7 +52,8 @@ public class MixinShipAssemblyKt {
 		// If block is higher than overworld height
 		if (centerBlock.getY() > VSGameUtilsKt.getYRange(level).getMaxY()) {
 			if (VSCHConfig.CANCEL_ASSEMBLY.get()) {
-				level.getPlayerList().broadcastSystemMessage(Component.literal("Starlance: Multi-block assembly above world height, cancelling. Instead, use ship creator stick, or assemble in another dimension. You can override this behavior in config, but its not recommended.").withStyle(ChatFormatting.RED));
+				level.getServer().getPlayerList().broadcastSystemMessage(
+					Component.literal("Starlance: Multi-block assembly above world height, cancelling. Instead, use ship creator stick, or assemble in another dimension. You can override this behavior in config, but its not recommended.").withStyle(ChatFormatting.RED), false);
 				logger.warn("Starlance cancelled multi-block assembly above overworld build height. You can override this behavior in config, but its not recommended.");
 				cir.cancel();
 			} else {

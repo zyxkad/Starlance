@@ -35,7 +35,7 @@ public class MixinSpacesuitwornLogicProcedure {
 
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
 	private static final Collection<EquipmentSlot> armorSlots = new ArrayList<>();
-	private static final Collection<Class<Item>> validSpacesuits = new ArrayList<>();
+	private static final Collection<Class<? extends Item>> validSpacesuits = new ArrayList<>();
 
 	static {
 		armorSlots.add(EquipmentSlot.HEAD);
@@ -78,7 +78,7 @@ public class MixinSpacesuitwornLogicProcedure {
 
 	private static boolean isEntityWearingSpaceSuit(LivingEntity entity) {
 		for (EquipmentSlot slot : armorSlots) {
-			ItemStack stack = livingEntity.getItemBySlot(slot);
+			ItemStack stack = entity.getItemBySlot(slot);
 			if (stack.isEmpty()) {
 				return false;
 			}
@@ -90,7 +90,7 @@ public class MixinSpacesuitwornLogicProcedure {
 	}
 
 	private static boolean isSpaceSuitItem(Item item) {
-		for (Class<Item> suitClass : validSpacesuits) {
+		for (Class<? extends Item> suitClass : validSpacesuits) {
 			if (suitClass.isInstance(item)) {
 				return true;
 			}

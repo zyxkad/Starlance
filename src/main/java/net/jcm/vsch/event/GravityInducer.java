@@ -19,44 +19,42 @@ import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 import net.jcm.vsch.util.VSCHUtils;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-@SuppressWarnings("deprecation")
 public class GravityInducer implements ShipForcesInducer {
 	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
-	public ServerShip ship;
-    public static CompoundTag gravitydata;
-	//    public HashMap<String, Float> dimensions = new HashMap<String, Float>();
+	public static CompoundTag gravityDatas;
+	public ServerShip ship = null;
+
+	public GravityInducer() {}
+
+	public GravityInducer(ServerShip ship) {
+		this.ship = ship;
+	}
 
 	@Override
 	public void applyForces(@NotNull PhysShip physShip) {
-		if (gravitydata == null) {
+		if (gravityDatas == null) {
 			return;
 		}
-		double gravity;
-		FloatTag gravity_data;
 		if (ship == null) {
 			return;
 		}
 
-		if(gravitydata.getAllKeys().contains(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()))){
-			gravity_data = (FloatTag) gravitydata.get(VSCHUtils.VSDimToDim(ship.getChunkClaimDimension()));
-			if(gravity_data == null){return;}
-			gravity = (1-gravity_data.getAsFloat())*10*((PhysShipImpl) physShip).get_inertia().getShipMass();
+		String dim = VSCHUtils.VSDimToDim(ship.getChunkClaimDimension());
+		if (gravityDatas.contains(dim)) {
+			float gravityData = gravityDatas.getFloat(dim);
+			double gravity = (1 - gravityData) * 10 * ((PhysShipImpl) physShip).get_inertia().getShipMass();
 			try {
-				physShip.applyInvariantForce(new Vector3d(0,gravity,0));
+				physShip.applyInvariantForce(new Vector3d(0, gravity, 0));
 			} catch (Exception e) {
 				logger.error("Gravity Inducer Failed due to {} on ship {}", e, ship.getSlug());
 			}
 		}
 	}
 
-
-
-
-	public static GravityInducer getOrCreate(ServerShip ship) {//, MinecraftServer server) {
+	public static GravityInducer getOrCreate(ServerShip ship) {
 		GravityInducer attachment = ship.getAttachment(GravityInducer.class);
 		if (attachment == null) {
-			attachment = new GravityInducer();
-			attachment.ship = ship;
+			attachment = new GravityInducer(ship);
 			ship.saveAttachment(GravityInducer.class, attachment);
 		}
 		if (attachment.ship == null) {
@@ -64,20 +62,6 @@ public class GravityInducer implements ShipForcesInducer {
 		}
 		return attachment;
 	}
-
-	/*public static void addToAllShips(Level level){
-		for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
-			GravityInducer.getOrCreate((ServerShip) ship,level.getServer());
-		}
-	}*/
-
-
-	//    public static net.jcm.vsch.ship.VSCHForceInducedShips get(Level level, BlockPos pos) {
-	//        // Don't ask, I don't know
-	//        ServerShip ship = (ServerShip) ((VSGameUtilsKt.getShipObjectManagingPos(level, pos) != null) ? VSGameUtilsKt.getShipObjectManagingPos(level, pos) : VSGameUtilsKt.getShipManagingPos(level, pos));
-	//        // Seems counter-intutive at first. But basically, it returns null if it wasn't a ship. Otherwise, it gets the attachment OR creates and then gets it
-	//        return (ship != null) ? getOrCreate(ship) : null;
-	//    }
 }
 
 

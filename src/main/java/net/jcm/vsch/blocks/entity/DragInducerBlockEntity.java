@@ -3,6 +3,7 @@ package net.jcm.vsch.blocks.entity;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Capabilities;
 
+import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.compat.cc.DragInducerPeripheral;
 import net.jcm.vsch.config.VSCHConfig;

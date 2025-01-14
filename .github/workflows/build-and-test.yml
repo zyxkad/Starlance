@@ -35,10 +35,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: LOG-METADATA-1
         run: |
-          echo "output:PR_NUMBER=${{ github.event.number }}"
-          echo "output:HEAD_SHA=${{ github.sha }}"
+          function output() {
+            echo "output:$1=$2"
+          }
+          output PR_NUMBER "${{ github.event.number }}"
+          output HEAD_SHA "${{ github.sha }}"
       - name: Gradle Build
-        run: ./gradlew build "-Dmod_artifact_suffix=-pr${{ github.event.pull_request.number }}-$(git rev-parse --short ${{ github.sha }})"
+        run: ./gradlew build "-Dmod_artifact_suffix=-pr${{ github.event.number }}-$(git rev-parse --short ${{ github.sha }})"
       - name: Upload Build Artifacts
         id: artifact
         uses: actions/upload-artifact@v4
@@ -49,4 +52,8 @@ jobs:
           if-no-files-found: error
       - name: LOG-METADATA-2
         run: |
-          echo "output:ARTIFACT_URL=${{ steps.artifact.outputs.artifact-url }}"
+          function output() {
+            echo "output:$1=$2"
+          }
+          output ARTIFACT_ID "${{ steps.artifact.outputs.artifact-id }}"
+          output ARTIFACT_URL "${{ steps.artifact.outputs.artifact-url }}"
