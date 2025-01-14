@@ -12,12 +12,12 @@ public interface ParticleBlockEntity {
 	}
 
 	default void serverTick(Level level, BlockPos pos, BlockState state, ParticleBlockEntity be) {
-		if (level instanceof ServerLevel) {
-			tickForce(level, pos, state);
+		if (level instanceof ServerLevel serverLevel) {
+			tickForce(serverLevel, pos, state);
 		}
 	}
 
-	void tickForce(Level level, BlockPos pos, BlockState state);
+	void tickForce(ServerLevel level, BlockPos pos, BlockState state);
 
 	void tickParticles(Level level, BlockPos pos, BlockState state);
 }
