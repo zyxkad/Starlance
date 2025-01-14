@@ -114,7 +114,9 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 
 		// If thrusters can be toggled
 		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
-			player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(ChatFormatting.RED), true);
+			player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(
+					ChatFormatting.RED
+			), true);
 			return InteractionResult.PASS;
 		}
 
@@ -124,7 +126,9 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		// If a force handler exists (might not if we aren't on a VS ship)
 		if (ships == null) {
 			// Not on a ship
-			player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(ChatFormatting.RED), true);
+			player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(
+					ChatFormatting.RED
+			), true);
 			return InteractionResult.FAIL;
 		}
 
