@@ -1,15 +1,15 @@
 package net.jcm.vsch.mixin;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.*;
-import org.valkyrienskies.core.api.world.LevelYRange;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import net.jcm.vsch.VSCHMod;
@@ -31,65 +31,70 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 
 @Mixin(SpacesuitwornLogicProcedure.class)
-public class MixinSpaceSuitLogic {
+public class MixinSpacesuitwornLogicProcedure {
 
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
+	private static final Collection<EquipmentSlot> armorSlots = new ArrayList<>();
+	private static final Collection<Class<Item>> validSpacesuits = new ArrayList<>();
 
-	//CallbackInfoReturnable<LevelYRange> cir)
+	static {
+		armorSlots.add(EquipmentSlot.HEAD);
+		armorSlots.add(EquipmentSlot.CHEST);
+		armorSlots.add(EquipmentSlot.LEGS);
+		armorSlots.add(EquipmentSlot.FEET);
+
+		validSpacesuits.add(SteelSuitItem.class);
+		validSpacesuits.add(TitaniumSuitItem.class);
+		validSpacesuits.add(NickelSuitItem.class);
+		validSpacesuits.add(MagnetBootItem.class);
+	}
+
 	@Inject(method = "execute", at = @At("HEAD"), cancellable = true)
 	private static void execute(LevelAccessor world, Entity entity, CallbackInfoReturnable<Boolean> cir) {
 		if (entity == null) {
-			cir.setReturnValue(false); // Mixin return false
+			cir.setReturnValue(false);
 			return;
 		}
 
 		if (!(entity instanceof LivingEntity livingEntity)) {
 			cir.setReturnValue(false);
-			return; //stop java from complaining
+			return;
 		}
 
 		String dimension = entity.level().dimension().location().toString();
-
-		boolean inSpace = false;
-
-		if (WorldVariables.get(world).dimension_type.contains(dimension)) {
-			String dimension_type = WorldVariables.get(world).dimension_type.getString(dimension);
-			inSpace = dimension_type.equals("space");
-		}
-
-		if (inSpace && !(livingEntity.getVehicle() instanceof RocketSeatEntity)) {
-			ArrayList<EquipmentSlot> armorSlots = new ArrayList<EquipmentSlot>();
-			armorSlots.add(EquipmentSlot.HEAD);
-			armorSlots.add(EquipmentSlot.CHEST);
-			armorSlots.add(EquipmentSlot.LEGS);
-			armorSlots.add(EquipmentSlot.FEET);
-
-			for (EquipmentSlot slot : armorSlots) {
-				ItemStack stack = livingEntity.getItemBySlot(slot);
-
-				if (stack.isEmpty()) {
-					cir.setReturnValue(false);
-					return; // leaving for loop
-				}
-
-				boolean isSpaceSuitItem = 
-					stack.getItem() instanceof SteelSuitItem ||
-					stack.getItem() instanceof TitaniumSuitItem ||
-					stack.getItem() instanceof NickelSuitItem ||
-					stack.getItem() instanceof MagnetBootItem;
-
-				// "Why is this entire mixin just for this one check?" you ask? :revenge~1: :clueless:
-				if (!isSpaceSuitItem) {
-					cir.setReturnValue(false);
-					return; // leaving for loop
-				}
-			}
-
-		} else {
+		String dimensionType = WorldVariables.get(world).dimension_type.getString(dimension);
+		if (!dimensionType.equals("space")) {
 			cir.setReturnValue(false);
 			return;
 		}
 
-		cir.setReturnValue(true);
+		if (livingEntity.getVehicle() instanceof RocketSeatEntity) {
+			cir.setReturnValue(false);
+			return;
+		}
+
+		cir.setReturnValue(isEntityWearingSpaceSuit(livingEntity));
+	}
+
+	private static boolean isEntityWearingSpaceSuit(LivingEntity entity) {
+		for (EquipmentSlot slot : armorSlots) {
+			ItemStack stack = livingEntity.getItemBySlot(slot);
+			if (stack.isEmpty()) {
+				return false;
+			}
+			if (!isSpaceSuitItem(stack.getItem())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean isSpaceSuitItem(Item item) {
+		for (Class<Item> suitClass : validSpacesuits) {
+			if (suitClass.isInstance(item)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

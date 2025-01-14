@@ -5,11 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "vsch.refmap.json",
   "mixins": [
-    "MixinCreateNewShipWithBlocks",
-    "MixinGetY",
     "MixinLightRenderer",
     "MixinLivingEntityProcedure",
-    "MixinSpaceSuitLogic",
+    "MixinShipAssemblyKt",
+    "MixinSpacesuitwornLogicProcedure",
+    "MixinVSGameUtilsKt",
     "accessor.ServerShipObjectWorldAccessor"
   ],
   "client": [
