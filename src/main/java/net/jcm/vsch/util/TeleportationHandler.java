@@ -53,12 +53,6 @@ public class TeleportationHandler {
     }
 
     public void handleTeleport(Ship ship, Vector3d newPos) {
-        logger.info(newPos);
-        logger.info(newPos);
-        logger.info(newPos);
-        logger.info(newPos);
-        logger.info(newPos);
-        logger.info(newPos);
         collectShips(ship, newPos);
         handleTeleport();
     }
