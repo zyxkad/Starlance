@@ -36,7 +36,6 @@ public class TeleportationHandler {
 
     private final Map<Long, Vector3d> shipToPos = new HashMap<>();
     private final Map<Entity, Vector3d> entityToPos = new HashMap<>();
-    //Minecraft teleports entities between dimensions by creating a new entity and discarding the previous one. therefore, a map from entity to entity would not work.
     private final Map<Entity,Entity> passengerVehicleMap = new HashMap<>();
     private final ServerShipWorldCore shipWorld;
     private double greatestOffset;
