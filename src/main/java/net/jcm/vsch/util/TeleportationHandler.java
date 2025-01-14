@@ -101,7 +101,7 @@ public class TeleportationHandler {
     }
 
     private void handleTeleport() {
-        greatestOffset *= isReturning ? 1 : -1;
+        greatestOffset *= isReturning ? -1 : 1;
         shipToPos.forEach((id, newPos) -> {
             collectEntities(id, newPos);
             handleShipTeleport(id, newPos);
