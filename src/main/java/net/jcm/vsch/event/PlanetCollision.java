@@ -2,7 +2,7 @@ package net.jcm.vsch.event;
 
 import io.netty.buffer.Unpooled;
 import net.jcm.vsch.VSCHMod;
-import net.jcm.vsch.util.TeleportUtils;
+import net.jcm.vsch.util.TeleportationHandler;
 import net.jcm.vsch.util.VSCHUtils;
 import net.lointain.cosmos.network.CosmosModVariables;
 import net.lointain.cosmos.world.inventory.LandingSelectorMenu;
@@ -25,9 +25,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import java.util.List;
@@ -102,7 +104,7 @@ public class PlanetCollision {
 					return;
 				}
 				logger.info("[VSCH]: Teleporting VS ship into planet!");
-				TeleportUtils.teleportShipAndConstrained(ship, level, dimension, posX, posY, posZ);
+				new TeleportationHandler(VSCHUtils.dimToLevel(ValkyrienSkiesMod.getCurrentServer(), dimension), level, true).handleTeleport(ship, new Vector3d(posX, posY, posZ));
 				vars.landing_coords = "^";
 				vars.check_collision = true;
 				vars.syncPlayerVariables(player);

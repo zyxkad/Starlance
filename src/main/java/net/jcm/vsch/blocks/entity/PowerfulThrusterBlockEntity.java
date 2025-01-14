@@ -1,5 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
+import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 
 import net.lointain.cosmos.init.CosmosModParticleTypes;

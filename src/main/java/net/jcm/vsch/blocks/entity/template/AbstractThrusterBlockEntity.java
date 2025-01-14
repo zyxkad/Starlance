@@ -1,4 +1,4 @@
-package net.jcm.vsch.blocks.entity;
+package net.jcm.vsch.blocks.entity.template;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Capabilities;

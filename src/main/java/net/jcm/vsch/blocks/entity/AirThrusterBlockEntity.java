@@ -1,5 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
+import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
 import org.joml.Vector3d;
 
 import net.jcm.vsch.config.VSCHConfig;
@@ -7,7 +8,6 @@ import net.jcm.vsch.config.VSCHConfig;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {

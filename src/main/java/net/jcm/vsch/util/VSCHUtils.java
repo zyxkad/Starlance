@@ -146,6 +146,10 @@ public class VSCHUtils {
 		return server.getLevel(ResourceKey.create(Registries.DIMENSION, rl));
 	}
 
+	public static ServerLevel dimToLevel(MinecraftServer server, String dimensionString) {
+		return server.getLevel(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimensionString)));
+	}
+
 	/**
 	 * NOT USED ANYMORE, ALWAYS RETURNS TRUE. To be removed at a later date
   *
@@ -196,7 +200,7 @@ public class VSCHUtils {
 	 * @param x x position in world to tp to
 	 * @param y y position in world to tp to
 	 * @param z z position in world to tp to
-	 * @deprecated Use {@link net.jcm.vsch.util.TeleportUtils#DimensionTeleportShip(Ship, ServerLevel, String, double, double, double)} instead
+	 * @deprecated Use {@link net.jcm.vsch.util.TeleportUtils#dimensionTeleportShip(Ship, ServerLevel, String, double, double, double)} instead
 	 */
 	@Deprecated
 	public static void DimensionTeleportShip(Ship ship, ServerLevel level, String newDim, double x, double y, double z) {
@@ -438,6 +442,33 @@ public class VSCHUtils {
 		return (distanceSqrX <= range && distanceSqrY <= range && distanceSqrZ <= range);
 	}
 
+	/**
+	 * DEPRECATED, will crash on cosmic horizons 0.7.2+
+	 *
+	 * Gets all landing locations available from a planet and gives them to the entry_world global variable.
+	 * @param world The LevelAccessor to get the cosmos world variables from
+	 * @param target_planet The CompoundTag of the planet you are entering
+	 */
+//	@Deprecated(forRemoval = true)
+//	public static void setEntryLocations(LevelAccessor world, CompoundTag target_planet) {
+//		WorldVariables worldVars = CosmosModVariables.WorldVariables.get(world);
+//
+//		Tag travel_to = target_planet.get("travel_to");
+//
+//		String travel_to_str = "";
+//		if (travel_to instanceof StringTag _stringTag) {
+//			travel_to_str = _stringTag.getAsString();
+//		}
+//
+//		Tag locations = (worldVars.antena_locations.get(travel_to_str));
+//		if (locations instanceof ListTag _listTag) {
+//			worldVars.entry_world =  _listTag;
+//			worldVars.syncData(world);
+//		} else {
+//			logger.error("[VSCH:VSCHUtils:396] Locations were not ListTags, travel_to was possibly empty");
+//			return;
+//		}
+//	}
 
 	/**
 	 * Gets a players Cosmos variables capability, or if it doesn't exist, creates a new one.

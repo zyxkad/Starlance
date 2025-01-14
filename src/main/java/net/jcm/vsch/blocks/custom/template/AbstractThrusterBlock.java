@@ -2,11 +2,10 @@ package net.jcm.vsch.blocks.custom.template;
 
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
-import net.jcm.vsch.blocks.entity.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.entity.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.items.VSCHItems;
-import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.util.rot.DirectionalShape;
@@ -115,7 +114,9 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 
 		// If thrusters can be toggled
 		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
-			player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(ChatFormatting.RED), true);
+			player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(
+					ChatFormatting.RED
+			), true);
 			return InteractionResult.PASS;
 		}
 
@@ -125,7 +126,9 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		// If a force handler exists (might not if we aren't on a VS ship)
 		if (ships == null) {
 			// Not on a ship
-			player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(ChatFormatting.RED), true);
+			player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(
+					ChatFormatting.RED
+			), true);
 			return InteractionResult.FAIL;
 		}
 
