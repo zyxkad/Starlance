@@ -6,6 +6,7 @@
   "refmap": "vsch.refmap.json",
   "mixins": [
     "MixinCreateNewShipWithBlocks",
+    "MixinEntity",
     "MixinGetY",
     "MixinLightRenderer",
     "MixinLivingEntityProcedure",
@@ -13,7 +14,6 @@
     "accessor.ServerShipObjectWorldAccessor"
   ],
   "client": [
-    "MixinAerialLightRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

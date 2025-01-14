@@ -1,6 +1,7 @@
 package net.jcm.vsch.event;
 
 import net.jcm.vsch.util.TeleportUtils;
+import net.jcm.vsch.util.TeleportationHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.nbt.Tag;
@@ -12,8 +13,10 @@ import net.jcm.vsch.util.VSCHUtils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,8 +82,7 @@ public class AtmosphericCollision {
 
 					}*/
 
-					TeleportUtils.teleportShipAndConstrained(ship, level, gotoDimension, posX, posY, posZ);
-
+					new TeleportationHandler(VSCHUtils.dimToLevel(ValkyrienSkiesMod.getCurrentServer(), gotoDimension), level, false).handleTeleport(ship, new Vector3d(posX, posY, posZ));
 
 				}
 			}
