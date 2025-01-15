@@ -61,6 +61,15 @@ public class MagnetBootItem extends ArmorItem {
 	}
 
 	@Override
+	public void onCraftedBy(ItemStack stack, Level level, Player player) {
+		if (!(level instanceof ServerLevel)) {
+			return;
+		}
+		CompoundTag tag = stack.getOrCreateTag();
+		tag.putBoolean(TAG_ENABLED, true);
+	}
+
+	@Override
 	public void onArmorTick(ItemStack stack, Level level, Player player) {
 		if (!(level instanceof ServerLevel)) {
 			return;
