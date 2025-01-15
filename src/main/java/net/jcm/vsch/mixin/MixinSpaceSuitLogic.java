@@ -36,7 +36,7 @@ public class MixinSpaceSuitLogic {
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
 
 	//CallbackInfoReturnable<LevelYRange> cir)
-	@Inject(method = "execute", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "execute", remap = false, at = @At("HEAD"), cancellable = true)
 	private static void execute(LevelAccessor world, Entity entity, CallbackInfoReturnable<Boolean> cir) {
 		if (entity == null) {
 			cir.setReturnValue(false); // Mixin return false

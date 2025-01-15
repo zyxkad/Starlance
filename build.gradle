@@ -167,6 +167,9 @@ repositories {
     maven {
         name = "Valkyrien Skies Internal"
         url = "https://maven.valkyrienskies.org"
+        content {
+            excludeGroup("org.spongepowered")
+        }
     }
 
     maven {

@@ -47,7 +47,7 @@ public class MixinCreateNewShipWithBlocks {
 
 	// Goofy ahhh temporary fix but it'll atleast help out the kids who don't know not to do this
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
-	@Inject(method = "createNewShipWithBlocks", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "createNewShipWithBlocks", at = @At("HEAD"), remap = false, cancellable = true)
 	private static void createNewShipWithBlocks(BlockPos centerBlock, DenseBlockPosSet blocks, ServerLevel level, CallbackInfoReturnable<ServerShip> cir) {
 		// If block is higher than overworld height
 		if (centerBlock.getY() > VSGameUtilsKt.getYRange(level).getMaxY()) {
