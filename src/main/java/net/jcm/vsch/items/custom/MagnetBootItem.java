@@ -5,6 +5,7 @@ import net.lointain.cosmos.item.SteelarmourItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -56,11 +57,15 @@ public class MagnetBootItem extends ArmorItem {
 		if (tag == null) {
 			return null;
 		}
-		return Vec3.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_DIRECTION));
+		return Vec3.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_DIRECTION)).result().orElse(null);
 	}
 
 	@Override
 	public void onArmorTick(ItemStack stack, Level level, Player player) {
+		if (!(level instanceof ServerLevel)) {
+			return;
+		}
+
 		// Ignore spectator mode
 		// I don't exactly know what this var does, but it trigger in spectator mode.
 		// If it causes problems, replace it with 'isSpectator()'
@@ -100,7 +105,7 @@ public class MagnetBootItem extends ArmorItem {
 		}
 		if (!wasReady) {
 			tag.putBoolean(TAG_READY, true);
-			tag.put(TAG_DIRECTION, Vec3.CODEC.encodeStart(NbtOps.INSTANCE, direction));
+			Vec3.CODEC.encodeStart(NbtOps.INSTANCE, direction).result().ifPresent(pos -> tag.put(TAG_DIRECTION, pos));
 		}
 		if (!enabled) {
 			return;
