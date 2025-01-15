@@ -1,6 +1,5 @@
 package net.jcm.vsch.blocks.entity;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Capabilities;
 
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
@@ -30,7 +29,7 @@ public class DragInducerBlockEntity extends BlockEntity implements ParticleBlock
 	private volatile boolean enabled = false;
 	private volatile boolean isPeripheralMode = false;
 	private boolean wasPeripheralMode = true;
-	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
+	private LazyOptional<Object> lazyPeripheral = LazyOptional.empty();
 
 	public DragInducerBlockEntity(BlockPos pos, BlockState state) {
 		super(VSCHBlockEntities.DRAG_INDUCER_BLOCK_ENTITY.get(), pos, state);

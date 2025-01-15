@@ -1,6 +1,5 @@
 package net.jcm.vsch.blocks.entity.template;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Capabilities;
 
 import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
@@ -39,7 +38,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	// Peripheral mode determines if the throttle is controlled by redstone, or by CC computers
 	private volatile boolean isPeripheralMode = false;
 	private boolean wasPeripheralMode = true;
-	private LazyOptional<IPeripheral> lazyPeripheral = LazyOptional.empty();
+	private LazyOptional<Object> lazyPeripheral = LazyOptional.empty();
 
 	protected AbstractThrusterBlockEntity(String typeStr, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
