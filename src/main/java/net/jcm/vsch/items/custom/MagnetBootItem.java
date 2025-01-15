@@ -4,7 +4,7 @@ import net.jcm.vsch.config.VSCHConfig;
 import net.lointain.cosmos.item.SteelarmourItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -48,6 +48,17 @@ public class MagnetBootItem extends ArmorItem {
 		return tag != null && tag.getBoolean(TAG_READY);
 	}
 
+	public Vec3 getDirection(ItemStack stack) {
+		if (!(stack.getItem() instanceof MagnetBootItem)) {
+			return null;
+		}
+		CompoundTag tag = stack.getTag();
+		if (tag == null) {
+			return null;
+		}
+		return Vec3.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_DIRECTION));
+	}
+
 	@Override
 	public void onArmorTick(ItemStack stack, Level level, Player player) {
 		// Ignore spectator mode
@@ -89,11 +100,7 @@ public class MagnetBootItem extends ArmorItem {
 		}
 		if (!wasReady) {
 			tag.putBoolean(TAG_READY, true);
-			ListTag pos = new ListTag();
-			pos.set(0, DoubleTag.valueOf(direction.x));
-			pos.set(1, DoubleTag.valueOf(direction.y));
-			pos.set(2, DoubleTag.valueOf(direction.z));
-			tag.put(TAG_DIRECTION, pos);
+			tag.put(TAG_DIRECTION, Vec3.CODEC.encodeStart(NbtOps.INSTANCE, direction));
 		}
 		if (!enabled) {
 			return;
