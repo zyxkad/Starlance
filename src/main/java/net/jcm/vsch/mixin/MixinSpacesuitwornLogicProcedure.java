@@ -49,7 +49,8 @@ public class MixinSpacesuitwornLogicProcedure {
 		validSpacesuits.add(MagnetBootItem.class);
 	}
 
-	@Inject(method = "execute", at = @At("HEAD"), cancellable = true)
+	//CallbackInfoReturnable<LevelYRange> cir)
+	@Inject(method = "execute", remap = false, at = @At("HEAD"), cancellable = true)
 	private static void execute(LevelAccessor world, Entity entity, CallbackInfoReturnable<Boolean> cir) {
 		if (entity == null) {
 			cir.setReturnValue(false);

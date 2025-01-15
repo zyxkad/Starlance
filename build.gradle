@@ -167,6 +167,9 @@ repositories {
     maven {
         name = "Valkyrien Skies Internal"
         url = "https://maven.valkyrienskies.org"
+        content {
+            excludeGroup("org.spongepowered")
+        }
     }
 
     maven {
@@ -181,7 +184,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    //annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     // cri
     //annotationProcessor(implementation("com.github.LlamaLad7:MixinExtras:0.1.1"))
 

@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 @Mixin(VSGameUtilsKt.class)
 public class MixinVSGameUtilsKt {
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
-	@Inject(method = "getYRange", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getYRange", remap = false, at = @At("HEAD"), cancellable = true)
 	@NotNull
 	private static void getYRange(@NotNull Level level, CallbackInfoReturnable<LevelYRange> cir) {
 		ResourceLocation dimension = level.dimension().location();

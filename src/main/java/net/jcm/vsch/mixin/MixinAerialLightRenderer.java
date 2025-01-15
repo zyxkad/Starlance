@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class MixinAerialLightRenderer {
 
     // getPrivateField fails when Cosmos is de-obfuscated in a dev enviroment, so this is here to stop that
-    @ModifyVariable(method = "getPrivateField", at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = "getPrivateField", remap = false, at = @At("HEAD"), argsOnly = true)
     private static String fixFieldName(String fieldName) {
 
         // Check if we are dev enviroment or obf enviroment
