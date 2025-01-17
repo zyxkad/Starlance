@@ -3,6 +3,7 @@ package net.jcm.vsch.blocks.entity.template;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface ParticleBlockEntity {
@@ -20,4 +21,14 @@ public interface ParticleBlockEntity {
 	void tickForce(ServerLevel level, BlockPos pos, BlockState state);
 
 	void tickParticles(Level level, BlockPos pos, BlockState state);
+
+	public static void clientTick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+		ParticleBlockEntity be = (ParticleBlockEntity) blockEntity;
+		be.clientTick(level, pos, state, be);
+	}
+
+	public static void serverTick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+		ParticleBlockEntity be = (ParticleBlockEntity) blockEntity;
+		be.serverTick(level, pos, state, be);
+	}
 }

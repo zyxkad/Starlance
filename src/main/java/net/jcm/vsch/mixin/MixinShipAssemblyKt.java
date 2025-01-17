@@ -43,7 +43,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(ShipAssemblyKt.class)
-public class MixinCreateNewShipWithBlocks {
+public class MixinShipAssemblyKt {
 
 	// Goofy ahhh temporary fix but it'll atleast help out the kids who don't know not to do this
 	private static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
@@ -52,11 +52,8 @@ public class MixinCreateNewShipWithBlocks {
 		// If block is higher than overworld height
 		if (centerBlock.getY() > VSGameUtilsKt.getYRange(level).getMaxY()) {
 			if (VSCHConfig.CANCEL_ASSEMBLY.get()) {
-				List<ServerPlayer> players = level.players();
-				for (Player player : players) {
-					player.sendSystemMessage(Component.literal("Starlance: Multi-block assembly above world height, cancelling. Instead, use ship creator stick, or assemble in another dimension. You can override this behavior in config, but its not recommended.").withStyle(ChatFormatting.RED));
-				}
-
+				level.getServer().getPlayerList().broadcastSystemMessage(
+					Component.literal("Starlance: Multi-block assembly above world height, cancelling. Instead, use ship creator stick, or assemble in another dimension. You can override this behavior in config, but its not recommended.").withStyle(ChatFormatting.RED), false);
 				logger.warn("Starlance cancelled multi-block assembly above overworld build height. You can override this behavior in config, but its not recommended.");
 				cir.cancel();
 			} else {

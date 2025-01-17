@@ -3,7 +3,7 @@ package net.jcm.vsch.blocks.custom.template;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
-import net.jcm.vsch.blocks.entity.ParticleBlockEntity;
+import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.items.VSCHItems;
 import net.jcm.vsch.ship.ThrusterData.ThrusterMode;

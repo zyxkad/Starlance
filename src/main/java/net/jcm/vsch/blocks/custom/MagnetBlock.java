@@ -2,8 +2,8 @@ package net.jcm.vsch.blocks.custom;
 
 
 import net.jcm.vsch.blocks.custom.template.BlockWithEntity;
-import net.jcm.vsch.blocks.entity.DragInducerBlockEntity;
 import net.jcm.vsch.blocks.entity.MagnetBlockEntity;
+import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.ship.DraggerData;
 import net.jcm.vsch.ship.ThrusterData;
@@ -34,7 +34,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 
-public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
+public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity> {
 
 	public MagnetBlock(Properties properties) {
 		super(properties);
@@ -52,39 +52,13 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 		return RenderShape.MODEL;
 	}
 
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-		super.onPlace(state, level, pos, oldState, isMoving);
-
-		if (!(level instanceof ServerLevel)) return;
-
-		// ----- Add thruster to the force appliers for the current level ----- //
-		int signal = level.getBestNeighborSignal(pos);
-		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-
-		if (ships != null) {
-
-			/*if(VSCHConfig.THRUSTER_MODE.get().equals("POSITION")) {
-				ships.addDragger(pos, new DraggerData(
-						(signal > 0),
-						ThrusterData.ThrusterMode.POSITION //Position based thruster by default
-						));
-			} else if (VSCHConfig.THRUSTER_MODE.get().equals("GLOBAL")) {
-				ships.addDragger(pos, new DraggerData(
-						(signal > 0),
-						ThrusterData.ThrusterMode.GLOBAL //Position based thruster by default
-						));
-			}*/
-
-		}
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!(level instanceof ServerLevel)) return;
+		super.onRemove(state, level, pos, newState, isMoving);
+		if (!(level instanceof ServerLevel)) {
+			return;
+		}
 
 		// ----- Remove the thruster from the force appliers for the current level ----- //
 		// I guess VS does this automatically when switching a shipyards dimension?
@@ -92,8 +66,6 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 		if (ships != null) {
 			//ships.removeDragger(pos);
 		}
-
-		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override
@@ -107,14 +79,14 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 	}
 
 	/*@Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
-        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
-        int tier = state.getValue(TournamentProperties.TIER);
-        if (tier > 1) {
-            drops.add(new ItemStack(TournamentItems.UPGRADE_THRUSTER.get(), tier - 1));
-        }
-        return drops;
-    }*/
+	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+		List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
+		int tier = state.getValue(TournamentProperties.TIER);
+		if (tier > 1) {
+			drops.add(new ItemStack(TournamentItems.UPGRADE_THRUSTER.get(), tier - 1));
+		}
+		return drops;
+	}*/
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -135,11 +107,9 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 		}
 	}
 
-
-
 	// Attach block entity
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+	public MagnetBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new MagnetBlockEntity(pos, state);
 	}
 
@@ -148,16 +118,6 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity>  { //
 	}*/
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		// TODO Auto-generated method stub
-		if (!level.isClientSide()) {
-			//System.out.println("serverside ticker");
-			return (level0, pos0, state0, blockEntity) -> ((MagnetBlockEntity)blockEntity).serverTick(level0, pos0, state0, (MagnetBlockEntity) blockEntity);
-		} else {
-			//System.out.println("clientside ticker");
-			return null;
-		}
-		//return level.isClientSide() ? (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).clientTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity) : (level0, pos0, state0, blockEntity) -> ((DragInducerBlockEntity)blockEntity).serverTick(level0, pos0, state0, (DragInducerBlockEntity) blockEntity);
+		return level.isClientSide() ? (ParticleBlockEntity::clientTick) : ParticleBlockEntity::serverTick;
 	}
-
-
 }
