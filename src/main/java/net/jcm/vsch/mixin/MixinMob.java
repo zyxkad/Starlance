@@ -27,7 +27,7 @@ public abstract class MixinMob extends Entity {
         Level level = this.level();
         int i = 0;
         for (ItemStack stack : this.getArmorSlots()) {
-            stack.getItem().inventoryTick(stack, level, (Entity) ((Object) this), i, false);
+            stack.getItem().inventoryTick(stack, level, this, i, false);
             i++;
         }
     }
