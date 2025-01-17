@@ -8,6 +8,7 @@
     "MixinEntity",
     "MixinLightRenderer",
     "MixinLivingEntityProcedure",
+    "MixinMob",
     "MixinShipAssemblyKt",
     "MixinSpacesuitwornLogicProcedure",
     "MixinVSGameUtilsKt",
