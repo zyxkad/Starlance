@@ -6,6 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -16,7 +18,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class MagnetBootItem extends ArmorItem {
-	private static final String TAG_ENABLED = "Enabled";
+	private static final String TAG_DISABLED = "Disabled";
 	private static final String TAG_READY = "Ready";
 	private static final String TAG_DIRECTION = "Direction";
 	private static final double MIN_FORCE = 0.01;
@@ -38,7 +40,7 @@ public class MagnetBootItem extends ArmorItem {
 			return false;
 		}
 		CompoundTag tag = stack.getTag();
-		return tag != null && tag.getBoolean(TAG_ENABLED);
+		return tag == null || !tag.getBoolean(TAG_DISABLED);
 	}
 
 	public boolean getReady(ItemStack stack) {
@@ -61,40 +63,30 @@ public class MagnetBootItem extends ArmorItem {
 	}
 
 	@Override
-	public void onCraftedBy(ItemStack stack, Level level, Player player) {
-		if (!(level instanceof ServerLevel)) {
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+		if (!(entity instanceof LivingEntity livingEntity)) {
 			return;
 		}
-		CompoundTag tag = stack.getOrCreateTag();
-		tag.putBoolean(TAG_ENABLED, true);
-	}
-
-	@Override
-	public void onArmorTick(ItemStack stack, Level level, Player player) {
-		if (!(level instanceof ServerLevel)) {
+		if (livingEntity.getItemBySlot(this.getEquipmentSlot()) != stack) {
 			return;
 		}
 
-		// Ignore spectator mode
-		// I don't exactly know what this var does, but it trigger in spectator mode.
-		// If it causes problems, replace it with 'isSpectator()'
-		if (player.noPhysics) {
+		// Ignore no physics entities
+		if (entity.noPhysics || entity.isPassenger()) {
 			return;
 		}
-
-		// I don't know why there isn't a simpler check for this
-		if (player.getAbilities().flying) {
+		if (entity instanceof Player player && player.getAbilities().flying) {
 			return;
 		}
 
 		CompoundTag tag = stack.getOrCreateTag();
-		boolean enabled = tag.getBoolean(TAG_ENABLED);
+		boolean disabled = tag.getBoolean(TAG_DISABLED);
 		boolean wasReady = tag.getBoolean(TAG_READY);
 
 		double maxDistance = getAttractDistance();
 
 		Vec3 direction = new Vec3(0, -1, 0); // TODO: maybe we can change the direction to match the ship that player stands on?
-		Vec3 startPos = player.position(); // Starting position (player's position)
+		Vec3 startPos = entity.position(); // Starting position (player's position)
 		Vec3 endPos = startPos.add(direction.scale(maxDistance)); // End position (straight down)
 
 		HitResult hitResult = level.clip(new ClipContext(
@@ -102,7 +94,7 @@ public class MagnetBootItem extends ArmorItem {
 			endPos,
 			ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
 			ClipContext.Fluid.NONE,     // Ignore fluids
-			player
+			entity
 		));
 
 		if (hitResult.getType() != HitResult.Type.BLOCK) {
@@ -116,7 +108,7 @@ public class MagnetBootItem extends ArmorItem {
 			tag.putBoolean(TAG_READY, true);
 			Vec3.CODEC.encodeStart(NbtOps.INSTANCE, direction).result().ifPresent(pos -> tag.put(TAG_DIRECTION, pos));
 		}
-		if (!enabled) {
+		if (disabled) {
 			return;
 		}
 
@@ -125,12 +117,10 @@ public class MagnetBootItem extends ArmorItem {
 		double scaledForce = Math.min(maxDistance * maxDistance / distance * MIN_FORCE, getMaxForce());
 
 		Vec3 force = direction.scale(scaledForce);
+		tag.putDouble("Force", scaledForce);
 
-		player.setDeltaMovement(player.getDeltaMovement().add(force));
+		entity.push(force.x, force.y, force.z);
 
-		//System.out.println("Hit block");
-
-		//System.out.println(slotId);
 		//level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
 	}
 }
