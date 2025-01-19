@@ -1,0 +1,11 @@
+{
+    "name": "Wrench",
+    "icon": "vsch:wrench",
+    "category": "vsch:items",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "With it you to change the way your thruster work allowing you to adjust the direction of the exit gases"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "name": "Magnetic boots",
+    "icon": "vsch:magnet_boot",
+    "category": "vsch:items",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "Magnetic boots. Useful where there is low gravity"
+        }
+    ]
+}

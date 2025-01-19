@@ -1,0 +1,11 @@
+{
+    "name": "Drag inducer",
+    "icon": "vsch:drag_inducer_block",
+    "category": "vsch:blocks",
+    "pages": [
+        {
+            "type": "patchouli:text",
+            "text": "Gravity device that could slow down you in space by dimensional drag"
+        }
+    ]
+}
