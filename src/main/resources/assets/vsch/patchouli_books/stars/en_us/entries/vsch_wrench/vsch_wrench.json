@@ -5,7 +5,7 @@
     "pages": [
         {
             "type": "patchouli:text",
-            "text": "With it you to change the way your thruster work allowing you to adjust the direction of the exit gases"
+            "text": "Allows you to change the mode of thrusers. When in GLOBAL mode, thrusters will apply force along the entire ship. In POSITION mode, they will apply the force at their position. POSITION mode can cause unwanted rotation with un-balanced thruster placements, which is where GLOBAL mode helps. Thrusters default to POSITION mode (can be changed in the config)."
         }
     ]
 }
