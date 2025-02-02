@@ -50,7 +50,7 @@ jobs:
           name: ${{ format('Starlance Artifacts PR {0}', github.event.number) }}
           path: |
             build/libs
-            build/reobfJar
+            build/reobfJar/starlance-production-mapped.jar
           overwrite: true
           if-no-files-found: error
       - name: LOG-METADATA-2
