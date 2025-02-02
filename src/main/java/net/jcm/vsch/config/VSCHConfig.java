@@ -29,6 +29,8 @@ public class VSCHConfig {
 
 	public static final ForgeConfigSpec.ConfigValue<Number> MAGNET_BOOT_DISTANCE;
 	public static final ForgeConfigSpec.ConfigValue<Number> MAGNET_BOOT_MAX_FORCE;
+	public static final ForgeConfigSpec.ConfigValue<Number> GRAVITY_DISTANCE;
+	public static final ForgeConfigSpec.ConfigValue<Number> GRAVITY_MAX_FORCE;
 
 	static {
 		BUILDER.push("Thrusters");
@@ -50,6 +52,8 @@ public class VSCHConfig {
 
 		MAGNET_BOOT_DISTANCE = BUILDER.comment("Distance (in blocks) at which magnet boots will pull you in").define("magnet_boot_distance", 6);
 		MAGNET_BOOT_MAX_FORCE = BUILDER.comment("Max acceleration magnet boots will apply at close distances to move the player downwards.").define("magnet_boot_max_force", 0.09);
+		GRAVITY_DISTANCE = BUILDER.comment("Distance (in blocks) at which gravity generator will pull you in").define("gravity_gen_distance", 6);
+		GRAVITY_MAX_FORCE = BUILDER.comment("Max acceleration gravity generator will apply at close distances to move the player downwards.").define("gravity_gen_max_force", 0.09);
 
 		BUILDER.pop();
 
