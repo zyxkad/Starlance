@@ -24,7 +24,6 @@ jobs:
       - name: Gradle Check
         run: ./gradlew check
   build:
-    if: ${{ github.event_name != 'push' }}
     name: Build
     runs-on: ubuntu-latest
     needs: test
