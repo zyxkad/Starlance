@@ -4,6 +4,7 @@ import net.jcm.vsch.blocks.entity.DockerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -11,7 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class DockerBlock extends Block implements EntityBlock {
+public class DockerBlock extends DirectionalBlock implements EntityBlock {
     public DockerBlock(Properties properties) {
         super(properties);
     }
