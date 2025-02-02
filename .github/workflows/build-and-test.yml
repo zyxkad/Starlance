@@ -47,7 +47,7 @@ jobs:
         id: artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ format('Starlance Artifacts PR #{0}', github.event.number) }}
+          name: ${{ format('Starlance Artifacts PR {0}', github.event.number) }}
           path: |
             build/libs
             build/reobfJar
