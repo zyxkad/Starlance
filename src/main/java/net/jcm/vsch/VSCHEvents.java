@@ -1,5 +1,6 @@
 package net.jcm.vsch;
 
+import com.mojang.logging.LogUtils;
 import net.jcm.vsch.entity.VSCHEntities;
 import net.lointain.cosmos.network.CosmosModVariables;
 import net.jcm.vsch.event.GravityInducer;
@@ -31,7 +32,7 @@ public class VSCHEvents {
 
 	@SubscribeEvent
 	public static void onServerStart(ServerStartedEvent event) {
-		GravityInducer.gravitydata = CosmosModVariables.WorldVariables.get(event.getServer().overworld()).gravity_data;
+		GravityInducer.gravityDatas = CosmosModVariables.WorldVariables.get(event.getServer().overworld()).gravity_data;
 	}
 
 	//	@SubscribeEvent

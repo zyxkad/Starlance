@@ -16,11 +16,13 @@ public class VSCHTab {
 			() -> CreativeModeTab.builder().title(Component.translatable("vsch.itemtab")).icon(() -> new ItemStack(VSCHBlocks.THRUSTER_BLOCK.get())).displayItems((parameters, tabData) -> {
 
 				tabData.accept(VSCHBlocks.THRUSTER_BLOCK.get().asItem());
-				tabData.accept(VSCHBlocks.DRAG_INDUCER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.AIR_THRUSTER_BLOCK.get().asItem());
 				tabData.accept(VSCHBlocks.POWERFUL_THRUSTER_BLOCK.get().asItem());
-				tabData.accept(VSCHItems.WRENCH.get().asItem());
+				tabData.accept(VSCHBlocks.DRAG_INDUCER_BLOCK.get().asItem());
+
 				tabData.accept(VSCHItems.MAGNET_BOOT.get().asItem());
+
+				tabData.accept(VSCHItems.WRENCH.get().asItem());
 
 			}).build());
 

@@ -12,9 +12,9 @@ import java.util.Set;
 @Deprecated
 @Mixin(ShipObjectServerWorld.class)
 public interface ServerShipObjectWorldAccessor {
-    @Accessor("shipIdToConstraints")
+    @Accessor(value = "shipIdToConstraints", remap = false)
     Map<Long, Set<Integer>> getShipIdToConstraints();
 
-    @Accessor("constraints")
+    @Accessor(value = "constraints", remap = false)
     Map<Integer, VSConstraint> getConstraints();
 }

@@ -33,12 +33,27 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+      - name: LOG-METADATA-1
+        run: |
+          function output() {
+            echo "output:$1=$2"
+          }
+          output PR_NUMBER "${{ github.event.number }}"
+          output HEAD_SHA "${{ github.sha }}"
       - name: Gradle Build
-        run: ./gradlew build "-Dmod_artifact_suffix=-pr${{ github.event.pull_request.number }}-$(git rev-parse --short ${{ github.sha }})"
+        run: ./gradlew build "-Dmod_artifact_suffix=-pr${{ github.event.number }}-$(git rev-parse --short ${{ github.sha }})"
       - name: Upload Build Artifacts
+        id: artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Starlance Built Jar
+          name: ${{ format('Starlance PR {0}', github.event.number) }}
           path: build/libs
           overwrite: true
           if-no-files-found: error
+      - name: LOG-METADATA-2
+        run: |
+          function output() {
+            echo "output:$1=$2"
+          }
+          output ARTIFACT_ID "${{ steps.artifact.outputs.artifact-id }}"
+          output ARTIFACT_URL "${{ steps.artifact.outputs.artifact-url }}"

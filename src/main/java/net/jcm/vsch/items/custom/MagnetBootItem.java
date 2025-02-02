@@ -2,6 +2,12 @@ package net.jcm.vsch.items.custom;
 
 import net.jcm.vsch.config.VSCHConfig;
 import net.lointain.cosmos.item.SteelarmourItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -12,68 +18,109 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class MagnetBootItem extends ArmorItem {
+	private static final String TAG_DISABLED = "Disabled";
+	private static final String TAG_READY = "Ready";
+	private static final String TAG_DIRECTION = "Direction";
+	private static final double MIN_FORCE = 0.01;
 
-	private static final double MAGNET_DISTANCE = 0.1;
+	public MagnetBootItem(ArmorMaterial pMaterial, Type pType, Properties pProperties) {
+		super(pMaterial, pType, pProperties);
+	}
 
-    public MagnetBootItem(ArmorMaterial pMaterial, Type pType, Properties pProperties) {
-        super(pMaterial, pType, pProperties);
-    }
+	public double getAttractDistance() {
+		return VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
+	}
 
-    @Override
-    @SuppressWarnings("removal")
-    public void onArmorTick(ItemStack stack, Level level, Player player) {
-        // Ignore spectator mode
-        // I don't exactly know what this var does, but it trigger in spectator mode.
-        // If it causes problems, replace it with 'isSpectator()'
-        if (player.noPhysics) {
-            return;
-        }
+	public double getMaxForce() {
+		return VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue();
+	}
 
-        // I don't know why there isn't a simpler check for this
-        if (player.getAbilities().flying) {
-            return;
-        }
+	public boolean getEnabled(ItemStack stack) {
+		if (!(stack.getItem() instanceof MagnetBootItem)) {
+			return false;
+		}
+		CompoundTag tag = stack.getTag();
+		return tag == null || !tag.getBoolean(TAG_DISABLED);
+	}
 
-        boolean magnetOn = true; //TODO: make this a keybind that can toggle it on and off
+	public boolean getReady(ItemStack stack) {
+		if (!(stack.getItem() instanceof MagnetBootItem)) {
+			return false;
+		}
+		CompoundTag tag = stack.getTag();
+		return tag != null && tag.getBoolean(TAG_READY);
+	}
 
-		double maxDistance = VSCHConfig.MAGNET_BOOT_DISTANCE.get().doubleValue();
+	public Vec3 getDirection(ItemStack stack) {
+		if (!(stack.getItem() instanceof MagnetBootItem)) {
+			return null;
+		}
+		CompoundTag tag = stack.getTag();
+		if (tag == null) {
+			return null;
+		}
+		return Vec3.CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_DIRECTION)).result().orElse(null);
+	}
 
-		Vec3 startPos = player.position(); // Starting position (player's position)
-		Vec3 endPos = startPos.add(0, -maxDistance, 0); // End position (straight down)
+	@Override
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+		if (!(entity instanceof LivingEntity livingEntity)) {
+			return;
+		}
+		if (livingEntity.getItemBySlot(this.getEquipmentSlot()) != stack) {
+			return;
+		}
+
+		// Ignore no physics entities
+		if (entity.noPhysics || entity.isPassenger()) {
+			return;
+		}
+		if (entity instanceof Player player && player.getAbilities().flying) {
+			return;
+		}
+
+		CompoundTag tag = stack.getOrCreateTag();
+		boolean disabled = tag.getBoolean(TAG_DISABLED);
+		boolean wasReady = tag.getBoolean(TAG_READY);
+
+		double maxDistance = getAttractDistance();
+
+		Vec3 direction = new Vec3(0, -1, 0); // TODO: maybe we can change the direction to match the ship that player stands on?
+		Vec3 startPos = entity.position(); // Starting position (player's position)
+		Vec3 endPos = startPos.add(direction.scale(maxDistance)); // End position (straight down)
 
 		HitResult hitResult = level.clip(new ClipContext(
-				startPos,
-				endPos,
-				ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
-				ClipContext.Fluid.NONE,     // Ignore fluids
-				player
+			startPos,
+			endPos,
+			ClipContext.Block.COLLIDER, // Raycast considers block collision shapes, maybe we don't want this?
+			ClipContext.Fluid.NONE,     // Ignore fluids
+			entity
 		));
 
-		if (hitResult.getType() == HitResult.Type.BLOCK) {
-
-
-			double blockY = hitResult.getLocation().y;
-			double distanceY = startPos.y - blockY;
-
-			// If magnet is turned off and we are more than 0.1 distance, do nothing
-			if (!magnetOn && distanceY > MAGNET_DISTANCE) {
-				return;
+		if (hitResult.getType() != HitResult.Type.BLOCK) {
+			if (wasReady) {
+				tag.putBoolean(TAG_READY, false);
+				tag.remove(TAG_DIRECTION);
 			}
-
-			//mAtH
-			double multiplier = 1.0 - (distanceY / maxDistance);
-
-			double scaledForce = multiplier * -VSCHConfig.MAGNET_BOOT_MAX_FORCE.get().doubleValue();
-
-			Vec3 force = new Vec3(0, scaledForce, 0);
-			System.out.println("Armour: "+force);
-
-			player.setDeltaMovement(player.getDeltaMovement().add(force));
-
-			//System.out.println("Hit block");
-
-			//System.out.println(slotId);
-			//level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
+			return;
 		}
+		if (!wasReady) {
+			tag.putBoolean(TAG_READY, true);
+			Vec3.CODEC.encodeStart(NbtOps.INSTANCE, direction).result().ifPresent(pos -> tag.put(TAG_DIRECTION, pos));
+		}
+		if (disabled) {
+			return;
+		}
+
+		//mAtH
+		double distance = startPos.distanceToSqr(hitResult.getLocation());
+		double scaledForce = Math.min(maxDistance * maxDistance / distance * MIN_FORCE, getMaxForce());
+
+		Vec3 force = direction.scale(scaledForce);
+		tag.putDouble("Force", scaledForce);
+
+		entity.push(force.x, force.y, force.z);
+
+		//level.addParticle(ParticleTypes.HEART, player.getX(), player.getY(), player.getZ(), 0, 0, 0);
 	}
 }
