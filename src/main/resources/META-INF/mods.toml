@@ -83,14 +83,14 @@ license = "${mod_license}"
 [[dependencies.${mod_id}]]
 	modId = "computercraft"
 	mandatory = false
-	versionRange = "[${cc_version},)"
+	versionRange = "*"
 	ordering = "AFTER"
 	side = "BOTH"
 
 [[dependencies.${mod_id}]]
 	modId = "create"
 	mandatory = false
-	versionRange = "[${create_version},)"
+	versionRange = "*"
 	ordering = "AFTER"
 	side = "BOTH"
 
