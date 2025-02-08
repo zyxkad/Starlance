@@ -76,7 +76,7 @@ license = "${mod_license}"
 [[dependencies.${mod_id}]]
 	modId = "cosmos"
 	mandatory = true
-	versionRange = "[${cosmos_version},)"
+	versionRange = "[0.0.7.2,)"
 	ordering = "AFTER"
 	side = "BOTH"
 
