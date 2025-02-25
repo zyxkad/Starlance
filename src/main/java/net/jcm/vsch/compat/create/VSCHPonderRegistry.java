@@ -10,15 +10,15 @@ public class VSCHPonderRegistry {
     public static void register() {
 
         HELPER.forComponents(
-                        VSCHRegistrateBlocks.THRUSTER_BLOCK,
-                        VSCHRegistrateBlocks.AIR_THRUSTER_BLOCK,
-                        VSCHRegistrateBlocks.POWERFUL_THRUSTER_BLOCK
+                        VSCHPonderRegistrateBlocks.THRUSTER_BLOCK,
+                        VSCHPonderRegistrateBlocks.AIR_THRUSTER_BLOCK,
+                        VSCHPonderRegistrateBlocks.POWERFUL_THRUSTER_BLOCK
                 )
                 .addStoryBoard("thrusters", ThrusterScenes::thrusters)
                 .addStoryBoard("thruster_modes", ThrusterScenes::modes);
 
         HELPER.forComponents(
-                VSCHRegistrateBlocks.DRAG_INDUCER_BLOCK
+                VSCHPonderRegistrateBlocks.DRAG_INDUCER_BLOCK
         ).addStoryBoard("drag_inducer", DragInducerScene::inducer);
 
 

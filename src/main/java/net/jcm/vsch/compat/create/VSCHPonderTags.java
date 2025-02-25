@@ -7,7 +7,7 @@ import com.simibubi.create.foundation.ponder.PonderTag;
 public class VSCHPonderTags {
     public static final PonderTag
 
-    STARLANCE_PONDERS = create("starlance_ponders").item(VSCHRegistrateBlocks.THRUSTER_BLOCK.get())
+    STARLANCE_PONDERS = create("starlance_ponders").item(VSCHPonderRegistrateBlocks.THRUSTER_BLOCK.get())
             .defaultLang("Starlance", "Starlance blocks")
             .addToIndex();
 
@@ -20,7 +20,7 @@ public class VSCHPonderTags {
      */
     public static void register() {
         PonderRegistry.TAGS.forTag(STARLANCE_PONDERS)
-                .add(VSCHRegistrateBlocks.THRUSTER_BLOCK.getId())
-                .add(VSCHRegistrateBlocks.DRAG_INDUCER_BLOCK.getId());
+                .add(VSCHPonderRegistrateBlocks.THRUSTER_BLOCK.getId())
+                .add(VSCHPonderRegistrateBlocks.DRAG_INDUCER_BLOCK.getId());
     }
 }

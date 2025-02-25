@@ -76,7 +76,7 @@ public class ThrusterPeripheral implements IPeripheral {
 
 	@LuaFunction
 	public float getThrottle() {
-		return this.entity.getThrottle();
+		return this.entity.getCurrentThrottle();
 	}
 
 	@Override

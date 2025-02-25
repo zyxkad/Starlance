@@ -7,7 +7,7 @@ import net.jcm.vsch.blocks.VSCHBlocks;
 import net.minecraft.world.level.block.Block;
 
 // Because create only seems to take Registrate block registry object thingys, we have to re-register some of our blocks for the ponder stuff
-public class VSCHRegistrateBlocks {
+public class VSCHPonderRegistrateBlocks {
     public static final Registrate REGISTRATE = Registrate.create(VSCHMod.MODID);
 
     public static final BlockEntry<Block> THRUSTER_BLOCK = REGISTRATE.block("thruster_block", properties -> VSCHBlocks.THRUSTER_BLOCK.get())
