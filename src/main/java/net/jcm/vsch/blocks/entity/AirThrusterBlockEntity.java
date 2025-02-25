@@ -1,8 +1,8 @@
 package net.jcm.vsch.blocks.entity;
 
 import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
-import org.joml.Vector3d;
-
+import net.jcm.vsch.blocks.thruster.ThrusterEngine;
+import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
 
 import net.lointain.cosmos.init.CosmosModParticleTypes;
@@ -15,6 +15,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+
+import org.joml.Vector3d;
 
 public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 

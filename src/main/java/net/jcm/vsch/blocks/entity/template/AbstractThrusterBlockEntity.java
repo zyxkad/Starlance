@@ -3,6 +3,8 @@ package net.jcm.vsch.blocks.entity.template;
 import dan200.computercraft.shared.Capabilities;
 
 import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
+import net.jcm.vsch.blocks.thruster.ThrusterEngine;
+import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.compat.cc.ThrusterPeripheral;
 import net.jcm.vsch.ship.ThrusterData;
@@ -551,125 +553,6 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 					}
 				}
 				return FluidStack.EMPTY;
-			}
-		}
-	}
-
-	public static class ThrusterEngine {
-		private final int tanks;
-		private final int energyConsumeRate;
-
-		public ThrusterEngine(int tanks, int energyConsumeRate) {
-			this.tanks = tanks;
-			this.energyConsumeRate = energyConsumeRate;
-		}
-
-		public int getTanks() {
-			return this.tanks;
-		}
-
-		public int getEnergyConsumeRate() {
-			return this.energyConsumeRate;
-		}
-
-		/**
-		 * isValidFuel checks if the fluid can be uses as fuel.
-		 * same fluid must <b>NOT</b> be able to fill in two different tanks.
-		 *
-		 * @param tank  The tank the fuel is going to transfer in
-		 * @param fluid The fuel's fluid stack
-		 * @return {@code true} if the fluid is consumable, {@code false} otherwise
-		 */
-		public boolean isValidFuel(int tank, Fluid fluid) {
-			return false;
-		}
-
-		/**
-		 * tick ticks the engine with given power, which consumes energy and fuels,
-		 * and update the actual achieved power based on avaliable energy and fuels
-		 *
-		 * @param context The {@link ThrusterEngineContext}
-		 * 
-		 * @see ThrusterEngineContext
-		 */
-		public void tick(ThrusterEngineContext context) {
-			if (this.energyConsumeRate == 0) {
-				return;
-			}
-			double power = context.getPower();
-			if (power == 0) {
-				return;
-			}
-			int needs = (int)(Math.ceil(this.energyConsumeRate * power));
-			int extracted = context.getEnergyStorage().extractEnergy(needs, true);
-			context.setPower((double)(extracted) / this.energyConsumeRate);
-			context.addConsumer((ctx) -> {
-				ctx.getEnergyStorage().extractEnergy((int)(Math.ceil(this.energyConsumeRate * ctx.getPower())), false);
-			});
-		}
-	}
-
-	public static class ThrusterEngineContext {
-		@FunctionalInterface
-		public interface EngineConsumeAction {
-			void consume(ThrusterEngineContext ctx);
-		}
-
-		private final ServerLevel level;
-		private final IEnergyStorage energy;
-		private final IFluidHandler tanks;
-		private final List<EngineConsumeAction> consumers = new ArrayList<>(2);
-		private double power;
-		private boolean rejected = false;
-
-		/**
-		 * @param level  The level the thruster is in
-		 * @param energy The engine's energy storage, extract only
-		 * @param tanks  The engine's fluid tanks, drain only
-		 * @param power  The maximum power (in range of [0.0, 1.0]) the engine should maximum run with
-		 */
-		public ThrusterEngineContext(ServerLevel level, IEnergyStorage energy, IFluidHandler tanks, double power) {
-			this.level = level;
-			this.energy = energy;
-			this.tanks = tanks;
-			this.power = power;
-		}
-
-		public void reject() {
-			this.rejected = true;
-		}
-
-		public boolean isRejected() {
-			return this.rejected;
-		}
-
-		public ServerLevel getLevel() {
-			return this.level;
-		}
-
-		public IEnergyStorage getEnergyStorage() {
-			return this.energy;
-		}
-
-		public IFluidHandler getFluidHandler() {
-			return this.tanks;
-		}
-
-		public void addConsumer(EngineConsumeAction consumer) {
-			this.consumers.add(consumer);
-		}
-
-		public double getPower() {
-			return this.power;
-		}
-
-		public void setPower(double power) {
-			this.power = power;
-		}
-
-		void consume() {
-			for (EngineConsumeAction consumer : this.consumers) {
-				consumer.consume(this);
 			}
 		}
 	}

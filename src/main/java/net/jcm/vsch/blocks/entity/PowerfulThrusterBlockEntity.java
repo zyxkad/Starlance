@@ -2,6 +2,8 @@ package net.jcm.vsch.blocks.entity;
 
 import net.jcm.vsch.VSCHTags;
 import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.thruster.ThrusterEngine;
+import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
 
 import net.lointain.cosmos.init.CosmosModParticleTypes;
