@@ -546,7 +546,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 		/**
 		 * tick ticks the engine with given power, which consumes energy and fuels,
-		 * and update the actual achieved power based on consumed energy and fuels
+		 * and update the actual achieved power based on avaliable energy and fuels
 		 *
 		 * @param context The {@link ThrusterEngineContext}
 		 * 
