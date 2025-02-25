@@ -57,7 +57,7 @@ public class VSCHConfig {
 		THRUSTER_MODE = BUILDER.comment("Default Thruster Mode").defineEnum("thruster_default_mode", ThrusterMode.POSITION);
 
 		THRUSTER_STRENGTH = BUILDER.comment("Thruster max force. (Newtons)").define("thruster_strength", 120000);
-		THRUSTER_ENERGY_CONSUME_RATE = BUILDER.comment("Thruster energy consume rate. (FE/t)").define("thruster_energy_consume_rate", 100);
+		THRUSTER_ENERGY_CONSUME_RATE = BUILDER.comment("Thruster energy consume rate. (FE/t)").define("thruster_energy_consume_rate", 0);
 		THRUSTER_FUEL_CONSUME_RATES = BUILDER.comment("Thruster fuel consume rates. (mB/t)").define("thruster_fuel_consume_rates", getDefaultThrusterFuelConsumeRates());
 
 		AIR_THRUSTER_STRENGTH = BUILDER.comment("Air thruster max force. (Newtons)").define("air_thruster_strength", 7500);
@@ -93,7 +93,7 @@ public class VSCHConfig {
 
 	private static String getDefaultThrusterFuelConsumeRates() {
 		Map<String, Integer> rates = new HashMap<>();
-		rates.put("minecraft:lava", 10);
+		rates.put("minecraft:lava", 50);
 		return GSON.toJson(rates);
 	}
 
