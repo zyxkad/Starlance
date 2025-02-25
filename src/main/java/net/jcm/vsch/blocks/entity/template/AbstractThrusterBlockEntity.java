@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -141,6 +142,8 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		this.setPower(data.getFloat("Power"));
 		this.currentPower = data.getFloat("CurrentPower");
 		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("PeripheralMode");
+		this.energyStorage.readFromNBT(data);
+		this.fluidStorage.readFromNBT(data);
 		this.thrusterData.throttle = this.getCurrentThrottle();
 		super.load(data);
 	}
@@ -151,6 +154,8 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		data.putFloat("Power", this.getPower());
 		data.putFloat("CurrentPower", this.getCurrentPower());
 		data.putBoolean("PeripheralMode", this.getPeripheralMode());
+		this.energyStorage.writeToNBT(data);
+		this.fluidStorage.writeToNBT(data);
 	}
 
 	@Override
@@ -295,6 +300,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	}
 
 	private static final class ThrusterEnergyStorage implements IEnergyStorage {
+		private static final String TAG_NAME = "Energy";
 		private final int maxEnergy;
 		private int stored;
 		private final IEnergyStorage extractOnly = this.new ExtractOnly();
@@ -344,6 +350,14 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			return true;
 		}
 
+		public void readFromNBT(CompoundTag data) {
+			this.stored = Math.min(this.maxEnergy, data.getInt(TAG_NAME));
+		}
+
+		public void writeToNBT(CompoundTag data) {
+			data.putInt(TAG_NAME, this.stored);
+		}
+
 		final class ExtractOnly implements IEnergyStorage {
 			@Override
 			public int receiveEnergy(int maxReceive, boolean simulate) {
@@ -384,6 +398,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	}
 
 	private static final class ThrusterFluidStorage implements IFluidHandler {
+		private static final String TAG_NAME = "Tanks";
 		private final ThrusterEngine engine;
 		private final FluidTank[] tanks;
 		private final IFluidHandler drainOnly = this.new DrainOnly();
@@ -464,6 +479,31 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			return FluidStack.EMPTY;
+		}
+
+		public void readFromNBT(CompoundTag data) {
+			if (!data.contains(TAG_NAME)) {
+				return;
+			}
+			ListTag tanks = data.getList(TAG_NAME, 10);
+			if (tanks.size() != this.tanks.length) {
+				return;
+			}
+			for (int i = 0; i < this.tanks.length; i++) {
+				FluidTank tank = this.tanks[i];
+				tank.readFromNBT(tanks.getCompound(i));
+			}
+		}
+
+		public void writeToNBT(CompoundTag data) {
+			ListTag tanks = new ListTag();
+			for (int i = 0; i < this.tanks.length; i++) {
+				FluidTank tank = this.tanks[i];
+				CompoundTag tag = new CompoundTag();
+				tank.writeToNBT(tag);
+				tanks.add(tag);
+			}
+			data.put(TAG_NAME, tanks);
 		}
 
 		final class DrainOnly implements IFluidHandler {
