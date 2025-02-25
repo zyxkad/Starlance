@@ -113,7 +113,7 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			if (level.dimension() == Level.END) {
 				return 0.0;
 			}
-			return 1.0;
+			return 0.0;
 		}
 	}
 }

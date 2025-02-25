@@ -2,11 +2,11 @@ package net.jcm.vsch.blocks.thruster;
 
 import net.minecraft.world.level.material.Fluid;
 
-public class ThrusterEngine {
+public abstract class ThrusterEngine {
 	private final int tanks;
 	private final int energyConsumeRate;
 
-	public ThrusterEngine(int tanks, int energyConsumeRate) {
+	protected ThrusterEngine(int tanks, int energyConsumeRate) {
 		this.tanks = tanks;
 		this.energyConsumeRate = energyConsumeRate;
 	}
