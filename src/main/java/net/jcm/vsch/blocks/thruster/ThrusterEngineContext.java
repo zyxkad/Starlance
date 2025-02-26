@@ -12,6 +12,7 @@ public class ThrusterEngineContext {
 	private final IEnergyStorage energy;
 	private final IFluidHandler tanks;
 	private final List<EngineConsumeAction> consumers = new ArrayList<>(2);
+	private final int amount;
 	private double power;
 	private boolean rejected = false;
 
@@ -20,12 +21,14 @@ public class ThrusterEngineContext {
 	 * @param energy The engine's energy storage, extract only
 	 * @param tanks  The engine's fluid tanks, drain only
 	 * @param power  The maximum power (in range of [0.0, 1.0]) the engine should maximum run with
+	 * @param amount The amount of thrusters
 	 */
-	public ThrusterEngineContext(ServerLevel level, IEnergyStorage energy, IFluidHandler tanks, double power) {
+	public ThrusterEngineContext(ServerLevel level, IEnergyStorage energy, IFluidHandler tanks, double power, int amount) {
 		this.level = level;
 		this.energy = energy;
 		this.tanks = tanks;
 		this.power = power;
+		this.amount = amount;
 	}
 
 	public void reject() {
@@ -60,10 +63,14 @@ public class ThrusterEngineContext {
 		this.power = power;
 	}
 
+	public int getAmount() {
+		return this.amount;
+	}
+
 	/**
 	 * consume should not be invoked by any outside module
 	 */
-	public void consume() {
+	void consume() {
 		for (EngineConsumeAction consumer : this.consumers) {
 			consumer.consume(this);
 		}

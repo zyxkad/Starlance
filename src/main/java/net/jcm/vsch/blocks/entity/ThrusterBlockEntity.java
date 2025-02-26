@@ -1,6 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
-import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.thruster.ThrusterEngine;
 import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
@@ -21,21 +21,17 @@ public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		super("thruster", VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state,
 			new NormalThrusterEngine(
 				VSCHConfig.THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
+				VSCHConfig.THRUSTER_STRENGTH.get().intValue(),
 				VSCHConfig.getThrusterFuelConsumeRates()
 			)
 		);
 	}
 
-	@Override
-	public float getMaxThrottle() {
-		return VSCHConfig.THRUSTER_STRENGTH.get().intValue();
-	}
-
 	private static class NormalThrusterEngine extends ThrusterEngine {
 		private final Map<String, Integer> fuelConsumeRates;
 
-		public NormalThrusterEngine(int energyConsumeRate, Map<String, Integer> fuelConsumeRates) {
-			super(1, energyConsumeRate);
+		public NormalThrusterEngine(int energyConsumeRate, float maxThrottle, Map<String, Integer> fuelConsumeRates) {
+			super(1, energyConsumeRate, maxThrottle);
 			this.fuelConsumeRates = fuelConsumeRates;
 		}
 

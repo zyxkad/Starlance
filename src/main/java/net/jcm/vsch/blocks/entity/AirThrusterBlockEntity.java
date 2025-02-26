@@ -1,6 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
-import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.thruster.ThrusterEngine;
 import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
@@ -24,14 +24,10 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		super("air_thruster", VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state,
 			new AirThrusterEngine(
 				VSCHConfig.AIR_THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
+				VSCHConfig.AIR_THRUSTER_STRENGTH.get().floatValue(),
 				VSCHConfig.AIR_THRUSTER_MAX_WATER_CONSUME_RATE.get().intValue()
 			)
 		);
-	}
-
-	@Override
-	public float getMaxThrottle() {
-		return VSCHConfig.AIR_THRUSTER_STRENGTH.get().intValue();
 	}
 
 	@Override
@@ -63,8 +59,8 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	private static class AirThrusterEngine extends ThrusterEngine {
 		private final int maxWaterConsumeRate;
 
-		public AirThrusterEngine(int energyConsumeRate, int maxWaterConsumeRate) {
-			super(1, energyConsumeRate);
+		public AirThrusterEngine(int energyConsumeRate, float maxThrottle, int maxWaterConsumeRate) {
+			super(1, energyConsumeRate, maxThrottle);
 			this.maxWaterConsumeRate = maxWaterConsumeRate;
 		}
 
@@ -87,13 +83,14 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			if (density >= 1) {
 				return;
 			}
+			int amount = context.getAmount();
 
 			double waterConsumeRate = this.maxWaterConsumeRate * (1 - density);
-			int needsWater = (int)(Math.ceil(waterConsumeRate * power));
+			int needsWater = (int)(Math.ceil(waterConsumeRate * power * amount));
 			int avaliableWater = context.getFluidHandler().drain(new FluidStack(Fluids.WATER, needsWater), IFluidHandler.FluidAction.SIMULATE).getAmount();
-			context.setPower(avaliableWater / waterConsumeRate);
+			context.setPower(avaliableWater / (waterConsumeRate * amount));
 			context.addConsumer((ctx) -> {
-				int water = (int)(Math.ceil(this.maxWaterConsumeRate * (1 - density) * ctx.getPower()));
+				int water = (int)(Math.ceil(this.maxWaterConsumeRate * (1 - density) * ctx.getPower() * ctx.getAmount()));
 				ctx.getFluidHandler().drain(new FluidStack(Fluids.WATER, water), IFluidHandler.FluidAction.EXECUTE);
 			});
 		}

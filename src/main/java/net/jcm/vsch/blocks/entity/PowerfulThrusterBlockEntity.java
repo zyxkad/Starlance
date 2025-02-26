@@ -1,7 +1,7 @@
 package net.jcm.vsch.blocks.entity;
 
 import net.jcm.vsch.VSCHTags;
-import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
+import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.thruster.ThrusterEngine;
 import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
@@ -20,14 +20,10 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		super("powerful_thruster", VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state,
 			new PowerfulThrusterEngine(
 				VSCHConfig.POWERFUL_THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
+				VSCHConfig.POWERFUL_THRUSTER_STRENGTH.get().floatValue(),
 				VSCHConfig.POWERFUL_THRUSTER_FUEL_CONSUME_RATE.get().intValue()
 			)
 		);
-	}
-
-	@Override
-	public float getMaxThrottle() {
-		return VSCHConfig.POWERFUL_THRUSTER_STRENGTH.get().intValue();
 	}
 
 	@Override
@@ -38,8 +34,8 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	private static class PowerfulThrusterEngine extends ThrusterEngine {
 		private final int fuelConsumeRate;
 
-		public PowerfulThrusterEngine(int energyConsumeRate, int fuelConsumeRate) {
-			super(2, energyConsumeRate);
+		public PowerfulThrusterEngine(int energyConsumeRate, float maxThrottle, int fuelConsumeRate) {
+			super(2, energyConsumeRate, maxThrottle);
 			this.fuelConsumeRate = fuelConsumeRate;
 		}
 
@@ -62,8 +58,9 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			if (power == 0) {
 				return;
 			}
+			int amount = context.getAmount();
 
-			int needsOxygen = (int)(Math.ceil(this.fuelConsumeRate * power));
+			int needsOxygen = (int)(Math.ceil(this.fuelConsumeRate * power * amount));
 			int needsHydrogen = needsOxygen * 2;
 			IFluidHandler fluidHandler = context.getFluidHandler();
 			FluidStack oxygenStack = fluidHandler.getFluidInTank(0);
@@ -74,10 +71,10 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 				context.setPower(0);
 				return;
 			}
-			context.setPower((double)(avaliableOxygen) / this.fuelConsumeRate);
+			context.setPower(avaliableOxygen / ((double)(this.fuelConsumeRate) * amount));
 			context.addConsumer((ctx) -> {
 				IFluidHandler tanks = ctx.getFluidHandler();
-				int oxygen = (int)(Math.ceil(this.fuelConsumeRate * ctx.getPower()));
+				int oxygen = (int)(Math.ceil(this.fuelConsumeRate * ctx.getPower() * ctx.getAmount()));
 				int hydrogen = oxygen * 2;
 				tanks.drain(new FluidStack(oxygenStack.getFluid(), oxygen), IFluidHandler.FluidAction.EXECUTE);
 				tanks.drain(new FluidStack(hydrogenStack.getFluid(), hydrogen), IFluidHandler.FluidAction.EXECUTE);

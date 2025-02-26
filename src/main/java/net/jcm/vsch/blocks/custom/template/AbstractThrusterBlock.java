@@ -2,8 +2,8 @@ package net.jcm.vsch.blocks.custom.template;
 
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
-import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
+import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.items.VSCHItems;
 import net.jcm.vsch.ship.ThrusterData.ThrusterMode;
@@ -45,7 +45,6 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 	public static final int MULT = 1000;
 	// TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-	public static final EnumProperty<ThrusterMode> MODE = EnumProperty.create("mode", ThrusterMode.class);
 	public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 
 	private final DirectionalShape shape;
@@ -55,7 +54,6 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		this.shape = shape;
 		registerDefaultState(defaultBlockState()
 				.setValue(FACING, Direction.NORTH)
-				.setValue(MODE, ThrusterMode.POSITION) // handy string to Enum :D
 				.setValue(LIT, Boolean.valueOf(false))
 				);
 	}
@@ -67,7 +65,6 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 	@Override
 	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
-		builder.add(MODE);
 		builder.add(LIT);
 		super.createBlockStateDefinition(builder);
 	}
@@ -178,8 +175,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 			dir = dir.getOpposite();
 		}
 		return defaultBlockState()
-				.setValue(BlockStateProperties.FACING, dir)
-				.setValue(MODE, VSCHConfig.THRUSTER_MODE.get());
+				.setValue(BlockStateProperties.FACING, dir);
 	}
 
 	// Attach block entity

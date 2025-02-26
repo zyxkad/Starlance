@@ -5,10 +5,12 @@ import net.minecraft.world.level.material.Fluid;
 public abstract class ThrusterEngine {
 	private final int tanks;
 	private final int energyConsumeRate;
+	private final float maxThrottle;
 
-	protected ThrusterEngine(int tanks, int energyConsumeRate) {
+	protected ThrusterEngine(int tanks, int energyConsumeRate, float maxThrottle) {
 		this.tanks = tanks;
 		this.energyConsumeRate = energyConsumeRate;
+		this.maxThrottle = maxThrottle;
 	}
 
 	public int getTanks() {
@@ -17,6 +19,10 @@ public abstract class ThrusterEngine {
 
 	public int getEnergyConsumeRate() {
 		return this.energyConsumeRate;
+	}
+
+	public float getMaxThrottle() {
+		return this.maxThrottle;
 	}
 
 	/**
@@ -47,11 +53,12 @@ public abstract class ThrusterEngine {
 		if (power == 0) {
 			return;
 		}
-		int needs = (int)(Math.ceil(this.energyConsumeRate * power));
+		int amount = context.getAmount();
+		int needs = (int)(Math.ceil(this.energyConsumeRate * power * amount));
 		int extracted = context.getEnergyStorage().extractEnergy(needs, true);
-		context.setPower((double)(extracted) / this.energyConsumeRate);
+		context.setPower(extracted / ((double)(this.energyConsumeRate) * amount));
 		context.addConsumer((ctx) -> {
-			ctx.getEnergyStorage().extractEnergy((int)(Math.ceil(this.energyConsumeRate * ctx.getPower())), false);
+			ctx.getEnergyStorage().extractEnergy((int)(Math.ceil(ctx.getPower() * ctx.getAmount() * this.energyConsumeRate)), false);
 		});
 	}
 }
