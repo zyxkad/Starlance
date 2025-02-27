@@ -85,6 +85,9 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		if (data.contains(BRAIN_POS_TAG_NAME, 7)) {
 			byte[] offset = data.getByteArray(BRAIN_POS_TAG_NAME);
 			this.brainPos = pos.offset(offset[0], offset[1], offset[2]);
+			if (this.getLevel() != null) {
+				this.resolveBrain();
+			}
 		} else if (data.contains(BRAIN_DATA_TAG_NAME, 10)) {
 			CompoundTag brainData = data.getCompound(BRAIN_DATA_TAG_NAME);
 			this.brain.readFromNBT(brainData);
@@ -95,7 +98,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
 		AbstractThrusterBlockEntity dataBlock = this.brain.getDataBlock();
-		if (dataBlock == this) {
+		if (this.brainPos != null) {
+			BlockPos pos = this.brainPos.subtract(this.getBlockPos());
+			data.putByteArray(BRAIN_POS_TAG_NAME, new byte[]{(byte)(pos.getX()), (byte)(pos.getY()), (byte)(pos.getZ())});
+		} else if (dataBlock == this) {
 			CompoundTag brainData = new CompoundTag();
 			this.brain.writeToNBT(brainData);
 			data.put(BRAIN_DATA_TAG_NAME, brainData);
@@ -135,20 +141,24 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		this.brain.neighborChanged(this, block, pos, moving);
 	}
 
+	private void resolveBrain() {
+		BlockEntity be = this.getLevel().getBlockEntity(this.brainPos);
+		if (be instanceof AbstractThrusterBlockEntity thruster) {
+			ThrusterBrain newBrain = thruster.getBrain();
+			if (this.brain != newBrain) {
+				newBrain.addThruster(this);
+				this.setBrain(newBrain);
+			}
+		} else {
+			LOGGER.warn("Thruster brain at {} is not found", this.brainPos);
+		}
+		this.brainPos = null;
+	}
+
 	@Override
 	public void tickForce(ServerLevel level, BlockPos pos, BlockState state) {
 		if (this.brainPos != null) {
-			BlockEntity be = this.getLevel().getBlockEntity(this.brainPos);
-			if (be instanceof AbstractThrusterBlockEntity thruster) {
-				ThrusterBrain newBrain = thruster.getBrain();
-				if (this.brain != newBrain) {
-					newBrain.addThruster(this);
-					this.setBrain(newBrain);
-				}
-			} else {
-				LOGGER.warn("Thruster brain at {} is not found", this.brainPos);
-			}
-			this.brainPos = null;
+			this.resolveBrain();
 		}
 		if (this.brain.getDataBlock() == this) {
 			this.brain.tick(level);
@@ -180,6 +190,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public void tickParticles(Level level, BlockPos pos, BlockState state) {
+		if (this.brainPos != null) {
+			this.resolveBrain();
+		}
+
 		Ship ship = VSGameUtilsKt.getShipManagingPos(level, pos);
 		// If we aren't on a ship, then we skip
 		if (ship == null) {

@@ -177,15 +177,14 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean(PERIPHERAL_MOD_TAG_NAME);
 		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
 		this.storedEnergy = Math.min(this.maxEnergy, data.getInt(ENERGY_TAG_NAME));
-		if (!data.contains(TANKS_TAG_NAME)) {
-			return;
-		}
-		ListTag tanks = data.getList(TANKS_TAG_NAME, 10);
-		if (tanks.size() == this.tanks.length) {
-			for (int i = 0; i < this.tanks.length; i++) {
-				FluidTank tank = this.tanks[i];
-				tank.setCapacity(10000 * count);
-				tank.readFromNBT(tanks.getCompound(i));
+		if (data.contains(TANKS_TAG_NAME)) {
+			ListTag tanks = data.getList(TANKS_TAG_NAME, 10);
+			if (tanks.size() == this.tanks.length) {
+				for (int i = 0; i < this.tanks.length; i++) {
+					FluidTank tank = this.tanks[i];
+					tank.setCapacity(10000 * count);
+					tank.readFromNBT(tanks.getCompound(i));
+				}
 			}
 		}
 		this.thrusterData.throttle = this.getCurrentThrottle();
