@@ -203,6 +203,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
 		if (cap == ForgeCapabilities.ENERGY || cap == ForgeCapabilities.FLUID_HANDLER) {
+			// Why is this LazyOptional? Isn't that just so that the CC cap is optional?
 			return LazyOptional.of(() -> this).cast();
 		}
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
@@ -299,6 +300,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		minZ = maxZ = dataPos.getZ();
 		for (AbstractThrusterBlockEntity be : this.connectedBlocks) {
 			BlockPos pos = be.getBlockPos();
+			// Gotta be a better way fo this
 			minX = Math.min(minX, pos.getX());
 			minY = Math.min(minY, pos.getY());
 			minZ = Math.min(minZ, pos.getZ());
@@ -315,6 +317,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			be.brain = this;
 		}
 		// TODO: is it necessary to ensure the data block is at center?
+		// TODO: We should probably make sure that data block is a loaded block
 		// BlockPos centerPos = new BlockPos((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
 		// int dist = dataPos.distManhattan(centerPos);
 		// int closestInd = 0;
