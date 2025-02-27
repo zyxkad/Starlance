@@ -149,10 +149,11 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 				newBrain.addThruster(this);
 				this.setBrain(newBrain);
 			}
-		} else {
-			LOGGER.warn("Thruster brain at {} is not found", this.brainPos);
+			this.brainPos = null;
+		} else if (this.getLevel() instanceof ServerLevel) {
+			LOGGER.warn("Thruster brain at {} for {} is not found", this.brainPos, this.getBlockPos());
+			this.brainPos = null;
 		}
-		this.brainPos = null;
 	}
 
 	@Override
