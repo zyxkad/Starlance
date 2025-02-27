@@ -68,9 +68,9 @@ public class ThrusterEngineContext {
 	}
 
 	/**
-	 * consume should not be invoked by any outside module
+	 * consume should not be invoked by anything other than ThrusterBrain
 	 */
-	void consume() {
+	  void consume() {
 		for (EngineConsumeAction consumer : this.consumers) {
 			consumer.consume(this);
 		}

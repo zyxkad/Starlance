@@ -38,11 +38,9 @@ public abstract class ThrusterEngine {
 	}
 
 	/**
-	 * tick ticks the engine with given power, which consumes energy and fuels,
-	 * and update the actual achieved power based on avaliable energy and fuels
+	 * ticks the engine with given power, which consumes energy and fuel,
+	 * and update the actual achieved power based on available energy and fuel.
 	 *
-	 * @param context The {@link ThrusterEngineContext}
-	 * 
 	 * @see ThrusterEngineContext
 	 */
 	public void tick(ThrusterEngineContext context) {

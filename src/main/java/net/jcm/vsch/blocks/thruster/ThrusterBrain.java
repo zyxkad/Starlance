@@ -210,6 +210,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
 		if (cap == ForgeCapabilities.ENERGY || cap == ForgeCapabilities.FLUID_HANDLER) {
+			// Why is this LazyOptional? Isn't that just so that the CC cap is optional?
 			return LazyOptional.of(() -> this).cast();
 		}
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
@@ -279,12 +280,22 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		minZ = maxZ = dataPos.getZ();
 		for (AbstractThrusterBlockEntity be : this.connectedBlocks) {
 			BlockPos pos = be.getBlockPos();
-			minX = Math.min(minX, pos.getX());
-			minY = Math.min(minY, pos.getY());
-			minZ = Math.min(minZ, pos.getZ());
-			maxX = Math.max(maxX, pos.getX());
-			maxY = Math.max(maxY, pos.getY());
-			maxZ = Math.max(maxZ, pos.getZ());
+			int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+			if (x < minX) {
+				minX = x;
+			} else if (x > maxX) {
+				maxX = x;
+			}
+			if (y < minY) {
+				minY = y;
+			} else if (y > maxY) {
+				maxY = y;
+			}
+			if (z < minZ) {
+				minZ = z;
+			} else if (z > maxZ) {
+				maxZ = z;
+			}
 		}
 		if (maxX - minX > MAX_SIZE || maxY - minY > MAX_SIZE || maxZ - minZ > MAX_SIZE) {
 			return;
