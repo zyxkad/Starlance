@@ -72,10 +72,11 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.facing = facing;
 		this.thrusterData = new ThrusterData(VectorConversionsMCKt.toJOMLD(facing.getNormal()), 0, VSCHConfig.THRUSTER_MODE.get());
 		this.engine = engine;
-		this.maxEnergy = this.engine.getEnergyConsumeRate();
+		int count = this.connectedBlocks.size();
+		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
 		this.tanks = new FluidTank[this.engine.getTanks()];
 		for (int i = 0; i < this.tanks.length; i++) {
-			this.tanks[i] = new FluidTank(10000);
+			this.tanks[i] = new FluidTank(10000 * count);
 		}
 	}
 
@@ -257,33 +258,6 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.updatePowerByRedstone();
 	}
 
-	private void removeFromBrain(Level level, int index) {
-		AbstractThrusterBlockEntity removed = this.connectedBlocks.remove(index);
-		if (index == 0) {
-			this.broadcastDataBlockUpdate();
-		}
-		Set<BlockPos> collected = new HashSet<>();
-		collected.add(removed.getBlockPos());
-		List<AbstractThrusterBlockEntity>[] sets = streamNeighborPositions(removed.getBlockPos(), this.facing)
-			.map(level::getBlockEntity)
-			.filter(AbstractThrusterBlockEntity.class::isInstance)
-			.map(AbstractThrusterBlockEntity.class::cast)
-			.filter((be) -> !collected.contains(be.getBlockPos()))
-			.map((be) -> collectAllConnecting(level, be, this.facing, collected))
-			.toArray(List[]::new);
-		if (sets.length == 1) {
-			return;
-		}
-		this.connectedBlocks = sets[0];
-		for (int i = 1; i < sets.length; i++) {
-			List<AbstractThrusterBlockEntity> set = sets[i];
-			ThrusterBrain newBrain = new ThrusterBrain(set, this.peripheralType, this.facing, engine);
-			for (AbstractThrusterBlockEntity t : set) {
-				t.brain = newBrain;
-			}
-		}
-	}
-
 	private void tryMergeBrain(BlockPos atPos, ThrusterBrain newBrain, BlockPos newPos) {
 		if (this.facing != newBrain.facing || !this.peripheralType.equals(newBrain.peripheralType)) {
 			return;
@@ -314,22 +288,6 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		for (AbstractThrusterBlockEntity be : newBrain.connectedBlocks) {
 			be.brain = this;
 		}
-		// TODO: is it necessary to ensure the data block is at center?
-		// BlockPos centerPos = new BlockPos((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
-		// int dist = dataPos.distManhattan(centerPos);
-		// int closestInd = 0;
-		// for (int i = 1; i < this.connectedBlocks.size(); i++) {
-		// 	BlockPos pos = this.connectedBlocks.get(i).getBlockPos();
-		// 	int d = pos.distManhattan(centerPos);
-		// 	if (d < dist) {
-		// 		dist = d;
-		// 		closestInd = i;
-		// 	}
-		// }
-		// if (closestInd != 0) {
-		// 	this.connectedBlocks.set(0, this.connectedBlocks.set(closestInd, this.connectedBlocks.get(0)));
-		// 	this.broadcastDataBlockUpdate();
-		// }
 		int count = this.connectedBlocks.size();
 		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
 		this.storedEnergy += newBrain.storedEnergy;
@@ -341,12 +299,71 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.getDataBlock().sendUpdate();
 	}
 
+	private void removeFromBrain(Level level, int index) {
+		AbstractThrusterBlockEntity removed = this.connectedBlocks.remove(index);
+		if (index == 0) {
+			this.broadcastDataBlockUpdate();
+		}
+		Set<BlockPos> collected = new HashSet<>();
+		collected.add(removed.getBlockPos());
+		List<AbstractThrusterBlockEntity>[] sets = streamNeighborPositions(removed.getBlockPos(), this.facing)
+			.map(level::getBlockEntity)
+			.filter(AbstractThrusterBlockEntity.class::isInstance)
+			.map(AbstractThrusterBlockEntity.class::cast)
+			.filter((be) -> !collected.contains(be.getBlockPos()))
+			.map((be) -> collectAllConnecting(level, be, this.facing, collected))
+			.toArray(List[]::new);
+		if (sets.length == 1) {
+			return;
+		}
+
+		this.connectedBlocks = sets[0];
+		int count = this.connectedBlocks.size();
+		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
+		int lastEnergy = this.storedEnergy;
+		this.storedEnergy = Math.min(this.maxEnergy, lastEnergy);
+		lastEnergy -= this.storedEnergy;
+		int[] lastFluids = new int[this.tanks.length];
+		for (int i = 0; i < this.tanks.length; i++) {
+			FluidTank tank = this.tanks[i];
+			FluidStack stack = tank.getFluid();
+			if (stack.isEmpty()) {
+				continue;
+			}
+			lastFluids[i] = stack.getAmount();
+			tank.setCapacity(10000 * count);
+			stack.setAmount(Math.min(tank.getCapacity(), lastFluids[i]));
+			lastFluids[i] -= stack.getAmount();
+		}
+		for (int i = 1; i < sets.length; i++) {
+			List<AbstractThrusterBlockEntity> set = sets[i];
+			ThrusterBrain newBrain = new ThrusterBrain(set, this.peripheralType, this.facing, engine);
+			newBrain.storedEnergy = Math.min(newBrain.maxEnergy, lastEnergy);
+			lastEnergy -= newBrain.storedEnergy;
+			for (int j = 0; j < newBrain.tanks.length; j++) {
+				FluidTank tank = this.tanks[j];
+				FluidStack stack = tank.getFluid();
+				if (lastFluids[j] > 0) {
+					int amount = Math.min(tank.getCapacity(), lastFluids[j]);
+					lastFluids[j] -= amount;
+					newBrain.tanks[j].setFluid(new FluidStack(stack.getFluid(), amount));
+				}
+			}
+			for (AbstractThrusterBlockEntity t : set) {
+				t.brain = newBrain;
+			}
+		}
+	}
+
 	private static Stream<BlockPos> streamNeighborPositions(BlockPos origin, Direction facing) {
 		return Direction.stream().filter((d) -> d.getAxis() != facing.getAxis()).map(origin::relative);
 	}
 
 	private static List<AbstractThrusterBlockEntity> collectAllConnecting(Level level, AbstractThrusterBlockEntity be, Direction facing, Set<BlockPos> collected) {
 		List<AbstractThrusterBlockEntity> result = new ArrayList<>();
+		if (!collected.add(be.getBlockPos())) {
+			return result;
+		}
 		ArrayDeque<AbstractThrusterBlockEntity> deque = new ArrayDeque<>();
 		deque.addLast(be);
 		while (!deque.isEmpty()) {
@@ -354,7 +371,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			result.add(b);
 			BlockPos pos = b.getBlockPos();
 			streamNeighborPositions(pos, facing)
-				.filter((p) -> !collected.contains(p))
+				.filter(collected::add)
 				.map(level::getBlockEntity)
 				.filter(AbstractThrusterBlockEntity.class::isInstance)
 				.map(AbstractThrusterBlockEntity.class::cast)

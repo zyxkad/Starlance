@@ -9,6 +9,7 @@ import net.jcm.vsch.ship.ThrusterData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -33,7 +34,11 @@ import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
+import org.slf4j.Logger;
+
 public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
+	private static final Logger LOGGER = LogUtils.getLogger();
+
 	private static final String BRAIN_POS_TAG_NAME = "BrainPos";
 	private static final String BRAIN_DATA_TAG_NAME = "BrainData";
 	ThrusterBrain brain;
@@ -66,10 +71,13 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		Level level = this.getLevel();
 		BlockPos pos = this.getBlockPos();
 		if (data.contains(BRAIN_POS_TAG_NAME, 7)) {
-			byte[] brainPos = data.getByteArray(BRAIN_POS_TAG_NAME);
-			BlockEntity be = level.getBlockEntity(pos.offset(brainPos[0], brainPos[1], brainPos[2]));
+			byte[] offset = data.getByteArray(BRAIN_POS_TAG_NAME);
+			BlockPos brainPos = pos.offset(offset[0], offset[1], offset[2]);
+			BlockEntity be = level.getBlockEntity(brainPos);
 			if (be instanceof AbstractThrusterBlockEntity thruster) {
 				this.brain = thruster.getBrain();
+			} else {
+				LOGGER.warn("Thruster brain at {} is not found", brainPos);
 			}
 		} else if (data.contains(BRAIN_DATA_TAG_NAME, 10)) {
 			CompoundTag brainData = data.getCompound(BRAIN_DATA_TAG_NAME);
