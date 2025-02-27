@@ -36,6 +36,7 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import org.slf4j.Logger;
 
 public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
@@ -44,6 +45,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	private static final String BRAIN_POS_TAG_NAME = "BrainPos";
 	private static final String BRAIN_DATA_TAG_NAME = "BrainData";
 	private ThrusterBrain brain;
+	private BlockPos brainPos = null;
 	private final Map<Capability<?>, LazyOptional<?>> capsCache = new HashMap<>();
 
 	protected AbstractThrusterBlockEntity(String peripheralType, BlockEntityType<?> type, BlockPos pos, BlockState state, ThrusterEngine engine) {
@@ -79,21 +81,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	@Override
 	public void load(CompoundTag data) {
 		super.load(data);
-		Level level = this.getLevel();
 		BlockPos pos = this.getBlockPos();
 		if (data.contains(BRAIN_POS_TAG_NAME, 7)) {
 			byte[] offset = data.getByteArray(BRAIN_POS_TAG_NAME);
-			BlockPos brainPos = pos.offset(offset[0], offset[1], offset[2]);
-			BlockEntity be = level.getBlockEntity(brainPos);
-			if (be instanceof AbstractThrusterBlockEntity thruster) {
-				ThrusterBrain newBrain = thruster.getBrain();
-				if (this.brain != newBrain) {
-					newBrain.addThruster(this);
-					this.setBrain(newBrain);
-				}
-			} else {
-				LOGGER.warn("Thruster brain at {} is not found", brainPos);
-			}
+			this.brainPos = pos.offset(offset[0], offset[1], offset[2]);
 		} else if (data.contains(BRAIN_DATA_TAG_NAME, 10)) {
 			CompoundTag brainData = data.getCompound(BRAIN_DATA_TAG_NAME);
 			this.brain.readFromNBT(brainData);
@@ -133,7 +124,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
-		LazyOptional<T> result = (LazyOptional<T>) capsCache.computeIfAbsent(cap, (c) -> this.brain.getCapability(c, direction));
+		LazyOptional<T> result = (LazyOptional<T>) capsCache.computeIfAbsent(cap, (c) -> this.brain.getCapability(c, direction)).lazyMap(v -> v);
 		if (result.isPresent()) {
 			return result;
 		}
@@ -146,6 +137,19 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public void tickForce(ServerLevel level, BlockPos pos, BlockState state) {
+		if (this.brainPos != null) {
+			BlockEntity be = this.getLevel().getBlockEntity(this.brainPos);
+			if (be instanceof AbstractThrusterBlockEntity thruster) {
+				ThrusterBrain newBrain = thruster.getBrain();
+				if (this.brain != newBrain) {
+					newBrain.addThruster(this);
+					this.setBrain(newBrain);
+				}
+			} else {
+				LOGGER.warn("Thruster brain at {} is not found", this.brainPos);
+			}
+			this.brainPos = null;
+		}
 		if (this.brain.getDataBlock() == this) {
 			this.brain.tick(level);
 		}

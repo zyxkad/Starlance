@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 // TODO: make sure it also works when only half thrusters is chunk loaded
 public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapabilityProvider {
+	private static final String THRUSTERS_COUNT_TAG_NAME = "ThrustersCount";
 	private static final String MODE_TAG_NAME = "Mode";
 	private static final String POWER_TAG_NAME = "Power";
 	private static final String CURRENT_POWER_TAG_NAME = "CurrentPower";
@@ -169,26 +170,29 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	}
 
 	public void readFromNBT(CompoundTag data) {
+		int count = data.getInt(THRUSTERS_COUNT_TAG_NAME);
 		this.thrusterData.mode = ThrusterData.ThrusterMode.values()[data.getByte(MODE_TAG_NAME)];
 		this.setPower(data.getFloat(POWER_TAG_NAME));
 		this.currentPower = data.getFloat(CURRENT_POWER_TAG_NAME);
 		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean(PERIPHERAL_MOD_TAG_NAME);
+		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
 		this.storedEnergy = Math.min(this.maxEnergy, data.getInt(ENERGY_TAG_NAME));
 		if (!data.contains(TANKS_TAG_NAME)) {
 			return;
 		}
 		ListTag tanks = data.getList(TANKS_TAG_NAME, 10);
-		if (tanks.size() != this.tanks.length) {
-			return;
-		}
-		for (int i = 0; i < this.tanks.length; i++) {
-			FluidTank tank = this.tanks[i];
-			tank.readFromNBT(tanks.getCompound(i));
+		if (tanks.size() == this.tanks.length) {
+			for (int i = 0; i < this.tanks.length; i++) {
+				FluidTank tank = this.tanks[i];
+				tank.setCapacity(10000 * count);
+				tank.readFromNBT(tanks.getCompound(i));
+			}
 		}
 		this.thrusterData.throttle = this.getCurrentThrottle();
 	}
 
 	public void writeToNBT(CompoundTag data) {
+		data.putInt(THRUSTERS_COUNT_TAG_NAME, this.connectedBlocks.size());
 		data.putByte(MODE_TAG_NAME, (byte)(this.thrusterData.mode.ordinal()));
 		data.putFloat(POWER_TAG_NAME, this.getPower());
 		data.putFloat(CURRENT_POWER_TAG_NAME, this.getCurrentPower());
@@ -206,9 +210,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
-		System.out.println("getting: " + cap.getName());
 		if (cap == ForgeCapabilities.ENERGY || cap == ForgeCapabilities.FLUID_HANDLER) {
-			System.out.println("got: " + cap.getName());
 			return LazyOptional.of(() -> this).cast();
 		}
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
