@@ -130,7 +130,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
-		LazyOptional<T> result = (LazyOptional<T>) capsCache.computeIfAbsent(cap, (c) -> this.brain.getCapability(c, direction)).lazyMap(v -> v);
+		LazyOptional<T> result = (LazyOptional<T>) capsCache.computeIfAbsent(cap, (c) -> this.brain.getCapability(c, direction).lazyMap(v -> v));
 		if (result.isPresent()) {
 			return result;
 		}

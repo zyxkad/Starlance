@@ -340,11 +340,11 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		for (int i = 0; i < this.tanks.length; i++) {
 			FluidTank tank = this.tanks[i];
 			FluidStack stack = tank.getFluid();
+			tank.setCapacity(10000 * count);
 			if (stack.isEmpty()) {
 				continue;
 			}
 			lastFluids[i] = stack.getAmount();
-			tank.setCapacity(10000 * count);
 			stack.setAmount(Math.min(tank.getCapacity(), lastFluids[i]));
 			lastFluids[i] -= stack.getAmount();
 		}
@@ -354,7 +354,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			newBrain.storedEnergy = Math.min(newBrain.maxEnergy, lastEnergy);
 			lastEnergy -= newBrain.storedEnergy;
 			for (int j = 0; j < newBrain.tanks.length; j++) {
-				FluidTank tank = this.tanks[j];
+				FluidTank tank = newBrain.tanks[j];
 				FluidStack stack = tank.getFluid();
 				if (lastFluids[j] > 0) {
 					int amount = Math.min(tank.getCapacity(), lastFluids[j]);
