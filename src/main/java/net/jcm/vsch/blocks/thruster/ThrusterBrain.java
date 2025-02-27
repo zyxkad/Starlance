@@ -210,7 +210,6 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
 		if (cap == ForgeCapabilities.ENERGY || cap == ForgeCapabilities.FLUID_HANDLER) {
-			// Why is this LazyOptional? Isn't that just so that the CC cap is optional?
 			return LazyOptional.of(() -> this).cast();
 		}
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {

@@ -29,18 +29,18 @@ public class ThrusterPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction
-	public String getThrusterType() {
+	public final String getThrusterType() {
 		return this.brain.getPeripheralType();
 	}
 
 	@LuaFunction(mainThread = true)
-	public MethodResult getMode() {
+	public final MethodResult getMode() {
 		ThrusterData.ThrusterMode mode = this.brain.getThrusterMode();
 		return MethodResult.of(mode.toString(), mode.ordinal() + 1);
 	}
 
 	@LuaFunction(mainThread = true)
-	public void setMode(IArguments args) throws LuaException {
+	public final void setMode(IArguments args) throws LuaException {
 		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
 			throw new LuaException("Thruster mode toggle disabled in server config");
 		}
@@ -65,22 +65,22 @@ public class ThrusterPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction
-	public boolean getPeripheralMode() {
+	public final boolean getPeripheralMode() {
 		return this.brain.getPeripheralMode();
 	}
 
 	@LuaFunction
-	public void setPeripheralMode(boolean mode) {
+	public final void setPeripheralMode(boolean mode) {
 		this.brain.setPeripheralMode(mode);
 	}
 
 	@LuaFunction
-	public float getPower() {
+	public final float getPower() {
 		return this.brain.getPower();
 	}
 
 	@LuaFunction
-	public void setPower(double power) throws LuaException {
+	public final void setPower(double power) throws LuaException {
 		if (!this.brain.getPeripheralMode()) {
 			// Instead of returning a string as an error, which is weird.
 			throw new LuaException("Peripheral mode is off, redstone control only");
@@ -89,17 +89,17 @@ public class ThrusterPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction
-	public float getThrusters() {
+	public final float getThrusters() {
 		return this.brain.getThrusterCount();
 	}
 
 	@LuaFunction
-	public float getEachMaxThrottle() {
+	public final float getEachMaxThrottle() {
 		return this.brain.getEngine().getMaxThrottle();
 	}
 
 	@LuaFunction
-	public float getEachThrottle() {
+	public final float getEachThrottle() {
 		return this.brain.getCurrentThrottle();
 	}
 
