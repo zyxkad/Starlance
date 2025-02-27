@@ -81,8 +81,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	}
 
 	protected ThrusterBrain(AbstractThrusterBlockEntity dataBlock, String peripheralType, Direction facing, ThrusterEngine engine) {
-		this(new ArrayList<>(1), peripheralType, facing, engine);
-		this.connectedBlocks.add(dataBlock);
+		this(new ArrayList<>(List.of(dataBlock)), peripheralType, facing, engine);
 	}
 
 	public ThrusterEngine getEngine() {
@@ -99,6 +98,10 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 
 	public List<AbstractThrusterBlockEntity> getThrusters() {
 		return this.connectedBlocks;
+	}
+
+	void addThruster(AbstractThrusterBlockEntity be) {
+		this.connectedBlocks.add(be);
 	}
 
 	public void setThrusterMode(ThrusterData.ThrusterMode mode) {
@@ -203,7 +206,9 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
+		System.out.println("getting: " + cap.getName());
 		if (cap == ForgeCapabilities.ENERGY || cap == ForgeCapabilities.FLUID_HANDLER) {
+			System.out.println("got: " + cap.getName());
 			return LazyOptional.of(() -> this).cast();
 		}
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
@@ -241,7 +246,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		BlockEntity changed = level.getBlockEntity(pos);
 		if (changed instanceof AbstractThrusterBlockEntity newThruster) {
 			// TODO: check if facing changed
-			ThrusterBrain newBrain = newThruster.brain;
+			ThrusterBrain newBrain = newThruster.getBrain();
 			if (newBrain != this) {
 				this.tryMergeBrain(thruster.getBlockPos(), newBrain, pos);
 			}
@@ -286,7 +291,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 
 		this.connectedBlocks.addAll(newBrain.connectedBlocks);
 		for (AbstractThrusterBlockEntity be : newBrain.connectedBlocks) {
-			be.brain = this;
+			be.setBrain(this);
 		}
 		int count = this.connectedBlocks.size();
 		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
@@ -313,9 +318,6 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			.filter((be) -> !collected.contains(be.getBlockPos()))
 			.map((be) -> collectAllConnecting(level, be, this.facing, collected))
 			.toArray(List[]::new);
-		if (sets.length == 1) {
-			return;
-		}
 
 		this.connectedBlocks = sets[0];
 		int count = this.connectedBlocks.size();
@@ -350,7 +352,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 				}
 			}
 			for (AbstractThrusterBlockEntity t : set) {
-				t.brain = newBrain;
+				t.setBrain(newBrain);
 			}
 		}
 	}

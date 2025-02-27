@@ -34,6 +34,8 @@ import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 
 public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
@@ -41,7 +43,8 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	private static final String BRAIN_POS_TAG_NAME = "BrainPos";
 	private static final String BRAIN_DATA_TAG_NAME = "BrainData";
-	ThrusterBrain brain;
+	private ThrusterBrain brain;
+	private final Map<Capability<?>, LazyOptional<?>> capsCache = new HashMap<>();
 
 	protected AbstractThrusterBlockEntity(String peripheralType, BlockEntityType<?> type, BlockPos pos, BlockState state, ThrusterEngine engine) {
 		super(type, pos, state);
@@ -51,6 +54,14 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	public ThrusterBrain getBrain() {
 		return this.brain;
+	}
+
+	public void setBrain(ThrusterBrain brain) {
+		this.brain = brain;
+		this.capsCache.forEach((k, v) -> {
+			v.invalidate();
+		});
+		this.capsCache.clear();
 	}
 
 	public ThrusterData.ThrusterMode getThrusterMode() {
@@ -75,7 +86,11 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			BlockPos brainPos = pos.offset(offset[0], offset[1], offset[2]);
 			BlockEntity be = level.getBlockEntity(brainPos);
 			if (be instanceof AbstractThrusterBlockEntity thruster) {
-				this.brain = thruster.getBrain();
+				ThrusterBrain newBrain = thruster.getBrain();
+				if (this.brain != newBrain) {
+					newBrain.addThruster(this);
+					this.setBrain(newBrain);
+				}
 			} else {
 				LOGGER.warn("Thruster brain at {} is not found", brainPos);
 			}
@@ -118,7 +133,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
-		LazyOptional<T> result = this.brain.getCapability(cap, direction);
+		LazyOptional<T> result = (LazyOptional<T>) capsCache.computeIfAbsent(cap, (c) -> this.brain.getCapability(c, direction));
 		if (result.isPresent()) {
 			return result;
 		}

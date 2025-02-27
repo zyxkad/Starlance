@@ -33,4 +33,3 @@ public final class ThrusterBlockComponentProvider implements IBlockComponentProv
 		return JadeCompat.THRUSTER_BLOCK;
 	}
 }
-
