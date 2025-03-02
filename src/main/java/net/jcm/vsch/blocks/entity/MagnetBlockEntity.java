@@ -21,7 +21,7 @@ public class MagnetBlockEntity extends BlockEntityWithEntity<MagnetEntity> {
 		this.spawnLinkedEntityIfNeeded();
 		super.tickForce(level, pos, state);
 
-		// ----- Add thruster to the force appliers for the current level ----- //
+		// ----- Add this block to the force appliers for the current level ----- //
 
 		int signal = level.getBestNeighborSignal(pos);
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);

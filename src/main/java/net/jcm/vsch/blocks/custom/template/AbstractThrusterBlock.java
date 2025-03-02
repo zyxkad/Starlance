@@ -42,11 +42,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntity> extends DirectionalBlock implements EntityBlock {
 
-	public static final int MULT = 1000;
+    public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 	// TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-	public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
-
 	private final DirectionalShape shape;
 
 	protected AbstractThrusterBlock(Properties properties, DirectionalShape shape) {
@@ -98,6 +96,17 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 	}
 
 	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		Direction dir = ctx.getNearestLookingDirection();
+		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
+			dir = dir.getOpposite();
+		}
+		return defaultBlockState()
+				.setValue(BlockStateProperties.FACING, dir)
+	            .setValue(MODE, VSCHConfig.THRUSTER_MODE.get());
+    }
+
+	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		// If client side, ignore
 		if (!(level instanceof ServerLevel)) {
@@ -138,7 +147,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		// Get current state (block property)
 		ThrusterMode blockMode = thruster.getThrusterMode();
 
-		// Toggle it between POSITION and GLOBAL
+		// Toggle between POSITION and GLOBAL
 		blockMode = blockMode.toggle();
 
 		// Save the block property into the block
@@ -156,26 +165,6 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		super.neighborChanged(state, world, pos, neighbor, neighborPos, moving);
 		AbstractThrusterBlockEntity be = (AbstractThrusterBlockEntity) world.getBlockEntity(pos);
 		be.neighborChanged(neighbor, neighborPos, moving);
-	}
-
-	/*@Override
-	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
-		List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
-		int tier = state.getValue(TournamentProperties.TIER);
-		if (tier > 1) {
-			drops.add(new ItemStack(TournamentItems.UPGRADE_THRUSTER.get(), tier - 1));
-		}
-		return drops;
-	}*/
-
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		Direction dir = ctx.getNearestLookingDirection();
-		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
-			dir = dir.getOpposite();
-		}
-		return defaultBlockState()
-				.setValue(BlockStateProperties.FACING, dir);
 	}
 
 	// Attach block entity

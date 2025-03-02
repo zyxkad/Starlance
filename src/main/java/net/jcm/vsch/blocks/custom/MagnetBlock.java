@@ -60,7 +60,7 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity> {
 			return;
 		}
 
-		// ----- Remove the thruster from the force appliers for the current level ----- //
+		// ----- Remove this block from the force appliers for the current level ----- //
 		// I guess VS does this automatically when switching a shipyards dimension?
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships != null) {
@@ -77,16 +77,6 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity> {
 		return defaultBlockState()
 				.setValue(BlockStateProperties.FACING, dir);
 	}
-
-	/*@Override
-	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
-		List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
-		int tier = state.getValue(TournamentProperties.TIER);
-		if (tier > 1) {
-			drops.add(new ItemStack(TournamentItems.UPGRADE_THRUSTER.get(), tier - 1));
-		}
-		return drops;
-	}*/
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -107,15 +97,10 @@ public class MagnetBlock extends BlockWithEntity<MagnetBlockEntity> {
 		}
 	}
 
-	// Attach block entity
-	@Override
 	public MagnetBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new MagnetBlockEntity(pos, state);
 	}
 
-	/*public static <T extends BlockEntity> BlockEntityTicker<T> getTickerHelper(Level level) {
-		return level.isClientSide() && !allowClient ? null : (level0, pos0, state0, blockEntity) -> ((TickableBlockEntity)blockEntity).tick();
-	}*/
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		return level.isClientSide() ? (ParticleBlockEntity::clientTick) : ParticleBlockEntity::serverTick;
