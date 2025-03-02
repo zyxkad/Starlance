@@ -83,6 +83,7 @@ public static void myFunction() {
 ```
 
 **Code:**
+
 Avoid multiple casts on one line, it can get confusing. Use multiple lines, or multiple variables, or both.
 For example, use:
 ```java
