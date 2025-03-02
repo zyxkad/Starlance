@@ -42,7 +42,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntity> extends DirectionalBlock implements EntityBlock {
 
-    public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
+	public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 	// TODO: fix this bounding box
 	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 	private final DirectionalShape shape;
@@ -102,9 +102,8 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 			dir = dir.getOpposite();
 		}
 		return defaultBlockState()
-				.setValue(BlockStateProperties.FACING, dir)
-	            .setValue(MODE, VSCHConfig.THRUSTER_MODE.get());
-    }
+			.setValue(BlockStateProperties.FACING, dir);
+	}
 
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
@@ -121,7 +120,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		// If thrusters can be toggled
 		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
 			player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(
-					ChatFormatting.RED
+				ChatFormatting.RED
 			), true);
 			return InteractionResult.PASS;
 		}
@@ -133,7 +132,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		if (ships == null) {
 			// Not on a ship
 			player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(
-					ChatFormatting.RED
+				ChatFormatting.RED
 			), true);
 			return InteractionResult.FAIL;
 		}
@@ -155,7 +154,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		thruster.setThrusterMode(blockMode);
 
 		//Send a chat message to them. The wrench class will handle the actionbar
-		player.sendSystemMessage(Component.translatable("vsch.message.toggle").append(Component.translatable("vsch."+blockMode.toString().toLowerCase())));
+		player.sendSystemMessage(Component.translatable("vsch.message.toggle").append(Component.translatable("vsch." + blockMode.toString().toLowerCase())));
 
 		return InteractionResult.CONSUME;
 	}

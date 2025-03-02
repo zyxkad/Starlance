@@ -4,9 +4,9 @@ import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.entity.VSCHBlockEntities;
 import net.jcm.vsch.commands.ModCommands;
 import net.jcm.vsch.compat.CompatMods;
-import net.jcm.vsch.compat.create.VSCHPonderRegistrateBlocks;
-import net.jcm.vsch.compat.create.VSCHPonderRegistry;
-import net.jcm.vsch.compat.create.VSCHPonderTags;
+import net.jcm.vsch.compat.create.ponder.VSCHPonderRegistrateBlocks;
+import net.jcm.vsch.compat.create.ponder.VSCHPonderRegistry;
+import net.jcm.vsch.compat.create.ponder.VSCHPonderTags;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.entity.VSCHEntities;
 import net.jcm.vsch.event.GravityInducer;
@@ -59,7 +59,7 @@ public class VSCHMod {
 	}
 
 	public void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-		//event.registerEntityRenderer(VSCHEntities.MAGNET_ENTITY.get(), NoopRenderer::new);
+		// event.registerEntityRenderer(VSCHEntities.MAGNET_ENTITY.get(), NoopRenderer::new);
 	}
 }
 

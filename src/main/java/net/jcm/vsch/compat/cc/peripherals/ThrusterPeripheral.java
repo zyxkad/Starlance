@@ -82,7 +82,6 @@ public class ThrusterPeripheral implements IPeripheral {
 	@LuaFunction
 	public final void setPower(double power) throws LuaException {
 		if (!this.brain.getPeripheralMode()) {
-			// Instead of returning a string as an error, which is weird.
 			throw new LuaException("Peripheral mode is off, redstone control only");
 		}
 		this.brain.setPower((float) power);
