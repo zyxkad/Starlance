@@ -12,8 +12,11 @@ import net.minecraft.world.phys.Vec3;
 
 public class DockerBlockEntity extends BlockEntity {
 
-	public DockerBlockEntity(BlockPos pPos, BlockState pBlockState) {
-		super(VSCHBlockEntities.DOCKER_BLOCK_ENTITY.get(), pPos, pBlockState);
+
+	public DockerBlockEntity(BlockEntityType<?> pType,BlockPos pPos, BlockState pBlockState) {
+        super(pType,pPos,pBlockState);
+//		super(VSCHBlockEntities.DOCKER_BLOCK_ENTITY.get(), pPos, pBlockState);
+
 	}
 
 	public static void clientTick(Level level, BlockPos pos, BlockState state, BlockEntity be) {
