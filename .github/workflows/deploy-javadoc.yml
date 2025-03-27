@@ -35,5 +35,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: "gh-pages"
           publish_dir: build/docs/javadoc
-          destination_dir: ./${{ github.ref_name }}
+          destination_dir: ./javadoc/${{ github.ref_name }}
           force_orphan: true
