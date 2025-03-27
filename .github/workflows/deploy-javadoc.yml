@@ -15,4 +15,4 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: gradle
-          deploy_dir: ${{ github.head_ref }}
+          deploy_dir: ${{ github.ref_name }}
