@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy javadoc to Github Pages
-        uses: jcm236/actions-publish-javadoc@2
+        uses: jcm236/actions-publish-javadoc@3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           project: gradle
