@@ -8,5 +8,6 @@ Minor contributors:
 
 Language contributors:
 - .thetigerking - Spanish (Mexico)
+- .thetigerking - Korean
 - piebit - Hebrew
 - fullcotonalchimist - French (France)
