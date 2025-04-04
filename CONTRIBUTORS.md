@@ -8,3 +8,4 @@ Minor contributors:
 
 Language contributors:
 - .thetigerking - Spanish (Mexico)
+- piebit - Hebrew
