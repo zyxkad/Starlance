@@ -5,3 +5,6 @@ Big contributors:
 Minor contributors:
 - jamesgreen26
 - Diego32099
+
+Language contributors:
+- .thetigerking - Spanish (Mexico)
