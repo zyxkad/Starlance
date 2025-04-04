@@ -9,3 +9,4 @@ Minor contributors:
 Language contributors:
 - .thetigerking - Spanish (Mexico)
 - piebit - Hebrew
+- fullcotonalchimist - French (France)
