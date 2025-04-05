@@ -12,3 +12,4 @@ Language contributors:
 - piebit - Hebrew
 - fullcotonalchimist - French (France)
 - kot.b - Polski (Polska)
+- hampster768 - Russian (Russia)
