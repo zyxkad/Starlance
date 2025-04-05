@@ -11,3 +11,4 @@ Language contributors:
 - .thetigerking - Korean
 - piebit - Hebrew
 - fullcotonalchimist - French (France)
+- kot.b - Polski (Polska)
