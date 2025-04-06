@@ -13,4 +13,4 @@ Language contributors:
 - fullcotonalchimist - French (France)
 - kot.b - Polski (Polska)
 - hampster768 - Russian (Russia)
-- .thetigerking's friends - Hindi, German, Italian
+- .thetigerking's friends - Hindi, German, Italian, Japanese
