@@ -544,12 +544,10 @@ public class VSCHUtils {
 
 	}
 
-	public static List<LoadedServerShip> getAllLoadedShips(ServerLevel level){
-		List<LoadedServerShip> loadedships = new ArrayList<>();
-		for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
-			if(ship instanceof LoadedServerShip loaded){
-				loadedships.add(loaded);
-			}
+	public static List<Ship> getAllLoadedShips(ServerLevel level){
+		List<Ship> loadedships = new ArrayList<>();
+		for (Ship ship : VSGameUtilsKt.getShipObjectWorld(level).getLoadedShips()) {
+			loadedships.add(ship);
 		}
 		return loadedships;
 	}
