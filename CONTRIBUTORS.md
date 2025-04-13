@@ -12,5 +12,6 @@ Language contributors:
 - piebit - Hebrew
 - fullcotonalchimist - French (France)
 - kot.b - Polski (Polska)
+- potterhead123123 - Indonesian
 - hampster768 - Russian (Russia)
 - .thetigerking's friends - Hindi, German, Italian, Japanese
