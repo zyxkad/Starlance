@@ -14,4 +14,5 @@ Language contributors:
 - kot.b - Polski (Polska)
 - potterhead123123 - Indonesian
 - hamster768 - Russian (Russia)
+- isklaus616 - Brazilian Portuguese
 - .thetigerking's friends - Hindi, German, Italian, Japanese
