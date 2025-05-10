@@ -1,17 +1,15 @@
 package net.jcm.vsch.ship.gyro;
 
-public class GyroData {
-	public volatile double x;
-	public volatile double y;
-	public volatile double z;
+import org.joml.Vector3d;
 
-	public GyroData(double x, double y, double z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+public class GyroData {
+	public final Vector3d torque;
+
+	public GyroData(Vector3d torque) {
+		this.torque = torque;
 	}
 
 	public String toString() {
-		return "Torque: (" + this.x + ", " + this.y + ", " + this.z + ")";
+		return "Torque: " + this.torque;
 	}
 }

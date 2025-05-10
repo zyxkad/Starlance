@@ -4,6 +4,7 @@ import dan200.computercraft.shared.Capabilities;
 
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
+import net.jcm.vsch.compat.cc.peripherals.GyroPeripheral;
 import net.jcm.vsch.ship.gyro.GyroData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 
@@ -19,50 +20,80 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
+import org.joml.Vector3d;
+
 public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private final GyroData data;
+	private volatile double torqueX = 0;
+	private volatile double torqueY = 0;
+	private volatile double torqueZ = 0;
 	private volatile boolean isPeripheralMode = false;
 	private boolean wasPeripheralMode = true;
 	private LazyOptional<Object> lazyPeripheral = LazyOptional.empty();
 
 	public GyroBlockEntity(BlockPos pos, BlockState state) {
 		super(VSCHBlockEntities.GYRO_BLOCK_ENTITY.get(), pos, state);
-		this.data = new GyroData(0, 0, 0);
+		this.data = new GyroData(new Vector3d());
+	}
+
+	public double getTorqueForce() {
+		return 100;
 	}
 
 	public double getTorqueX() {
-		return this.data.x;
+		return this.torqueX;
 	}
 
 	public void setTorqueX(double x) {
-		if (this.data.x == x) {
+		x = Math.min(Math.max(x, -1), 1);
+		if (this.torqueX == x) {
 			return;
 		}
-		this.data.x = x;
+		this.torqueX = x;
 		this.setChanged();
 	}
 
 	public double getTorqueY() {
-		return this.data.y;
+		return this.torqueY;
 	}
 
 	public void setTorqueY(double y) {
-		if (this.data.y == y) {
+		y = Math.min(Math.max(y, -1), 1);
+		if (this.torqueY == y) {
 			return;
 		}
-		this.data.y = y;
+		this.torqueY = y;
 		this.setChanged();
 	}
 
 	public double getTorqueZ() {
-		return this.data.z;
+		return this.torqueZ;
 	}
 
 	public void setTorqueZ(double z) {
-		if (this.data.z == z) {
+		z = Math.min(Math.max(z, -1), 1);
+		if (this.torqueZ == z) {
 			return;
 		}
-		this.data.z = z;
+		this.torqueZ = z;
+		this.setChanged();
+	}
+
+	public void resetTorque() {
+		this.torqueX = 0;
+		this.torqueY = 0;
+		this.torqueZ = 0;
+		this.setChanged();
+	}
+
+	public double[] getTorque() {
+		return new double[]{this.torqueX, this.torqueY, this.torqueZ};
+	}
+
+	public void setTorque(double x, double y, double z) {
+		this.torqueX = Math.min(Math.max(x, -1), 1);
+		this.torqueY = Math.min(Math.max(y, -1), 1);
+		this.torqueZ = Math.min(Math.max(z, -1), 1);
 		this.setChanged();
 	}
 
@@ -84,6 +115,9 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		}
 		this.wasPeripheralMode = this.isPeripheralMode;
 
+		final double force = this.getTorqueForce();
+		this.data.torque.set(this.torqueX * force, this.torqueY * force, this.torqueZ * force);
+
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships == null) {
 			return;
@@ -100,9 +134,9 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 
 	@Override
 	public void load(CompoundTag data) {
-		this.data.x = data.getDouble("TorqueX");
-		this.data.y = data.getDouble("TorqueY");
-		this.data.z = data.getDouble("TorqueZ");
+		this.torqueX = data.getDouble("TorqueX");
+		this.torqueY = data.getDouble("TorqueY");
+		this.torqueZ = data.getDouble("TorqueZ");
 		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("PeripheralMode");
 		super.load(data);
 	}
@@ -110,18 +144,18 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	@Override
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
-		data.putDouble("TorqueX", this.data.x);
-		data.putDouble("TorqueY", this.data.y);
-		data.putDouble("TorqueZ", this.data.z);
+		data.putDouble("TorqueX", this.torqueX);
+		data.putDouble("TorqueY", this.torqueY);
+		data.putDouble("TorqueZ", this.torqueZ);
 		data.putBoolean("PeripheralMode", this.getPeripheralMode());
 	}
 
 	@Override
 	public CompoundTag getUpdateTag() {
 		CompoundTag data = super.getUpdateTag();
-		data.putDouble("TorqueX", this.data.x);
-		data.putDouble("TorqueY", this.data.y);
-		data.putDouble("TorqueZ", this.data.z);
+		data.putDouble("TorqueX", this.torqueX);
+		data.putDouble("TorqueY", this.torqueY);
+		data.putDouble("TorqueZ", this.torqueZ);
 		return data;
 	}
 
@@ -134,7 +168,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
 			if (!lazyPeripheral.isPresent()) {
-				// lazyPeripheral = LazyOptional.of(() -> new GyroPeripheral(this));
+				lazyPeripheral = LazyOptional.of(() -> new GyroPeripheral(this));
 			}
 			return lazyPeripheral.cast();
 		}
@@ -148,12 +182,11 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	}
 
 	private void updatePowerByRedstone() {
-		final double MAX_TORQUE = 100;
 		final Level level = this.getLevel();
 		final BlockPos pos = this.getBlockPos();
-		this.data.x = MAX_TORQUE * (level.getSignal(pos, Direction.EAST) - level.getSignal(pos, Direction.WEST)) / 15.0;
-		this.data.y = MAX_TORQUE * (level.getSignal(pos, Direction.UP) - level.getSignal(pos, Direction.DOWN)) / 15.0;
-		this.data.z = MAX_TORQUE * (level.getSignal(pos, Direction.SOUTH) - level.getSignal(pos, Direction.NORTH)) / 15.0;
+		final double x = (level.getSignal(pos.east(), Direction.EAST) - level.getSignal(pos.west(), Direction.WEST)) / 15.0;
+		final double y = (level.getSignal(pos.above(), Direction.UP) - level.getSignal(pos.below(), Direction.DOWN)) / 15.0;
+		final double z = (level.getSignal(pos.south(), Direction.SOUTH) - level.getSignal(pos.north(), Direction.NORTH)) / 15.0;
+		this.setTorque(x, y, z);
 	}
-
 }
