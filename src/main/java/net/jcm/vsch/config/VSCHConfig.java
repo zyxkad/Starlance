@@ -37,6 +37,8 @@ public class VSCHConfig {
 
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
 
+	public static final ForgeConfigSpec.ConfigValue<Number> GYRO_STRENGTH;
+
 	public static final ForgeConfigSpec.ConfigValue<Boolean> LIMIT_SPEED;
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_SPEED;
 
@@ -70,6 +72,7 @@ public class VSCHConfig {
 		BUILDER.push("Misc");
 
 		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);
+		GYRO_STRENGTH = BUILDER.comment("Max force the gyro can apply to the ship on any axis").define("gyro_strength", 3000);
 		LIMIT_SPEED = BUILDER.comment("Limit speed thrusters can accelerate to. Recommended, as VS ships get funky at high speeds").define("limit_speed", true);
 		MAX_SPEED = BUILDER.comment("Max speed to limit to. Blocks/tick I think. Default is highly recommended").define("max_speed", 150);
 		CANCEL_ASSEMBLY = BUILDER.comment("Cancel multi-block assemblies when above world height. This is a temporary fix, but for now ships made above world height have issues with starlance.").define("cancel_assembly", true);

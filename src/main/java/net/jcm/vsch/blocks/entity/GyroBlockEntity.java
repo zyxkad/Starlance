@@ -5,8 +5,9 @@ import dan200.computercraft.shared.Capabilities;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.compat.cc.peripherals.GyroPeripheral;
-import net.jcm.vsch.ship.gyro.GyroData;
+import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
+import net.jcm.vsch.ship.gyro.GyroData;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +38,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	}
 
 	public double getTorqueForce() {
-		return 100;
+		return VSCHConfig.GYRO_STRENGTH.get().doubleValue();
 	}
 
 	public double getTorqueX() {

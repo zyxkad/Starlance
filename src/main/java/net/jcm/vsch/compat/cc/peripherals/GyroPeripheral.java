@@ -1,9 +1,7 @@
 package net.jcm.vsch.compat.cc.peripherals;
 
-import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
@@ -54,8 +52,8 @@ public class GyroPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction
-	public final double[] getTorque() {
-		return this.gyro.getTorque();
+	public final MethodResult getTorque() {
+		return MethodResult.of(this.gyro.getTorqueX(), this.gyro.getTorqueY(), this.gyro.getTorqueZ());
 	}
 
 	@LuaFunction
