@@ -19,12 +19,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
 
 import org.joml.Vector3d;
 
 public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private final GyroData data;
+	private final EnergyStorage energyStorage;
 	private volatile double torqueX = 0;
 	private volatile double torqueY = 0;
 	private volatile double torqueZ = 0;
@@ -35,6 +38,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	public GyroBlockEntity(BlockPos pos, BlockState state) {
 		super(VSCHBlockEntities.GYRO_BLOCK_ENTITY.get(), pos, state);
 		this.data = new GyroData(new Vector3d());
+		this.energyStorage = new EnergyStorage(VSCHConfig.GYRO_ENERGY_CONSUME_RATE.get());
 	}
 
 	public double getTorqueForce() {
@@ -116,8 +120,28 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		}
 		this.wasPeripheralMode = this.isPeripheralMode;
 
+		double x = this.torqueX;
+		double y = this.torqueY;
+		double z = this.torqueZ;
+		if (this.energyStorage.maxEnergy > 0) {
+			final double requirePower = (Math.abs(x) + Math.abs(y) + Math.abs(z)) * this.energyStorage.maxEnergy / 3;
+			final double avaliablePower = this.energyStorage.storedEnergy;
+			if (avaliablePower <= 0) {
+				x = 0;
+				y = 0;
+				z = 0;
+			} else if (requirePower > avaliablePower) {
+				final double ratio = avaliablePower / requirePower;
+				x *= ratio;
+				y *= ratio;
+				z *= ratio;
+				this.energyStorage.storedEnergy = 0;
+			} else {
+				this.energyStorage.storedEnergy -= requirePower;
+			}
+		}
 		final double force = this.getTorqueForce();
-		this.data.torque.set(this.torqueX * force, this.torqueY * force, this.torqueZ * force);
+		this.data.torque.set(x * force, y * force, z * force);
 
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships == null) {
@@ -135,6 +159,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 
 	@Override
 	public void load(CompoundTag data) {
+		this.energyStorage.storedEnergy = data.getInt("Energy");
 		this.torqueX = data.getDouble("TorqueX");
 		this.torqueY = data.getDouble("TorqueY");
 		this.torqueZ = data.getDouble("TorqueZ");
@@ -145,6 +170,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	@Override
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
+		data.putInt("Energy", this.energyStorage.storedEnergy);
 		data.putDouble("TorqueX", this.torqueX);
 		data.putDouble("TorqueY", this.torqueY);
 		data.putDouble("TorqueZ", this.torqueZ);
@@ -167,6 +193,9 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction direction) {
+		if (cap == ForgeCapabilities.ENERGY) {
+			return LazyOptional.of(() -> this.energyStorage).cast();
+		}
 		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
 			if (!lazyPeripheral.isPresent()) {
 				lazyPeripheral = LazyOptional.of(() -> new GyroPeripheral(this));
@@ -189,5 +218,51 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		final double y = (level.getSignal(pos.above(), Direction.UP) - level.getSignal(pos.below(), Direction.DOWN)) / 15.0;
 		final double z = (level.getSignal(pos.south(), Direction.SOUTH) - level.getSignal(pos.north(), Direction.NORTH)) / 15.0;
 		this.setTorque(x, y, z);
+	}
+
+	private static final class EnergyStorage implements IEnergyStorage {
+		final int maxEnergy;
+		int storedEnergy;
+
+		EnergyStorage(int maxEnergy) {
+			this.maxEnergy = maxEnergy;
+		}
+
+		@Override
+		public int receiveEnergy(int maxReceive, boolean simulate) {
+			int needs = this.maxEnergy - this.storedEnergy;
+			if (needs < maxReceive) {
+				maxReceive = needs;
+			}
+			if (!simulate) {
+				this.storedEnergy += maxReceive;
+			}
+			return maxReceive;
+		}
+
+		@Override
+		public int extractEnergy(int maxExtract, boolean simulate) {
+			return 0;
+		}
+
+		@Override
+		public int getEnergyStored() {
+			return this.storedEnergy;
+		}
+
+		@Override
+		public int getMaxEnergyStored() {
+			return this.maxEnergy;
+		}
+
+		@Override
+		public boolean canExtract() {
+			return false;
+		}
+
+		@Override
+		public boolean canReceive() {
+			return true;
+		}
 	}
 }
