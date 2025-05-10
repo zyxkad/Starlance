@@ -10,6 +10,8 @@ import net.jcm.vsch.ship.dragger.DraggerData;
 import net.jcm.vsch.ship.dragger.DraggerForceApplier;
 import net.jcm.vsch.ship.thruster.ThrusterData;
 import net.jcm.vsch.ship.thruster.ThrusterForceApplier;
+import net.jcm.vsch.ship.gyro.GyroData;
+import net.jcm.vsch.ship.gyro.GyroForceApplier;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -82,6 +84,28 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 		return appliers.get(pos);
 	}
 
+	// ----- Draggers ----- //
+
+	public void addDragger(BlockPos pos, DraggerData data) {
+		addApplier(pos, new DraggerForceApplier(data));
+	}
+
+	public void removeDragger(BlockPos pos) {
+		if (getDraggerAtPos(pos) != null){
+			removeApplier(pos);
+		}
+	}
+
+	@Nullable
+	public DraggerData getDraggerAtPos(BlockPos pos) {
+		IVSCHForceApplier applier = getApplierAtPos(pos);
+		if (applier instanceof DraggerForceApplier dragger) {
+			return dragger.getData();
+		} else {
+			return null;
+		}
+	}
+
 	// ----- Thrusters ----- //
 
 	public void addThruster(BlockPos pos, ThrusterData data) {
@@ -105,23 +129,24 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 		}
 	}
 
-	// ----- Draggers ----- //
+	// ----- Gyros ----- //
 
-	public void addDragger(BlockPos pos, DraggerData data) {
-		addApplier(pos, new DraggerForceApplier(data));
+	public void addGyro(BlockPos pos, GyroData data) {
+		 addApplier(pos,new GyroForceApplier(data));
 	}
 
-	public void removeDragger(BlockPos pos) {
-		if (getDraggerAtPos(pos) != null){
+
+	public void removeGyro(BlockPos pos) {
+		if (getGyroAtPos(pos) != null){
 			removeApplier(pos);
 		}
 	}
 
 	@Nullable
-	public DraggerData getDraggerAtPos(BlockPos pos) {
+	public GyroData getGyroAtPos(BlockPos pos) {
 		IVSCHForceApplier applier = getApplierAtPos(pos);
-		if (applier instanceof DraggerForceApplier dragger) {
-			return dragger.getData();
+		if (applier instanceof GyroForceApplier gyro) {
+			return gyro.getData();
 		} else {
 			return null;
 		}
