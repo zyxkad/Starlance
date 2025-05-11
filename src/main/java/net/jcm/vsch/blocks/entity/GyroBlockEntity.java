@@ -147,7 +147,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		if (ships == null) {
 			return;
 		}
-		if (ships.getGyroAtPos(pos) == null) {
+		if (ships.getGyroAtPos(pos) != this.data) {
 			ships.addGyro(pos, this.data);
 		}
 	}

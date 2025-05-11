@@ -72,8 +72,8 @@ public class VSCHConfig {
 
 		BUILDER.push("Gyro");
 
-		GYRO_STRENGTH = BUILDER.comment("Max force gyro can apply to the ship on any axis. (N)").define("gyro_strength", 3000);
-		GYRO_ENERGY_CONSUME_RATE = BUILDER.comment("Gyro energy consume rate. (FE/t)").define("gyro_energy_consume_rate", 100);
+		GYRO_STRENGTH = BUILDER.comment("Max force gyro can apply to the ship on any axis. (N)").define("gyro_strength", 350000);
+		GYRO_ENERGY_CONSUME_RATE = BUILDER.comment("Gyro energy consume rate. (FE/t)").define("gyro_energy_consume_rate", 10000);
 
 		BUILDER.pop();
 

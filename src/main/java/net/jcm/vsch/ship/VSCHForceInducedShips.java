@@ -72,7 +72,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	// ----- Force Appliers ----- //
 
 	public void addApplier(BlockPos pos, IVSCHForceApplier applier){
-		appliers.put(pos,applier);
+		appliers.put(pos, applier);
 	}
 
 	public void removeApplier(BlockPos pos){
@@ -109,7 +109,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	// ----- Thrusters ----- //
 
 	public void addThruster(BlockPos pos, ThrusterData data) {
-		 addApplier(pos,new ThrusterForceApplier(data));
+		 addApplier(pos, new ThrusterForceApplier(data));
 	}
 
 
@@ -132,7 +132,7 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 	// ----- Gyros ----- //
 
 	public void addGyro(BlockPos pos, GyroData data) {
-		 addApplier(pos,new GyroForceApplier(data));
+		 addApplier(pos, new GyroForceApplier(data));
 	}
 
 
