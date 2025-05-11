@@ -161,7 +161,7 @@ public class TeleportationHandler {
 			return true;
 		}
 		// Entities in range
-		AABB inflatedAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), ship.getShipAABB())).inflate(10);
+		AABB inflatedAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), ship.getShipAABB())).inflate(INTERSECT_SIZE);
 		if (entity.getBoundingBox().intersects(inflatedAABB)) {
 			collectWorldEntity(entity, transform);
 			return true;
