@@ -33,7 +33,6 @@ public class AtmosphericCollision {
 		// Atmo collision JSON for overworld:
 		// "minecraft:overworld":'{"atmosphere_y":560,"travel_to":"cosmos:solar_sys_d","origin_x":-24100,"origin_y":1000,"origin_z":5100,"overlay_texture_id":"earth_bar","shipbit_y":24,"ship_min_y":120}'
 
-		final String dimId = VSGameUtilsKt.getDimensionId(level);
 		final CosmosModVariables.WorldVariables worldVariables = CosmosModVariables.WorldVariables.get(level);
 		final CompoundTag atmoDatas = worldVariables.atmospheric_collision_data_map;
 		final CompoundTag atmoData = atmoDatas.getCompound(level.dimension().location().toString());
