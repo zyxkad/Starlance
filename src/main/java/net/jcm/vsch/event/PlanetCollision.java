@@ -106,7 +106,7 @@ public class PlanetCollision {
 		final double atmoY = CosmosModVariables.WorldVariables.get(level).atmospheric_collision_data_map.getCompound(targetDim).getDouble("atmosphere_y");
 		double posX = Double.parseDouble(vars.landing_coords.substring(vars.landing_coords.indexOf("*") + 1, vars.landing_coords.indexOf("|")));
 		double posZ = Double.parseDouble(vars.landing_coords.substring(vars.landing_coords.indexOf("|") + 1, vars.landing_coords.indexOf("~")));
-		double posY = atmoY - 10; // TODO: makesure the highest ship will not be above atmo
+		double posY = atmoY - 10;
 
 
 		if (targetDim.isEmpty()) {
