@@ -392,11 +392,12 @@ public class VSCHUtils {
 
 	}
 
-	public static List<LoadedServerShip> getAllLoadedShips(ServerLevel level){
-		List<LoadedServerShip> loadedships = new ArrayList<>();
-		for (Ship ship : VSGameUtilsKt.getAllShips(level)) {
-			if (ship instanceof LoadedServerShip loaded) {
-				loadedships.add(loaded);
+	public static List<LoadedServerShip> getLoadedShipsInLevel(ServerLevel level) {
+		final String dimId = VSGameUtilsKt.getDimensionId(level);
+		final List<LoadedServerShip> loadedships = new ArrayList<>();
+		for (final LoadedServerShip ship : VSGameUtilsKt.getShipObjectWorld(level).getLoadedShips()) {
+			if (dimId.equals(ship.getChunkClaimDimension())) {
+				loadedships.add(ship);
 			}
 		}
 		return loadedships;

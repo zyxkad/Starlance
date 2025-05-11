@@ -48,10 +48,7 @@ public class AtmosphericCollision {
 		final double targetY = atmoData.getDouble("origin_y");
 		final double targetZ = atmoData.getDouble("origin_z");
 
-		for (final Ship ship : VSGameUtilsKt.getShipObjectWorld(level).getLoadedShips()) {
-			if (!dimId.equals(ship.getChunkClaimDimension())) {
-				continue;
-			}
+		for (final Ship ship : VSCHUtils.getLoadedShipsInLevel(level)) {
 			if (ship.getTransform().getPositionInWorld().y() <= atmoHeight) {
 				continue;
 			}

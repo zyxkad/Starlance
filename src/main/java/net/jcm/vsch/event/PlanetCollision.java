@@ -1,11 +1,12 @@
 package net.jcm.vsch.event;
 
-import io.netty.buffer.Unpooled;
 import net.jcm.vsch.VSCHMod;
 import net.jcm.vsch.util.TeleportationHandler;
 import net.jcm.vsch.util.VSCHUtils;
 import net.lointain.cosmos.network.CosmosModVariables;
 import net.lointain.cosmos.world.inventory.LandingSelectorMenu;
+
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -38,12 +39,8 @@ public class PlanetCollision {
 	public static final Logger LOGGER = LogManager.getLogger(VSCHMod.MODID);
 
 	public static void planetCollisionTick(ServerLevel level) {
-		final String dimId = VSGameUtilsKt.getDimensionId(level);
 		final String dimension = level.dimension().location().toString();
-		for (Ship ship : VSGameUtilsKt.getShipObjectWorld(level).getLoadedShips()) {
-			if (!dimId.equals(ship.getChunkClaimDimension())) {
-				continue;
-			}
+		for (Ship ship : VSCHUtils.getLoadedShipsInLevel(level)) {
 
 			AABB currentAABB = VectorConversionsMCKt.toMinecraft(ship.getWorldAABB());
 			Vec3 shipCenter = currentAABB.getCenter();
