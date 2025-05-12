@@ -128,6 +128,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity,
 		}
 		this.percentPower = power;
 		this.setChanged();
+		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 	}
 
 	public boolean getPeripheralMode() {

@@ -127,7 +127,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	void sendUpdate() {
 		this.setChanged();
-		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 11);
+		this.getLevel().sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 	}
 
 	@Override
