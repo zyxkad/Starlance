@@ -2,6 +2,7 @@ package net.jcm.vsch.blocks.entity;
 
 import dan200.computercraft.shared.Capabilities;
 
+import net.jcm.vsch.blocks.custom.template.WrenchableBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.compat.cc.peripherals.GyroPeripheral;
@@ -12,8 +13,13 @@ import net.jcm.vsch.ship.gyro.GyroData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,7 +34,7 @@ import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
-public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity {
+public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity, WrenchableBlock {
 	private final GyroData data;
 	private final EnergyStorage energyStorage;
 	private volatile double torqueX = 0;
@@ -175,6 +181,23 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		if (ships.getGyroAtPos(pos) != this.data) {
 			ships.addGyro(pos, this.data);
 		}
+	}
+
+	@Override
+	public InteractionResult onUseWrench(UseOnContext ctx) {
+		if (ctx.getHand() != InteractionHand.MAIN_HAND) {
+			return InteractionResult.PASS;
+		}
+
+		final int newPower = (this.getPercentPower() % 10) + 1;
+		this.setPercentPower(newPower);
+
+		final Player player = ctx.getPlayer();
+		if (player != null) {
+			player.displayClientMessage(Component.translatable("vsch.message.gyro", newPower * 10), true);
+		}
+
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override

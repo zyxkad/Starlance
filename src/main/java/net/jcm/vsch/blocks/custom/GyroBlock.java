@@ -1,14 +1,12 @@
 package net.jcm.vsch.blocks.custom;
 
-import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.blocks.entity.GyroBlockEntity;
+import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.items.VSCHItems;
 import net.jcm.vsch.util.VSCHUtils;
+
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -35,55 +33,6 @@ public class GyroBlock extends Block implements EntityBlock {
 
 	private boolean holdingWrench(Player player) {
 		return player.getMainHandItem().getItem() == VSCHItems.WRENCH.get();
-	}
-
-	// Survival mode left click with wrench
-	@Override
-	public void attack(BlockState state, Level level, BlockPos pos, Player player) {
-		super.attack(state, level, pos, player);
-
-		if (player.isCreative() || player.isSpectator() || !holdingWrench(player)) {
-			return;
-		}
-
-		onWrenchBreak(state, level, pos, player);
-	}
-
-	// Creative mode left click with wrench
-	@Override
-	public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-		if (holdingWrench(player)) {
-			onWrenchBreak(state, level, pos, player);
-			return false;
-		}
-		return true;
-	}
-
-	// Called on both gamemodes, once on client, once on server
-	private void onWrenchBreak(BlockState state, Level level, BlockPos pos, Player player) {
-		if (level instanceof ServerLevel) {
-			System.out.println("broken");
-		}
-	}
-
-	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if (!(level instanceof ServerLevel)) {
-			return InteractionResult.PASS;
-		}
-
-		if (player.getMainHandItem().getItem() != VSCHItems.WRENCH.get() || hand != InteractionHand.MAIN_HAND) {
-			return InteractionResult.PASS;
-		}
-
-		if (!(level.getBlockEntity(pos) instanceof GyroBlockEntity gyro)) {
-			return InteractionResult.PASS;
-		}
-
-		int power = (gyro.getPercentPower() % 10) + 1;
-		gyro.setPercentPower(power);
-		player.displayClientMessage(Component.translatable("vsch.message.gyro", current * 10), true);
-		return InteractionResult.SUCCESS;
 	}
 
 	@Override

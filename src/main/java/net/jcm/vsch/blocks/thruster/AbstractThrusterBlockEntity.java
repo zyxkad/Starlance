@@ -1,18 +1,27 @@
 package net.jcm.vsch.blocks.thruster;
 
 import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
+import net.jcm.vsch.blocks.custom.template.WrenchableBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
-import net.jcm.vsch.ship.thruster.ThrusterData;
+import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
+import net.jcm.vsch.ship.thruster.ThrusterData;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
@@ -32,7 +41,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
-public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity {
+public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity, WrenchableBlock {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final String BRAIN_POS_TAG_NAME = "BrainPos";
@@ -175,6 +184,37 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		}
 	}
 
+	@Override
+	public InteractionResult onUseWrench(UseOnContext ctx) {
+		if (ctx.getHand() != InteractionHand.MAIN_HAND) {
+			return InteractionResult.PASS;
+		}
+
+		final Player player = ctx.getPlayer();
+
+		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
+			if (player != null) {
+				player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled")
+					.withStyle(ChatFormatting.RED),
+					true
+				);
+			}
+			return InteractionResult.PASS;
+		}
+
+		ThrusterData.ThrusterMode blockMode = this.getThrusterMode();
+		blockMode = blockMode.toggle();
+		this.setThrusterMode(blockMode);
+
+		if (player != null) {
+			// Send a chat message to them. The wrench class will handle the actionbar
+			player.sendSystemMessage(Component.translatable("vsch.message.toggle")
+				.append(Component.translatable("vsch." + blockMode.toString().toLowerCase())));
+		}
+
+		return InteractionResult.SUCCESS;
+	}
+
 	protected ParticleOptions getThrusterParticleType() {
 		return CosmosModParticleTypes.THRUSTED.get();
 	}
@@ -237,6 +277,15 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 				x, y, z,
 				speed.x, speed.y, speed.z
 				);
+	}
+
+	@Override
+	public void onFocusWithWrench(ItemStack stack, Level level, Player player) {
+		player.displayClientMessage(
+			Component.translatable("vsch.message.mode")
+				.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),
+			true
+		);
 	}
 
 	private static float getPowerByRedstone(Level level, BlockPos pos) {
