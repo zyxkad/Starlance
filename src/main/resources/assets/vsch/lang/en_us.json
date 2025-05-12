@@ -2,6 +2,7 @@
 	"vsch.itemtab": "Starlance",
 	"vsch.message.toggle": "Set mode to",
 	"vsch.message.mode": "Mode:",
+	"vsch.message.strength": "Strength:",
 	"vsch.message.gyro": "Gyro strength set to §6%s%%",
 	"vsch.global": " §6GLOBAL",
 	"vsch.position": " §ePOSITION",

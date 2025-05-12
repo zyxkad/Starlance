@@ -123,7 +123,11 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity,
 		if (power < 0 || power > 10) {
 			throw new IllegalArgumentException("power out of range [0, 10]");
 		}
+		if (this.percentPower == power) {
+			return;
+		}
 		this.percentPower = power;
+		this.setChanged();
 	}
 
 	public boolean getPeripheralMode() {
@@ -171,7 +175,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity,
 			}
 		}
 
-		final double force = this.getTorqueForce() * (percentPower / 10.0);
+		final double force = this.getTorqueForce();
 		this.data.torque.set(x * force, y * force, z * force);
 
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
@@ -268,7 +272,8 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity,
 		final double x = (level.getSignal(pos.east(), Direction.EAST) - level.getSignal(pos.west(), Direction.WEST)) / 15.0;
 		final double y = (level.getSignal(pos.above(), Direction.UP) - level.getSignal(pos.below(), Direction.DOWN)) / 15.0;
 		final double z = (level.getSignal(pos.south(), Direction.SOUTH) - level.getSignal(pos.north(), Direction.NORTH)) / 15.0;
-		this.setTorque(x, y, z);
+		final double scale = this.percentPower / 10.0;
+		this.setTorque(x * scale, y * scale, z * scale);
 	}
 
 	private static final class EnergyStorage implements IEnergyStorage {
