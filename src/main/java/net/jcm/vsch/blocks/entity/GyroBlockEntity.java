@@ -54,7 +54,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	}
 
 	/**
-	 * 0 <= x <= 10
+	 * 0 {@literal <= x <=} 10
 	 */
 	public void setPercentPower(int x) {
 		assert((x <= 10) && (x >= 0)): "Percent power needs to be between 0 and 10!";
