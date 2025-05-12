@@ -37,6 +37,9 @@ public class VSCHConfig {
 
 	public static final ForgeConfigSpec.ConfigValue<Number> GYRO_STRENGTH;
 	public static final ForgeConfigSpec.ConfigValue<Integer> GYRO_ENERGY_CONSUME_RATE;
+	public static final ForgeConfigSpec.ConfigValue<Number> GYRO_MAX_SPEED;
+	public static final ForgeConfigSpec.ConfigValue<Boolean> GYRO_LIMIT_SPEED;
+
 
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
 
@@ -72,8 +75,10 @@ public class VSCHConfig {
 
 		BUILDER.push("Gyro");
 
-		GYRO_STRENGTH = BUILDER.comment("Max force gyro can apply to the ship on any axis. (N)").define("gyro_strength", 350000);
+		GYRO_STRENGTH = BUILDER.comment("Max force gyro will apply to the ship on any axis. (N)").define("gyro_strength", 350000);
 		GYRO_ENERGY_CONSUME_RATE = BUILDER.comment("Gyro energy consume rate. (FE/t)").define("gyro_energy_consume_rate", 10000);
+		GYRO_LIMIT_SPEED = BUILDER.comment("Should the gyro have its rotational speed limited").define("gyro_limit_speed", true);
+		GYRO_MAX_SPEED = BUILDER.comment("Max rotation the gyro will accelerate to (RPM?)").define("gyro_max_speed", 80);
 
 		BUILDER.pop();
 

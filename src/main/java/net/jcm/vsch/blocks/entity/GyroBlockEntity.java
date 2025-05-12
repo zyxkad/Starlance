@@ -24,6 +24,9 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import org.joml.Vector3d;
+import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.Ship;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private final GyroData data;
@@ -31,6 +34,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 	private volatile double torqueX = 0;
 	private volatile double torqueY = 0;
 	private volatile double torqueZ = 0;
+	private int percentPower = 10;
 	private volatile boolean isPeripheralMode = false;
 	private boolean wasPeripheralMode = true;
 	private LazyOptional<Object> lazyPeripheral = LazyOptional.empty();
@@ -47,6 +51,18 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 
 	public double getTorqueX() {
 		return this.torqueX;
+	}
+
+	/**
+	 * 0 <= x <= 10
+	 */
+	public void setPercentPower(int x) {
+		assert((x <= 10) && (x >= 0)): "Percent power needs to be between 0 and 10!";
+		this.percentPower = x;
+	}
+
+	public int getPercentPower() {
+		return this.percentPower;
 	}
 
 	public void setTorqueX(double x) {
@@ -120,6 +136,11 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		}
 		this.wasPeripheralMode = this.isPeripheralMode;
 
+		// If we're not on a ship, don't bother calculating energy use
+		// (It would be mean to consume that energy anyway)
+		ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(level, pos);
+		if (ship == null) return;
+
 		double x = this.torqueX;
 		double y = this.torqueY;
 		double z = this.torqueZ;
@@ -140,8 +161,11 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 				this.energyStorage.storedEnergy -= requirePower;
 			}
 		}
-		final double force = this.getTorqueForce();
+
+		final double force = this.getTorqueForce() * (percentPower / 10.0);
 		this.data.torque.set(x * force, y * force, z * force);
+
+
 
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships == null) {
@@ -163,6 +187,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		this.torqueX = data.getDouble("TorqueX");
 		this.torqueY = data.getDouble("TorqueY");
 		this.torqueZ = data.getDouble("TorqueZ");
+		this.percentPower = data.getInt("PercentPower");
 		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean("PeripheralMode");
 		super.load(data);
 	}
@@ -174,6 +199,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		data.putDouble("TorqueX", this.torqueX);
 		data.putDouble("TorqueY", this.torqueY);
 		data.putDouble("TorqueZ", this.torqueZ);
+		data.putInt("PercentPower", this.percentPower);
 		data.putBoolean("PeripheralMode", this.getPeripheralMode());
 	}
 
@@ -183,6 +209,7 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		data.putDouble("TorqueX", this.torqueX);
 		data.putDouble("TorqueY", this.torqueY);
 		data.putDouble("TorqueZ", this.torqueZ);
+		data.putInt("PercentPower", this.percentPower);
 		return data;
 	}
 
