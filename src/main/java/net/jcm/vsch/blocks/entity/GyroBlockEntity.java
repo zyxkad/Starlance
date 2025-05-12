@@ -53,18 +53,6 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		return this.torqueX;
 	}
 
-	/**
-	 * 0 {@literal <= x <=} 10
-	 */
-	public void setPercentPower(int x) {
-		assert((x <= 10) && (x >= 0)): "Percent power needs to be between 0 and 10!";
-		this.percentPower = x;
-	}
-
-	public int getPercentPower() {
-		return this.percentPower;
-	}
-
 	public void setTorqueX(double x) {
 		x = Math.min(Math.max(x, -1), 1);
 		if (this.torqueX == x) {
@@ -118,6 +106,20 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 		this.setChanged();
 	}
 
+	public int getPercentPower() {
+		return this.percentPower;
+	}
+
+	/**
+	 * @param power in range {@code [0, 10]}
+	 */
+	public void setPercentPower(int power) {
+		if (power < 0 || power > 10) {
+			throw new IllegalArgumentException("power out of range [0, 10]");
+		}
+		this.percentPower = power;
+	}
+
 	public boolean getPeripheralMode() {
 		return this.isPeripheralMode;
 	}
@@ -138,21 +140,22 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 
 		// If we're not on a ship, don't bother calculating energy use
 		// (It would be mean to consume that energy anyway)
-		ServerShip ship = VSGameUtilsKt.getShipObjectManagingPos(level, pos);
-		if (ship == null) return;
+		if (!VSGameUtilsKt.isBlockInShipyard(level, pos)) {
+			return;
+		}
 
 		double x = this.torqueX;
 		double y = this.torqueY;
 		double z = this.torqueZ;
 		if (this.energyStorage.maxEnergy > 0) {
 			final double requirePower = (Math.abs(x) + Math.abs(y) + Math.abs(z)) * this.energyStorage.maxEnergy / 3;
-			final double avaliablePower = this.energyStorage.storedEnergy;
-			if (avaliablePower <= 0) {
+			final double availablePower = this.energyStorage.storedEnergy;
+			if (availablePower <= 0) {
 				x = 0;
 				y = 0;
 				z = 0;
-			} else if (requirePower > avaliablePower) {
-				final double ratio = avaliablePower / requirePower;
+			} else if (requirePower > availablePower) {
+				final double ratio = availablePower / requirePower;
 				x *= ratio;
 				y *= ratio;
 				z *= ratio;
@@ -164,8 +167,6 @@ public class GyroBlockEntity extends BlockEntity implements ParticleBlockEntity 
 
 		final double force = this.getTorqueForce() * (percentPower / 10.0);
 		this.data.torque.set(x * force, y * force, z * force);
-
-
 
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
 		if (ships == null) {

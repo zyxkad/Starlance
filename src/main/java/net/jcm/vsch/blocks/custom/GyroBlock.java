@@ -66,40 +66,25 @@ public class GyroBlock extends Block implements EntityBlock {
 		}
 	}
 
-
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		// If client side, ignore
 		if (!(level instanceof ServerLevel)) {
 			return InteractionResult.PASS;
 		}
 
-		// If its the right item and mainhand
 		if (player.getMainHandItem().getItem() != VSCHItems.WRENCH.get() || hand != InteractionHand.MAIN_HAND) {
 			return InteractionResult.PASS;
 		}
 
-		BlockEntity be = level.getBlockEntity(pos);
-		if (!(be instanceof GyroBlockEntity)) {
+		if (!(level.getBlockEntity(pos) instanceof GyroBlockEntity gyro)) {
 			return InteractionResult.PASS;
 		}
 
-        int current = ((GyroBlockEntity) be).getPercentPower();
-		current += 1;
-
-
-		if (current > 10) {
-			current = 1;
-		}
-
-		((GyroBlockEntity) be).setPercentPower(current);
-
-		player.displayClientMessage(Component.translatable("vsch.message.gyro", (current*10)), true);
-
+		int power = (gyro.getPercentPower() % 10) + 1;
+		gyro.setPercentPower(power);
+		player.displayClientMessage(Component.translatable("vsch.message.gyro", current * 10), true);
 		return InteractionResult.SUCCESS;
 	}
-
-
 
 	@Override
 	public GyroBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
