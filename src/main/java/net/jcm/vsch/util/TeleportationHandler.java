@@ -193,12 +193,12 @@ public class TeleportationHandler {
 				return;
 			}
 			LOGGER.info("[starlance]: Teleporting physics entity {} to {} {}", id, vsDimName, newPos);
-			ShipTeleportData teleportData = new ShipTeleportDataImpl(targetPos, physEntity.getShipTransform().getShipToWorldRotation(), new Vector3d(), new Vector3d(), vsDimName, null);
+			ShipTeleportData teleportData = new ShipTeleportDataImpl(targetPos, physEntity.getShipTransform().getShipToWorldRotation(), physEntity.getLinearVelocity(), physEntity.getAngularVelocity(), vsDimName, null);
 			shipWorld.teleportPhysicsEntity(physEntity, teleportData);
 			return;
 		}
 		LOGGER.info("[starlance]: Teleporting ship {} ({}) to {} {}", ship.getSlug(), id, vsDimName, newPos);
-		ShipTeleportData teleportData = new ShipTeleportDataImpl(targetPos, ship.getTransform().getShipToWorldRotation(), new Vector3d(), new Vector3d(), vsDimName, null);
+		ShipTeleportData teleportData = new ShipTeleportDataImpl(targetPos, ship.getTransform().getShipToWorldRotation(), ship.getVelocity(), ship.getOmega(), vsDimName, null);
 		shipWorld.teleportShip(ship, teleportData);
 	}
 
