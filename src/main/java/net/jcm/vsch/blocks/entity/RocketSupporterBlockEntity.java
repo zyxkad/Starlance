@@ -2,6 +2,7 @@ package net.jcm.vsch.blocks.entity;
 
 import net.jcm.vsch.blocks.custom.RocketSupporterBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
+import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.util.Pair;
 
 import net.minecraft.core.BlockPos;
@@ -46,7 +47,6 @@ import java.util.function.Predicate;
 
 public class RocketSupporterBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private static final int MAX_SIZE = 256 * 16;
-	private static final int MAX_BLOCKS = 16 * 16 * 16 * 16 * 9;
 
 	private boolean triggering = false;
 	private boolean assembling = false;
@@ -142,7 +142,7 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 				}
 				break;
 			}
-			if (this.blocks.size() >= MAX_BLOCKS) {
+			if (this.blocks.size() >= VSCHConfig.MAX_ASSEMBLE_BLOCKS.get()) {
 				this.finishAssemble("too many blocks");
 				return;
 			}
