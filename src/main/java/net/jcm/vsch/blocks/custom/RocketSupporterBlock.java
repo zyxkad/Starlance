@@ -6,6 +6,7 @@ import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -30,7 +31,7 @@ public class RocketSupporterBlock extends DirectionalBlock implements EntityBloc
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
-		Direction dir = ctx.getNearestLookingDirection();
+		Direction dir = ctx.getNearestLookingDirection().getOpposite();
 		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
 			dir = dir.getOpposite();
 		}
