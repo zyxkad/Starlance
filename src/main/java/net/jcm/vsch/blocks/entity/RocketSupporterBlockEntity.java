@@ -266,8 +266,7 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 			scaling.set(selfTransform.getShipToWorldScaling());
 			scale = Math.sqrt(scaling.lengthSquared() / 3);
 		}
-		final ShipTeleportData teleportData = new ShipTeleportDataImpl(position, rotation, velocity, omega, levelId, scale);
-		shipWorld.teleportShip(ship, teleportData);
+		shipWorld.teleportShip(ship, new ShipTeleportDataImpl(position, rotation, velocity, omega, levelId, scale));
 
 		if (velocity.lengthSquared() != 0 || omega.lengthSquared() != 0) {
 			ship.setTransformProvider(new ServerShipTransformProvider() {
