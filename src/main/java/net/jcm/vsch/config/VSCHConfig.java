@@ -11,6 +11,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class VSCHConfig {

@@ -29,6 +29,7 @@ import org.joml.primitives.AABBi;
 import org.joml.primitives.AABBic;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
+import org.valkyrienskies.core.api.ships.ServerShipTransformProvider;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.api.ships.properties.ShipTransform;
 import org.valkyrienskies.core.apigame.ShipTeleportData;
@@ -36,6 +37,7 @@ import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.core.impl.game.ships.ShipData;
 import org.valkyrienskies.core.impl.game.ships.ShipPhysicsData;
+import org.valkyrienskies.core.impl.game.ships.ShipTransformImpl;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
@@ -50,8 +52,6 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 
 	private boolean triggering = false;
 	private boolean assembling = false;
-	private Long teleporting = null;
-	private final Vector3d relativePos = new Vector3d();
 	private String assembleResult = null;
 	private final Queue<BlockPos> queueing = new ArrayDeque<>();
 	private final DenseBlockPosSet blocks = new DenseBlockPosSet();
@@ -63,7 +63,7 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 	}
 
 	public boolean isAssembling() {
-		return this.assembling || this.teleporting != null;
+		return this.assembling;
 	}
 
 	public boolean isAssembleSuccessed() {
@@ -93,8 +93,6 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 	public void tickForce(ServerLevel level, BlockPos pos, BlockState state) {
 		if (this.assembling) {
 			this.assembleTick(level);
-		} else if (this.teleporting != null) {
-			this.tryTeleport(level);
 		}
 	}
 
@@ -108,7 +106,6 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 			return;
 		}
 		this.assembling = true;
-		this.teleporting = null;
 		this.assembleResult = null;
 		this.queueing.clear();
 		this.blocks.clear();
@@ -124,7 +121,6 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		// TODO: change texture based on if assemble successed
 		// TODO: show assemble error message somewhere
 		this.assembling = false;
-		this.teleporting = null;
 		this.assembleResult = error;
 		this.queueing.clear();
 		this.blocks.clear();
@@ -137,6 +133,7 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		while (true) {
 			final BlockPos pos = this.queueing.poll();
 			if (pos == null) {
+				this.checked.clear();
 				if (ticked > 0) {
 					return;
 				}
@@ -251,13 +248,13 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		});
 
 		final AABBic box = ship.getShipAABB();
-		final Vector3d position = ship.getTransform().getPositionInWorld().add(ship.getInertiaData().getCenterOfMassInShip(), new Vector3d()).sub(shipCenter.x, shipCenter.y, shipCenter.z);
+		final Vector3d absPosition = ship.getTransform().getPositionInWorld().add(ship.getInertiaData().getCenterOfMassInShip(), new Vector3d()).sub(shipCenter.x, shipCenter.y, shipCenter.z);
+		final Vector3d position = new Vector3d(absPosition);
 		final Quaterniond rotation = new Quaterniond();
 		final Vector3d velocity = new Vector3d();
 		final Vector3d omega = new Vector3d();
+		final Vector3d scaling = new Vector3d(1);
 		double scale = 1.0;
-
-		this.relativePos.set(position);
 
 		final Ship selfShip = VSGameUtilsKt.getShipManagingPos(level, this.getBlockPos());
 		if (selfShip != null) {
@@ -266,38 +263,35 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 			rotation.set(selfTransform.getShipToWorldRotation());
 			velocity.set(selfShip.getVelocity());
 			omega.set(selfShip.getOmega());
-			scale = Math.sqrt(selfTransform.getShipToWorldScaling().lengthSquared() / 3);
+			scaling.set(selfTransform.getShipToWorldScaling());
+			scale = Math.sqrt(scaling.lengthSquared() / 3);
 		}
 		final ShipTeleportData teleportData = new ShipTeleportDataImpl(position, rotation, velocity, omega, levelId, scale);
 		shipWorld.teleportShip(ship, teleportData);
 
-		this.assembling = false;
-		this.teleporting = ship.getId();
-	}
-
-	public void tryTeleport(final ServerLevel level) {
-		final ServerShipWorldCore shipWorld = VSGameUtilsKt.getShipObjectWorld(level);
-		final LoadedServerShip ship = shipWorld.getLoadedShips().getById(this.teleporting);
-		if (ship == null) {
-			return;
+		if (velocity.lengthSquared() != 0 || omega.lengthSquared() != 0) {
+			ship.setTransformProvider(new ServerShipTransformProvider() {
+				@Override
+				public NextTransformAndVelocityData provideNextTransformAndVelocity(final ShipTransform transform, final ShipTransform nextTransform) {
+					if (!transform.getPositionInWorld().equals(nextTransform.getPositionInWorld()) || !transform.getShipToWorldRotation().equals(nextTransform.getShipToWorldRotation())) {
+						ship.setTransformProvider(null);
+						return null;
+					}
+					if (ship.getVelocity().lengthSquared() == 0 && ship.getOmega().lengthSquared() == 0) {
+						if (selfShip != null) {
+							final ShipTransform selfTransform2 = selfShip.getTransform();
+							selfTransform2.getShipToWorld().transformPosition(absPosition, position);
+							rotation.set(selfTransform2.getShipToWorldRotation());
+							velocity.set(selfShip.getVelocity());
+							omega.set(selfShip.getOmega());
+							scaling.set(selfTransform2.getShipToWorldScaling());
+						}
+						return new NextTransformAndVelocityData(new ShipTransformImpl(position, nextTransform.getPositionInShip(), rotation, scaling), velocity, omega);
+					}
+					return null;
+				}
+			});
 		}
-		final String levelId = VSGameUtilsKt.getDimensionId(level);
-
-		final Vector3d position = new Vector3d(this.relativePos);
-		final Quaterniond rotation = new Quaterniond();
-		final Vector3d velocity = new Vector3d();
-		final Vector3d omega = new Vector3d();
-		final Ship selfShip = VSGameUtilsKt.getShipManagingPos(level, this.getBlockPos());
-		if (selfShip != null) {
-			final ShipTransform selfTransform = selfShip.getTransform();
-			selfTransform.getShipToWorld().transformPosition(position);
-			rotation.set(selfTransform.getShipToWorldRotation());
-			velocity.set(selfShip.getVelocity());
-			omega.set(selfShip.getOmega());
-		}
-
-		final ShipTeleportData teleportData = new ShipTeleportDataImpl(position, rotation, velocity, omega, levelId, null);
-		shipWorld.teleportShip(ship, teleportData);
 
 		this.finishAssemble(null);
 	}
