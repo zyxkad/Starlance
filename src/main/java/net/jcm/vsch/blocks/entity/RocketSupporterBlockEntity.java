@@ -15,28 +15,19 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.Vec3;
 
 import org.joml.Quaterniond;
 import org.joml.RoundingMode;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.joml.Vector3ic;
 import org.joml.primitives.AABBi;
 import org.joml.primitives.AABBic;
-import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.ServerShipTransformProvider;
-import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.core.api.ships.properties.ShipTransform;
-import org.valkyrienskies.core.apigame.ShipTeleportData;
 import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
-import org.valkyrienskies.core.impl.game.ships.ShipData;
-import org.valkyrienskies.core.impl.game.ships.ShipPhysicsData;
 import org.valkyrienskies.core.impl.game.ships.ShipTransformImpl;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
@@ -45,7 +36,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.function.Predicate;
 
 public class RocketSupporterBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private static final int MAX_SIZE = 256 * 16;
@@ -256,7 +246,7 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		final Vector3d scaling = new Vector3d(1);
 		double scale = 1.0;
 
-		final Ship selfShip = VSGameUtilsKt.getShipManagingPos(level, this.getBlockPos());
+		final ServerShip selfShip = VSGameUtilsKt.getShipManagingPos(level, this.getBlockPos());
 		if (selfShip != null) {
 			final ShipTransform selfTransform = selfShip.getTransform();
 			selfTransform.getShipToWorld().transformPosition(position);
