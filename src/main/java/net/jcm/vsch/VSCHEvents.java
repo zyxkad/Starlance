@@ -16,6 +16,9 @@ public class VSCHEvents {
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onServerTick(TickEvent.ServerTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) {
+			return;
+		}
 		for (ServerLevel level : event.getServer().getAllLevels()) {
 			if (level.getPlayers(player -> true, 1).isEmpty()) {
 				// skip if the no player is in the world
