@@ -9,9 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +35,6 @@ import org.valkyrienskies.mod.common.util.DimensionIdProvider;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import java.util.*;
-import java.util.function.BooleanSupplier;
 import java.util.stream.StreamSupport;
 
 import static net.jcm.vsch.util.ShipUtils.transformFromId;
@@ -51,8 +48,6 @@ public class TeleportationHandler {
 
 	private static Map<Long, Set<Integer>> SHIP2CONSTRAINTS;
 	private static Map<Integer, VSConstraint> ID2CONSTRAINT;
-	private static final Queue<Runnable> preTickActions = new ArrayDeque<>();
-	private static final Queue<BooleanSupplier> postTickActions = new ArrayDeque<>();
 
 	private final Map<Long, Vector3d> shipToPos = new HashMap<>();
 	private final Map<Entity, Vec3> entityToPos = new HashMap<>();
@@ -77,23 +72,6 @@ public class TeleportationHandler {
 		final ServerShipObjectWorldAccessor server = (ServerShipObjectWorldAccessor) VSGameUtilsKt.getShipObjectWorld(event.getServer());
 		SHIP2CONSTRAINTS = server.getShipIdToConstraints();
 		ID2CONSTRAINT = server.getConstraints();
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.phase == TickEvent.Phase.START) {
-			for (int i = preTickActions.size(); i > 0; i--) {
-				final Runnable action = preTickActions.remove();
-				action.run();
-			}
-			return;
-		}
-		for (int i = postTickActions.size(); i > 0; i--) {
-			final BooleanSupplier action = postTickActions.remove();
-			if (!action.getAsBoolean()) {
-				postTickActions.add(action);
-			}
-		}
 	}
 
 	public void handleTeleport(Ship ship, Vector3d newPos) {
