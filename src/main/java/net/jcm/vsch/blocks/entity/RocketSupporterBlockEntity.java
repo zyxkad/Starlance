@@ -10,12 +10,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import org.joml.Quaterniond;
 import org.joml.RoundingMode;
@@ -211,6 +215,19 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		final Vector3i shipCenter = ship.getChunkClaim().getCenterBlockCoordinates(VSGameUtilsKt.getYRange(level), new Vector3i());
 		final Vector3i offset = shipCenter.sub(worldCenter, new Vector3i());
 		final List<Pair<BlockPos, BlockState>> blockStates = new ArrayList<>(this.blocks.size());
+		final List<Entity> entities = new ArrayList<>();
+
+		// get attachable entities
+		for (final Entity entity : level.getEntities(null, new AABB(this.box.minX - 1, this.box.minY - 1, this.box.minZ - 1, this.box.maxX + 2, this.box.maxY + 2, this.box.maxZ + 2))) {
+			if (entity instanceof HangingEntity he) {
+				final BlockPos hanging = he.getPos().relative(he.getDirection().getOpposite());
+				if (this.blocks.contains(hanging.getX(), hanging.getY(), hanging.getZ())) {
+					entities.add(entity);
+				}
+			}
+		}
+
+		// clear old region
 		this.blocks.forEach((x, y, z) -> {
 			final BlockPos pos = new BlockPos(x, y, z);
 			blockStates.add(new Pair<>(pos, level.getBlockState(pos)));
@@ -226,16 +243,26 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
 			return null;
 		});
-		blockStates.forEach((value) -> {
+
+		// paste to new region
+		for (final Pair<BlockPos, BlockState> value : blockStates) {
 			final BlockPos pos = value.left().offset(offset.x, offset.y, offset.z);
 			level.setBlock(pos, value.right(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
-		});
-		blockStates.forEach((value) -> {
+		}
+
+		// move entities
+		for (final Entity entity : entities) {
+			final Vec3 pos = entity.position();
+			entity.setPos(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+		}
+
+		// update blocks
+		for (final Pair<BlockPos, BlockState> value : blockStates) {
 			final BlockPos pos = value.left();
 			final Block block = value.right().getBlock();
 			level.blockUpdated(pos, block);
 			level.blockUpdated(pos.offset(offset.x, offset.y, offset.z), block);
-		});
+		}
 
 		final AABBic box = ship.getShipAABB();
 		final Vector3d absPosition = ship.getTransform().getPositionInWorld().add(ship.getInertiaData().getCenterOfMassInShip(), new Vector3d()).sub(shipCenter.x, shipCenter.y, shipCenter.z);
@@ -258,6 +285,7 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		}
 		shipWorld.teleportShip(ship, new ShipTeleportDataImpl(position, rotation, velocity, omega, levelId, scale));
 
+		// fix new ship's velocity and omega
 		if (velocity.lengthSquared() != 0 || omega.lengthSquared() != 0) {
 			ship.setTransformProvider(new ServerShipTransformProvider() {
 				@Override
