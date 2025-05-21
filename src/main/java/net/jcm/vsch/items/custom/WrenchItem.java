@@ -42,7 +42,7 @@ public class WrenchItem extends Item {
 
 		if (blockEntity instanceof WrenchableBlock wrenchable) {
 			wrenchable.onFocusWithWrench(stack, level, player);
-		} else if (blockEntity instanceof WrenchableBlock wrenchable) {
+		} else if (block.getBlock() instanceof WrenchableBlock wrenchable) {
 			wrenchable.onFocusWithWrench(stack, level, player);
 		}
 	}
