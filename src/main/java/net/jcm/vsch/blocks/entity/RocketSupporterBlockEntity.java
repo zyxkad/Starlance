@@ -1,9 +1,13 @@
 package net.jcm.vsch.blocks.entity;
 
+import net.jcm.vsch.accessor.ControlledContraptionEntityAccessor;
 import net.jcm.vsch.blocks.custom.RocketSupporterBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
+import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.util.Pair;
+import net.jcm.vsch.util.assemble.IMoveable;
+import net.jcm.vsch.util.assemble.MoveUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +24,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import com.simibubi.create.content.contraptions.Contraption;
+import com.simibubi.create.content.contraptions.ControlledContraptionEntity;
+import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
 
 import org.joml.Quaterniond;
 import org.joml.RoundingMode;
@@ -40,6 +48,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class RocketSupporterBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private static final int MAX_SIZE = 256 * 16;
@@ -219,18 +229,34 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 
 		// get attachable entities
 		for (final Entity entity : level.getEntities(null, new AABB(this.box.minX - 1, this.box.minY - 1, this.box.minZ - 1, this.box.maxX + 2, this.box.maxY + 2, this.box.maxZ + 2))) {
-			if (entity instanceof HangingEntity he) {
+			if (entity instanceof final HangingEntity he) {
 				final BlockPos hanging = he.getPos().relative(he.getDirection().getOpposite());
 				if (this.blocks.contains(hanging.getX(), hanging.getY(), hanging.getZ())) {
 					entities.add(entity);
 				}
+			} else if (CompatMods.CREATE.isLoaded()) {
+				if (entity instanceof final ControlledContraptionEntity cce) {
+					final ControlledContraptionEntityAccessor ccea = (ControlledContraptionEntityAccessor) (cce);
+					final BlockPos anchor = ccea.getControllerPos();
+					if (this.blocks.contains(anchor.getX(), anchor.getY(), anchor.getZ())) {
+						ccea.setControllerPos(anchor.offset(offset.x, offset.y, offset.z));
+						entities.add(entity);
+					}
+				} else if (entity instanceof final SuperGlueEntity glue) {
+					final AABB box = glue.getBoundingBox();
+					if (streamBlocksInAABB(box).peek(System.out::println).anyMatch(p -> this.blocks.contains(p.getX(), p.getY(), p.getZ()))) {
+						entities.add(entity);
+					}
+				}
 			}
 		}
 
-		// clear old region
+		// move blocks
 		this.blocks.forEach((x, y, z) -> {
 			final BlockPos pos = new BlockPos(x, y, z);
-			blockStates.add(new Pair<>(pos, level.getBlockState(pos)));
+			final BlockPos target = pos.offset(offset.x, offset.y, offset.z);
+			final BlockState state = level.getBlockState(pos);
+			blockStates.add(new Pair<>(pos, state));
 			final CompoundTag nbt = level.getChunkAt(pos).getBlockEntityNbtForSaving(pos);
 			if (nbt != null) {
 				final BlockPos targetPos = pos.offset(offset.x, offset.y, offset.z);
@@ -239,16 +265,22 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 				nbt.putInt("z", targetPos.getZ());
 				level.getChunkAt(targetPos).setBlockEntityNbt(nbt);
 			}
-			Clearable.tryClear(level.getBlockEntity(pos));
+			final BlockEntity be = level.getBlockEntity(pos);
+			IMoveable<?> moveable = MoveUtil.getMover(be);
+			if (moveable == null) {
+				moveable = MoveUtil.getMover(state.getBlock());
+			}
+
+			Clearable.tryClear(be);
+
+			final Object moveData = moveable != null ? moveable.beforeMove(level, pos, target) : null;
+			level.setBlock(target, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
+			if (moveable != null) {
+				((IMoveable) (moveable)).afterMove(level, pos, target, moveData);
+			}
 			return null;
 		});
-
-		// paste to new region
-		for (final Pair<BlockPos, BlockState> value : blockStates) {
-			final BlockPos pos = value.left().offset(offset.x, offset.y, offset.z);
-			level.setBlock(pos, value.right(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
-		}
 
 		// move entities
 		for (final Entity entity : entities) {
@@ -311,5 +343,21 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		}
 
 		this.finishAssemble(null);
+	}
+
+	private static Stream<BlockPos> streamBlocksInAABB(AABB box) {
+		final int
+			minX = (int) (Math.round(box.minX)), maxX = (int) (Math.round(box.maxX)),
+			minY = (int) (Math.round(box.minY)), maxY = (int) (Math.round(box.maxY)),
+			minZ = (int) (Math.round(box.minZ)), maxZ = (int) (Math.round(box.maxZ));
+		final int widthX = maxX - minX, widthY = maxY - minY, widthZ = maxZ - minZ;
+		return IntStream.range(0, widthX * widthY * widthZ).mapToObj((i) -> {
+			final int x = i % widthX + minX;
+			i /= widthX;
+			final int z = i % widthZ + minZ;
+			i /= widthZ;
+			final int y = i + minY;
+			return new BlockPos(x, y, z);
+		});
 	}
 }
