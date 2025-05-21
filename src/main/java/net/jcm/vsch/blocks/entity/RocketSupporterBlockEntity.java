@@ -26,6 +26,7 @@ import net.minecraft.world.phys.Vec3;
 
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.ControlledContraptionEntity;
+import com.simibubi.create.content.contraptions.actors.seat.SeatEntity;
 import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
 
 import org.joml.Quaterniond;
@@ -235,7 +236,12 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 					entities.add(entity);
 				}
 			} else if (CompatMods.CREATE.isLoaded()) {
-				if (entity instanceof final SuperGlueEntity glue) {
+				if (entity instanceof final SeatEntity seat) {
+					final BlockPos p = seat.blockPosition();
+					if (this.blocks.contains(p.getX(), p.getY(), p.getZ())) {
+						entities.add(entity);
+					}
+				} else if (entity instanceof final SuperGlueEntity glue) {
 					final AABB box = glue.getBoundingBox();
 					if (streamBlocksInAABB(box).anyMatch(p -> this.blocks.contains(p.getX(), p.getY(), p.getZ()))) {
 						entities.add(entity);
