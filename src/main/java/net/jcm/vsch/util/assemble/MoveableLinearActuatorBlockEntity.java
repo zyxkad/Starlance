@@ -33,6 +33,5 @@ public class MoveableLinearActuatorBlockEntity implements IMoveable<AbstractCont
 		level.addFreshEntity(newEntity);
 		contraption.anchor = contraption.anchor.offset(target.getX() - origin.getX(), target.getY() - origin.getY(), target.getZ() - origin.getZ());
 		newEntity.setPos(newEntity.position().add(target.getX() - origin.getX(), target.getY() - origin.getY(), target.getZ() - origin.getZ()));
-		be.attach(newEntity);
 	}
 }
