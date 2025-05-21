@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 import com.simibubi.create.content.contraptions.IControlContraption;
+import com.simibubi.create.content.contraptions.piston.LinearActuatorBlockEntity;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -24,17 +25,20 @@ public final class MoveUtil {
 	}
 
 	public static IMoveable<?> getMover(final Object block) {
+		if (block == null) {
+			return null;
+		}
 		if (block instanceof final IMoveable<?> mover) {
 			return mover;
 		}
-		for (Class<?> intf : (Iterable<Class<?>>) (Stream.of(block.getClass().getInterfaces()).flatMap(MoveUtil::streamClassAnsSubInterfaces)::iterator)) {
-			final IMoveable<?> mover = DEFAULT_MOVERS.get(intf);
+		for (Class<?> blockClass = block.getClass(); blockClass != null; blockClass = blockClass.getSuperclass()) {
+			final IMoveable<?> mover = DEFAULT_MOVERS.get(blockClass);
 			if (mover != null) {
 				return mover;
 			}
 		}
-		for (Class<?> blockClass = block.getClass(); blockClass == null; blockClass = blockClass.getSuperclass()) {
-			final IMoveable<?> mover = DEFAULT_MOVERS.get(blockClass);
+		for (Class<?> intf : (Iterable<Class<?>>) (Stream.of(block.getClass().getInterfaces()).flatMap(MoveUtil::streamClassAnsSubInterfaces)::iterator)) {
+			final IMoveable<?> mover = DEFAULT_MOVERS.get(intf);
 			if (mover != null) {
 				return mover;
 			}
@@ -45,6 +49,7 @@ public final class MoveUtil {
 	public static void registerDefaultMovers() {
 		if (CompatMods.CREATE.isLoaded()) {
 			registerDefaultMover(IControlContraption.class, new MoveableIControlContraption());
+			registerDefaultMover(LinearActuatorBlockEntity.class, new MoveableLinearActuatorBlockEntity());
 		}
 	}
 

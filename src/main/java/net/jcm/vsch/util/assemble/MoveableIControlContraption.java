@@ -3,7 +3,6 @@ package net.jcm.vsch.util.assemble;
 import net.jcm.vsch.accessor.ContraptionHolder;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -12,7 +11,6 @@ import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import java.util.List;
 
 public class MoveableIControlContraption implements IMoveable<List<AbstractContraptionEntity>> {
-	private static final CompoundTag EMPTY_TAG = new CompoundTag();
 
 	@Override
 	public List<AbstractContraptionEntity> beforeMove(ServerLevel level, BlockPos origin, BlockPos target) {
