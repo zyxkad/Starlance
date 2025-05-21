@@ -42,6 +42,7 @@ public abstract class MixinMechanicalBearingBlockEntity extends GeneratingKineti
 				final ControlledContraptionEntity newEntity = ControlledContraptionEntity.create(level, this, cce.getContraption());
 				cce.discard();
 				level.addFreshEntity(newEntity);
+				// I don't know how but only this works, attach(newEntity) will not work
 				this.attach(cce);
 				return;
 			}
