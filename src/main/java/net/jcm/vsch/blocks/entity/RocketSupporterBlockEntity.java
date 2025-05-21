@@ -1,6 +1,5 @@
 package net.jcm.vsch.blocks.entity;
 
-import net.jcm.vsch.accessor.ControlledContraptionEntityAccessor;
 import net.jcm.vsch.blocks.custom.RocketSupporterBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
@@ -47,6 +46,7 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -235,16 +235,9 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 					entities.add(entity);
 				}
 			} else if (CompatMods.CREATE.isLoaded()) {
-				if (entity instanceof final ControlledContraptionEntity cce) {
-					final ControlledContraptionEntityAccessor ccea = (ControlledContraptionEntityAccessor) (cce);
-					final BlockPos anchor = ccea.getControllerPos();
-					if (this.blocks.contains(anchor.getX(), anchor.getY(), anchor.getZ())) {
-						ccea.setControllerPos(anchor.offset(offset.x, offset.y, offset.z));
-						entities.add(entity);
-					}
-				} else if (entity instanceof final SuperGlueEntity glue) {
+				if (entity instanceof final SuperGlueEntity glue) {
 					final AABB box = glue.getBoundingBox();
-					if (streamBlocksInAABB(box).peek(System.out::println).anyMatch(p -> this.blocks.contains(p.getX(), p.getY(), p.getZ()))) {
+					if (streamBlocksInAABB(box).anyMatch(p -> this.blocks.contains(p.getX(), p.getY(), p.getZ()))) {
 						entities.add(entity);
 					}
 				}
