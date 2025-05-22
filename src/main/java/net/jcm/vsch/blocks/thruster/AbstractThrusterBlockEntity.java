@@ -251,34 +251,40 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			ship.getTransform().getShipToWorldRotation().transform(direction);
 		}
 
-		spawnParticles(worldPos, direction);
+		final Vector3d shipVelocity = new Vector3d();
+		if (ship != null) {
+			final Vector3d tempPos = new Vector3d(center.x, center.y, center.z);
+			ship.getTransform().getShipToWorld().transformPosition(tempPos, shipVelocity).sub(ship.getPrevTickTransform().getShipToWorld().transformPosition(tempPos));
+		}
+
+		spawnParticles(worldPos, direction, shipVelocity);
 	}
 
-	protected void spawnParticles(Vector3d pos, Vector3d direction) {
+	protected void spawnParticles(Vector3d pos, Vector3d direction, Vector3d velocity) {
 		// Offset the XYZ by a little bit so its at the end of the thruster block
 		double x = pos.x - direction.x;
 		double y = pos.y - direction.y;
 		double z = pos.z - direction.z;
 
-		Vector3d speed = new Vector3d(direction).mul(-this.getCurrentPower());
+		final Vector3d speed = new Vector3d(direction).mul(-this.getCurrentPower());
 
 		speed.mul(0.6);
 
 		// All that for one particle per tick...
 		level.addParticle(
-				this.getThrusterParticleType(),
-				x, y, z,
-				speed.x, speed.y, speed.z
-				);
+			this.getThrusterParticleType(),
+			x, y, z,
+			speed.x + velocity.x, speed.y + velocity.y, speed.z + velocity.z
+		);
 
 		speed.mul(1.06);
 
 		// Ok ok, two particles per tick
 		level.addParticle(
-				this.getThrusterSmokeParticleType(),
-				x, y, z,
-				speed.x, speed.y, speed.z
-				);
+			this.getThrusterSmokeParticleType(),
+			x, y, z,
+			speed.x + velocity.x, speed.y + velocity.y, speed.z + velocity.z
+		);
 	}
 
 	@Override
