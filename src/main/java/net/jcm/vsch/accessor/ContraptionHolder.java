@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ContraptionHolder {
 	List<AbstractContraptionEntity> clearContraptions();
+
 	void restoreContraptions(List<AbstractContraptionEntity> contraptions);
 }

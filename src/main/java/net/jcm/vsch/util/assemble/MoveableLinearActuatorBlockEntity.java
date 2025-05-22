@@ -1,10 +1,10 @@
 package net.jcm.vsch.util.assemble;
 
-import net.jcm.vsch.accessor.ContraptionHolder;
+import net.jcm.vsch.accessor.ControlledContraptionEntityAccessor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.Entity;
 
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.Contraption;
@@ -16,22 +16,32 @@ public class MoveableLinearActuatorBlockEntity implements IMoveable<AbstractCont
 	@Override
 	public AbstractContraptionEntity beforeMove(ServerLevel level, BlockPos origin, BlockPos target) {
 		final LinearActuatorBlockEntity be = (LinearActuatorBlockEntity) (level.getBlockEntity(origin));
-		final AbstractContraptionEntity data = be.movedContraption;
+		final AbstractContraptionEntity entity = be.movedContraption;
 		be.movedContraption = null;
-		return data;
+		return entity;
 	}
 
 	@Override
-	public void afterMove(ServerLevel level, BlockPos origin, BlockPos target, AbstractContraptionEntity data) {
-		if (data == null) {
+	public void afterMove(ServerLevel level, BlockPos origin, BlockPos target, AbstractContraptionEntity entity) {
+		if (entity == null) {
 			return;
 		}
-		final LinearActuatorBlockEntity be = (LinearActuatorBlockEntity) (level.getBlockEntity(target));
-		final Contraption contraption = data.getContraption();
-		final ControlledContraptionEntity newEntity = ControlledContraptionEntity.create(level, be, contraption);
-		data.discard();
+		final BlockPos offset = target.subtract(origin);
+		final Contraption contraption = entity.getContraption();
+		contraption.anchor = contraption.anchor.offset(offset);
+		entity.setPos(entity.position().add(offset.getX(), offset.getY(), offset.getZ()));
+		if (entity instanceof ControlledContraptionEntityAccessor ccea) {
+			ccea.setControllerPos(ccea.getControllerPos().offset(offset));
+		}
+		AbstractContraptionEntity newEntity = (AbstractContraptionEntity) (entity.getType().create(level));
+		newEntity.restoreFrom(entity);
+		entity.getPassengers().forEach((passenger) -> {
+			final Integer seat = contraption.getSeatMapping().get(passenger.getUUID());
+			if (seat != null) {
+				newEntity.addSittingPassenger(passenger, seat);
+			}
+		});
+		entity.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
 		level.addFreshEntity(newEntity);
-		contraption.anchor = contraption.anchor.offset(target.getX() - origin.getX(), target.getY() - origin.getY(), target.getZ() - origin.getZ());
-		newEntity.setPos(newEntity.position().add(target.getX() - origin.getX(), target.getY() - origin.getY(), target.getZ() - origin.getZ()));
 	}
 }

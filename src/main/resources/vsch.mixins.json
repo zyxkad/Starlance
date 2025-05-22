@@ -6,6 +6,7 @@
   "refmap": "mixins.vsch.refmap.json",
   "mixins": [
     "MixinClockworkBearingBlockEntity",
+    "MixinControlledContraptionEntity",
     "MixinEntity",
     "MixinLightRenderer",
     "MixinLivingEntityProcedure",
@@ -14,6 +15,7 @@
     "MixinShipAssemblyKt",
     "MixinSpacesuitwornLogicProcedure",
     "MixinVSGameUtilsKt",
+    "MixinVirtualRenderWorld",
     "accessor.ServerShipObjectWorldAccessor"
   ],
   "client": [
