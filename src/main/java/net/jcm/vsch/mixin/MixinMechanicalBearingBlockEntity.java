@@ -30,20 +30,10 @@ public abstract class MixinMechanicalBearingBlockEntity extends GeneratingKineti
 	public List<AbstractContraptionEntity> clearContraptions() {
 		final List<AbstractContraptionEntity> res = this.movedContraption == null ? List.of() : List.of(this.movedContraption);
 		this.movedContraption = null;
-		this.sendData();
 		return res;
 	}
 
 	@Override
 	public void restoreContraptions(List<AbstractContraptionEntity> contraptions) {
-		for (final AbstractContraptionEntity entity : contraptions) {
-			if (entity instanceof final ControlledContraptionEntity cce) {
-				final ServerLevel level = (ServerLevel) (cce.level());
-				final ControlledContraptionEntity newEntity = ControlledContraptionEntity.create(level, this, cce.getContraption());
-				cce.discard();
-				level.addFreshEntity(newEntity);
-				return;
-			}
-		}
 	}
 }
