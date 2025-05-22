@@ -56,19 +56,6 @@ public class VSCHForceInducedShips implements ShipForcesInducer {
 		});
 	}
 
-	private static void applyScaledForce(PhysShipImpl physShip, Vector3dc linearVelocity, Vector3d tForce, int maxSpeed) {
-		assert ValkyrienSkiesMod.getCurrentServer() != null;
-		double deltaTime = 1.0 / (VSGameUtilsKt.getVsPipeline(ValkyrienSkiesMod.getCurrentServer()).computePhysTps());
-		double mass = physShip.getInertia().getShipMass();
-
-		//Invert the parallel projection of tForce onto linearVelocity and scales it so that the resulting speed is exactly
-		// equal to length of linearVelocity, but still in the direction the ship would have been going without the speed limit
-		Vector3d targetVelocity = (new Vector3d(linearVelocity).add(new Vector3d(tForce).mul(deltaTime / mass)).normalize(maxSpeed)).sub(linearVelocity);
-
-		// Apply the force at no specific position
-		physShip.applyInvariantForce(targetVelocity.mul(mass / deltaTime));
-	}
-
 	// ----- Force Appliers ----- //
 
 	public void addApplier(BlockPos pos, IVSCHForceApplier applier){

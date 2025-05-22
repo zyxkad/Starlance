@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3d;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
-import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
 
 public class AtmosphericCollision {
 	public static final Logger LOGGER = LogManager.getLogger(VSCHMod.MODID);
@@ -25,11 +24,7 @@ public class AtmosphericCollision {
 	 *
 	 * @param level
 	 */
-	public static void atmosphericCollisionTick(ServerLevel level) {
-		// ServerShipWorldCore shipWorld = VSGameUtilsKt.getShipObjectWorld(level);
-
-		// shipWorld.updateDimension(VSGameUtilsKt.getDimensionId(level), null);
-
+	public static void atmosphericCollisionTick(final ServerLevel level) {
 		// Atmo collision JSON for overworld:
 		// "minecraft:overworld":'{"atmosphere_y":560,"travel_to":"cosmos:solar_sys_d","origin_x":-24100,"origin_y":1000,"origin_z":5100,"overlay_texture_id":"earth_bar","shipbit_y":24,"ship_min_y":120}'
 
@@ -46,6 +41,15 @@ public class AtmosphericCollision {
 		final double targetX = atmoData.getDouble("origin_x");
 		final double targetY = atmoData.getDouble("origin_y");
 		final double targetZ = atmoData.getDouble("origin_z");
+		final String targetDim = atmoData.getString("travel_to");
+		final ServerLevel targetLevel = VSCHUtils.dimToLevel(targetDim);
+		if (targetLevel == null) {
+			// TODO: enable warn and avoid log spam when dimension does not exist.
+			// LOGGER.warn("[starlance]: dimension {} is not exists", targetDim);
+			return;
+		}
+
+		final TeleportationHandler teleportHandler = new TeleportationHandler(targetLevel, level, false);
 
 		for (final Ship ship : VSCHUtils.getLoadedShipsInLevel(level)) {
 			if (ship.getTransform().getPositionInWorld().y() <= atmoHeight) {
@@ -58,12 +62,8 @@ public class AtmosphericCollision {
 			double posY = targetY; // + Mth.nextInt(RandomSource.create(), -5, 5)
 			double posZ = targetZ; // + Mth.nextInt(RandomSource.create(), -10, 10)
 
-			String targetDim = atmoData.getString("travel_to");
-
 			LOGGER.info("[starlance]: Handling teleport {} ({}) to {} {} {} {}", ship.getSlug(), ship.getId(), targetDim, posX, posY, posZ);
-
-			TeleportationHandler handler = new TeleportationHandler(VSCHUtils.dimToLevel(ValkyrienSkiesMod.getCurrentServer(), targetDim), level, false);
-			handler.handleTeleport(ship, new Vector3d(posX, posY, posZ));
+			teleportHandler.handleTeleport(ship, new Vector3d(posX, posY, posZ));
 		}
 	}
 }

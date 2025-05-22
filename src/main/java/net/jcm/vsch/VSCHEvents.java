@@ -32,7 +32,7 @@ public class VSCHEvents {
 
 	@SubscribeEvent
 	public static void onServerStart(ServerStartedEvent event) {
-		GravityInducer.all_gravity_data = CosmosModVariables.WorldVariables.get(event.getServer().overworld()).gravity_data;
+		GravityInducer.gravityDataTag = CosmosModVariables.WorldVariables.get(event.getServer().overworld()).gravity_data;
 	}
 
 	// For next vs update
@@ -41,6 +41,3 @@ public class VSCHEvents {
 	////		Gravity.setAll(event.getServer().overworld());
 	//	}
 }
-
-
-

@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.primitives.AABBd;
+import org.joml.primitives.AABBic;
 import org.valkyrienskies.core.api.ships.LoadedServerShip;
 import org.valkyrienskies.core.api.ships.QueryableShipData;
 import org.valkyrienskies.core.api.ships.ServerShip;
@@ -51,7 +52,6 @@ public class TeleportationHandler {
 
 	private final Map<Long, Vector3d> shipToPos = new HashMap<>();
 	private final Map<Entity, Vec3> entityToPos = new HashMap<>();
-	private final Map<Entity,Entity> passengerVehicleMap = new HashMap<>();
 	private final ServerShipWorldCore shipWorld;
 	private double greatestOffset;
 	private final ServerLevel newDim;
@@ -170,10 +170,13 @@ public class TeleportationHandler {
 			return true;
 		}
 		// Entities in range
-		AABB inflatedAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), ship.getShipAABB())).inflate(INTERSECT_SIZE);
-		if (entity.getBoundingBox().intersects(inflatedAABB)) {
-			collectWorldEntity(entity, transform);
-			return true;
+		final AABBic shipBox = ship.getShipAABB();
+		if (shipBox != null) {
+			final AABB inflatedAABB = VectorConversionsMCKt.toMinecraft(VSCHUtils.transformToAABBd(ship.getPrevTickTransform(), shipBox)).inflate(INTERSECT_SIZE);
+			if (entity.getBoundingBox().intersects(inflatedAABB)) {
+				collectWorldEntity(entity, transform);
+				return true;
+			}
 		}
 		return false;
 	}
