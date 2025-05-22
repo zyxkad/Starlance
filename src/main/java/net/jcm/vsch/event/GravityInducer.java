@@ -43,7 +43,7 @@ public class GravityInducer implements ShipForcesInducer {
 		try {
 			physShip.applyInvariantForce(new Vector3d(0, gravity, 0));
 		} catch (Exception e) {
-			LOGGER.error("Gravity Inducer Failed due to {} on ship {}", e, ship.getSlug());
+			LOGGER.error("[starlance]: Gravity Inducer Failed due to {} on ship {}", e, ship.getSlug());
 		}
 	}
 

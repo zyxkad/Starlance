@@ -18,7 +18,7 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
  * The class for gravity related functions
  */
 public class Gravity {
-	public static final Logger logger = LogManager.getLogger(VSCHMod.MODID);
+	private static final Logger LOGGER = LogManager.getLogger(VSCHMod.MODID);
 
 	/**
 	 * Sets the Gravity of all dimensions as defined in the datapacks.
@@ -31,9 +31,9 @@ public class Gravity {
 			float gravity = gravityData.getFloat(dimId);
 			try {
 				// VSGameUtilsKt.getShipObjectWorld((ServerLevel) world).updateDimension(VSCHUtils.dimToVSDim(dimId),new Vector3d(0,-10*gravity,0));
-				logger.info("[starlance]: Set gravity for dimension " + dimId + " to " + (-10 * gravity));
+				LOGGER.info("[starlance]: Set gravity for dimension " + dimId + " to " + (-10 * gravity));
 			} catch (Exception e) {
-				logger.info("[starlance]: Failed to set gravity for dimension " + dimId + " due to error " + e);
+				LOGGER.info("[starlance]: Failed to set gravity for dimension " + dimId, e);
 			}
 
 		}

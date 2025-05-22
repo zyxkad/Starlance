@@ -36,7 +36,7 @@ import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 import java.util.List;
 
 public class PlanetCollision {
-	public static final Logger LOGGER = LogManager.getLogger(VSCHMod.MODID);
+	private static final Logger LOGGER = LogManager.getLogger(VSCHMod.MODID);
 
 	public static void planetCollisionTick(ServerLevel level) {
 		final String dimension = level.dimension().location().toString();
@@ -97,7 +97,7 @@ public class PlanetCollision {
 
 		final String targetDim = planet.getString("travel_to");
 		if (targetDim.isEmpty()) {
-			LOGGER.error("Planet has no travel_to dimension. Please report this");
+			LOGGER.error("[starlance]: Planet has no travel_to dimension. Please report this");
 			// We should in theory never get here if I've done my null checks correctly when getting the antennas in the first place
 			return;
 		}
@@ -107,7 +107,7 @@ public class PlanetCollision {
 		double posZ = Double.parseDouble(vars.landing_coords.substring(vars.landing_coords.indexOf("|") + 1, vars.landing_coords.indexOf("~")));
 		double posY = atmoY - 10;
 
-		LOGGER.info("Handling teleport {} ({}) to {} {} {} {}", ship.getSlug(), ship.getId(), targetDim, posX, posY, posZ);
+		LOGGER.info("[starlance]: Handling teleport {} ({}) to {} {} {} {}", ship.getSlug(), ship.getId(), targetDim, posX, posY, posZ);
 		final TeleportationHandler handler = new TeleportationHandler(VSCHUtils.dimToLevel(targetDim), level, true);
 		handler.handleTeleport(ship, new Vector3d(posX, posY, posZ));
 
