@@ -123,7 +123,6 @@ public class VSCHUtils {
 	/**
 	 * Get {@link net.minecraft.server.level.ServerLevel ServerLevel} from a VS dimension ID.
 	 * 
-	 * @param server    The {@link net.minecraft.server.MinecraftServer MinecraftServer} instance uses to get the level
 	 * @param dimension The dimension ID string in format registry_namespace:registry_name:dimension_namespace:dimension_name
 	 * @return A {@link net.minecraft.server.level.ServerLevel ServerLevel} instance with the dimension ID given
 	 */
@@ -137,7 +136,7 @@ public class VSCHUtils {
 		return ValkyrienSkiesMod.getCurrentServer().getLevel(levelId);
 	}
 
-	public static ServerLevel dimToLevel(String dimensionString) {
+	public static ServerLevel dimToLevel(final String dimensionString) {
 		return ValkyrienSkiesMod.getCurrentServer().getLevel(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(dimensionString)));
 	}
 
