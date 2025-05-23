@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 
 import com.simibubi.create.content.contraptions.IControlContraption;
 import com.simibubi.create.content.contraptions.piston.LinearActuatorBlockEntity;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -55,8 +56,7 @@ public final class MoveUtil {
 
 	public static void registerDefaultMovers() {
 		if (CompatMods.CREATE.isLoaded()) {
-			registerDefaultMover(IControlContraption.class, new MoveableIControlContraption());
-			registerDefaultMover(LinearActuatorBlockEntity.class, new MoveableLinearActuatorBlockEntity());
+			registerDefaultMover(IControlContraption.class, MoveableIControlContraption.INSTANCE);
 		}
 	}
 

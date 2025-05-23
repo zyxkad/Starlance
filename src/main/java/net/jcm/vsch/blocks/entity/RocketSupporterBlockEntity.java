@@ -254,7 +254,18 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		this.blocks.forEach((x, y, z) -> {
 			final BlockPos pos = new BlockPos(x, y, z);
 			final BlockPos target = pos.offset(offset.x, offset.y, offset.z);
-			final BlockState state = level.getBlockState(pos);
+			BlockState state = level.getBlockState(pos);
+
+			final BlockEntity be = level.getBlockEntity(pos);
+			IMoveable<?> moveableOld = MoveUtil.getMover(be);
+			if (moveableOld == null) {
+				moveableOld = MoveUtil.getMover(state.getBlock());
+			}
+			if (moveableOld != null) {
+				moveableOld.beforeSaveForMove(level, pos, target);
+			}
+
+			state = level.getBlockState(pos);
 			blockStates.add(new Pair<>(pos, state));
 			final CompoundTag nbt = level.getChunkAt(pos).getBlockEntityNbtForSaving(pos);
 			if (nbt != null) {
@@ -264,19 +275,18 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 				nbt.putInt("z", targetPos.getZ());
 				level.getChunkAt(targetPos).setBlockEntityNbt(nbt);
 			}
-			final BlockEntity be = level.getBlockEntity(pos);
-			IMoveable<?> moveable = MoveUtil.getMover(be);
-			if (moveable == null) {
-				moveable = MoveUtil.getMover(state.getBlock());
-			}
 
 			Clearable.tryClear(be);
 
-			final Object moveData = moveable != null ? moveable.beforeMove(level, pos, target) : null;
+			final Object moveData = moveableOld != null ? moveableOld.beforeMove(level, pos, target) : null;
 			level.setBlock(target, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
-			if (moveable != null) {
-				((IMoveable) (moveable)).afterMove(level, pos, target, moveData);
+			IMoveable<?> moveableNew = MoveUtil.getMover(level.getBlockEntity(target));
+			if (moveableNew == null) {
+				moveableNew = MoveUtil.getMover(state.getBlock());
+			}
+			if (moveableNew != null) {
+				((IMoveable) (moveableNew)).afterMove(level, pos, target, moveData);
 			}
 			return null;
 		});

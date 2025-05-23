@@ -11,11 +11,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.Contraption;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MoveableIControlContraption implements IMoveable<List<AbstractContraptionEntity>> {
+	public static final MoveableIControlContraption INSTANCE = new MoveableIControlContraption();
+
+	private MoveableIControlContraption() {}
 
 	@Override
 	public List<AbstractContraptionEntity> beforeMove(ServerLevel level, BlockPos origin, BlockPos target) {

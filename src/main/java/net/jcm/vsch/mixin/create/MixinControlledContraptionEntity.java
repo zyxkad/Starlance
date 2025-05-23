@@ -1,4 +1,4 @@
-package net.jcm.vsch.mixin;
+package net.jcm.vsch.mixin.create;
 
 import net.jcm.vsch.accessor.ControlledContraptionEntityAccessor;
 
