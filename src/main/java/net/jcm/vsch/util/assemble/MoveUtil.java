@@ -37,10 +37,12 @@ public final class MoveUtil {
 				return mover;
 			}
 		}
-		for (Class<?> intf : (Iterable<Class<?>>) (Stream.of(block.getClass().getInterfaces()).flatMap(MoveUtil::streamClassAnsSubInterfaces)::iterator)) {
-			final IMoveable<?> mover = DEFAULT_MOVERS.get(intf);
-			if (mover != null) {
-				return mover;
+		for (Class<?> blockClass = block.getClass(); blockClass != null; blockClass = blockClass.getSuperclass()) {
+			for (Class<?> intf : (Iterable<Class<?>>) (Stream.of(blockClass.getInterfaces()).flatMap(MoveUtil::streamClassAnsSubInterfaces)::iterator)) {
+				final IMoveable<?> mover = DEFAULT_MOVERS.get(intf);
+				if (mover != null) {
+					return mover;
+				}
 			}
 		}
 		return null;
