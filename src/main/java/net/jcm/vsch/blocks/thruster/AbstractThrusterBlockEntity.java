@@ -229,8 +229,6 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			this.resolveBrain();
 		}
 
-		final Ship ship = VSGameUtilsKt.getShipManagingPos(level, pos);
-
 		// If we are unpowered, do no particles
 		if (this.getCurrentPower() == 0.0) {
 			return;
@@ -238,35 +236,22 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 		// BlockPos is always at the corner, getCenter gives us a Vec3 thats centered YAY
 		final Vec3 center = pos.getCenter();
-		// Transform that shipyard pos into a world pos
 		final Vector3d worldPos = new Vector3d(center.x, center.y, center.z);
-		if (ship != null) {
-			ship.getTransform().getShipToWorld().transformPosition(worldPos);
-		}
 
 		// Get blockstate direction, NORTH, SOUTH, UP, DOWN, etc
-		final Direction dir = state.getValue(DirectionalBlock.FACING);
+		final Direction dir = state.getValue(DirectionalBlock.FACING).getOpposite();
 		final Vector3d direction = new Vector3d(dir.getStepX(), dir.getStepY(), dir.getStepZ());
-		if (ship != null) {
-			ship.getTransform().getShipToWorldRotation().transform(direction);
-		}
 
-		final Vector3d shipVelocity = new Vector3d();
-		if (ship != null) {
-			final Vector3d tempPos = new Vector3d(center.x, center.y, center.z);
-			ship.getTransform().getShipToWorld().transformPosition(tempPos, shipVelocity).sub(ship.getPrevTickTransform().getShipToWorld().transformPosition(tempPos));
-		}
-
-		spawnParticles(worldPos, direction, shipVelocity);
+		spawnParticles(worldPos, direction);
 	}
 
-	protected void spawnParticles(Vector3d pos, Vector3d direction, Vector3d velocity) {
+	protected void spawnParticles(Vector3d pos, Vector3d direction) {
 		// Offset the XYZ by a little bit so its at the end of the thruster block
-		double x = pos.x - direction.x;
-		double y = pos.y - direction.y;
-		double z = pos.z - direction.z;
+		double x = pos.x + direction.x;
+		double y = pos.y + direction.y;
+		double z = pos.z + direction.z;
 
-		final Vector3d speed = new Vector3d(direction).mul(-this.getCurrentPower());
+		final Vector3d speed = new Vector3d(direction).mul(this.getCurrentPower());
 
 		speed.mul(0.6);
 
@@ -274,7 +259,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		level.addParticle(
 			this.getThrusterParticleType(),
 			x, y, z,
-			speed.x + velocity.x, speed.y + velocity.y, speed.z + velocity.z
+			speed.x, speed.y, speed.z
 		);
 
 		speed.mul(1.06);
@@ -283,7 +268,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		level.addParticle(
 			this.getThrusterSmokeParticleType(),
 			x, y, z,
-			speed.x + velocity.x, speed.y + velocity.y, speed.z + velocity.z
+			speed.x, speed.y, speed.z
 		);
 	}
 
