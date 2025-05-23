@@ -27,13 +27,13 @@ public abstract class MixinMechanicalBearingBlockEntity extends GeneratingKineti
 	}
 
 	@Override
-	public List<AbstractContraptionEntity> clearContraptions() {
+	public List<AbstractContraptionEntity> starlance$clearContraptions() {
 		final List<AbstractContraptionEntity> res = this.movedContraption == null ? List.of() : List.of(this.movedContraption);
 		this.movedContraption = null;
 		return res;
 	}
 
 	@Override
-	public void restoreContraptions(List<AbstractContraptionEntity> contraptions) {
+	public void starlance$restoreContraptions(List<AbstractContraptionEntity> contraptions) {
 	}
 }

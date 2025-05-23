@@ -17,12 +17,12 @@ public class MixinControlledContraptionEntity implements ControlledContraptionEn
 	protected BlockPos controllerPos;
 
 	@Override
-	public BlockPos getControllerPos() {
+	public BlockPos starlance$getControllerPos() {
 		return this.controllerPos;
 	}
 
 	@Override
-	public void setControllerPos(BlockPos pos) {
+	public void starlance$setControllerPos(BlockPos pos) {
 		this.controllerPos = pos;
 	}
 }

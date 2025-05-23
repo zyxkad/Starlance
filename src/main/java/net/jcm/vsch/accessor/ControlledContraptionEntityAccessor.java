@@ -3,7 +3,7 @@ package net.jcm.vsch.accessor;
 import net.minecraft.core.BlockPos;
 
 public interface ControlledContraptionEntityAccessor {
-	BlockPos getControllerPos();
+	BlockPos starlance$getControllerPos();
 
-	void setControllerPos(BlockPos pos);
+	void starlance$setControllerPos(BlockPos pos);
 }

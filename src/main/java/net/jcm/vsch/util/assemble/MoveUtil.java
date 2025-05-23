@@ -24,6 +24,11 @@ public final class MoveUtil {
 		return DEFAULT_MOVERS.put(blockClass, mover);
 	}
 
+	/**
+	 * getMover will check mover registered for class and subclass first,
+	 * and then check the mover registered on the class implemented interfaces
+	 * and subclasses implemented interfaces.
+	 */
 	public static IMoveable<?> getMover(final Object block) {
 		if (block == null) {
 			return null;

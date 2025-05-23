@@ -27,7 +27,7 @@ public abstract class MixinClockworkBearingBlockEntity extends KineticBlockEntit
 	}
 
 	@Override
-	public List<AbstractContraptionEntity> clearContraptions() {
+	public List<AbstractContraptionEntity> starlance$clearContraptions() {
 		final List<AbstractContraptionEntity> res =
 			this.hourHand == null
 				? this.minuteHand == null ? List.of() : List.of(this.minuteHand)
@@ -38,6 +38,6 @@ public abstract class MixinClockworkBearingBlockEntity extends KineticBlockEntit
 	}
 
 	@Override
-	public void restoreContraptions(List<AbstractContraptionEntity> contraptions) {
+	public void starlance$restoreContraptions(List<AbstractContraptionEntity> contraptions) {
 	}
 }

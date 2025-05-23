@@ -5,7 +5,7 @@ import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import java.util.List;
 
 public interface ContraptionHolder {
-	List<AbstractContraptionEntity> clearContraptions();
+	List<AbstractContraptionEntity> starlance$clearContraptions();
 
-	void restoreContraptions(List<AbstractContraptionEntity> contraptions);
+	void starlance$restoreContraptions(List<AbstractContraptionEntity> contraptions);
 }
