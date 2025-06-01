@@ -51,6 +51,11 @@ public class VSCHBlocks {
 					.strength(5f)
 					.noOcclusion()));
 
+	public static final RegistryObject<Block> GYRO_BLOCK = registerBlock("gyro",
+			() -> new GyroBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.ANVIL)
+					.strength(5f, 3f)
+					.noOcclusion()));
+
 	public static final RegistryObject<Block> ROCKET_SUPPORTER_BLOCK = registerBlock("rocket_supporter",
 			() -> new RocketSupporterBlock(BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK).sound(SoundType.ANVIL)
 					.strength(5f)));

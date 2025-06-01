@@ -2,21 +2,16 @@ package net.jcm.vsch.blocks.custom.template;
 
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
-import net.jcm.vsch.config.VSCHConfig;
-import net.jcm.vsch.items.VSCHItems;
 import net.jcm.vsch.ship.thruster.ThrusterData.ThrusterMode;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
 import net.jcm.vsch.util.rot.RotShapes;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -100,60 +95,6 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 		}
 		return defaultBlockState()
 			.setValue(BlockStateProperties.FACING, dir);
-	}
-
-	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		// If client side, ignore
-		if (!(level instanceof ServerLevel)) {
-			return InteractionResult.PASS;
-		}
-
-		// If its the right item and mainhand
-		if (player.getMainHandItem().getItem() != VSCHItems.WRENCH.get() || hand != InteractionHand.MAIN_HAND) {
-			return InteractionResult.PASS;
-		}
-
-		// If thrusters can be toggled
-		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
-			player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled").withStyle(
-				ChatFormatting.RED
-			), true);
-			return InteractionResult.PASS;
-		}
-
-		// Get the force handler
-		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);
-
-		// If a force handler exists (might not if we aren't on a VS ship)
-		if (ships == null) {
-			// Not on a ship
-			player.displayClientMessage(Component.translatable("vsch.error.thruster_not_on_ship").withStyle(
-				ChatFormatting.RED
-			), true);
-			return InteractionResult.FAIL;
-		}
-
-		// Get thruster
-		AbstractThrusterBlockEntity thruster = (AbstractThrusterBlockEntity) level.getBlockEntity(pos);
-		if (thruster == null) {
-			return InteractionResult.PASS;
-		}
-
-		// Get current state (block property)
-		ThrusterMode blockMode = thruster.getThrusterMode();
-
-		// Toggle between POSITION and GLOBAL
-		blockMode = blockMode.toggle();
-
-		// Save the block property into the block
-		// And set the thruster data to the new toggled property
-		thruster.setThrusterMode(blockMode);
-
-		//Send a chat message to them. The wrench class will handle the actionbar
-		player.sendSystemMessage(Component.translatable("vsch.message.toggle").append(Component.translatable("vsch." + blockMode.toString().toLowerCase())));
-
-		return InteractionResult.CONSUME;
 	}
 
 	@Override
