@@ -70,7 +70,7 @@ public class ShipUtils {
      * 
      * @return The ship that was created, or null if it wasn't created
      */
-    private static ServerShip assembleBlocks(ServerLevel level, BlockPos center, int dx, int dy, int dz) {
+    public static ServerShip assembleBlocks(ServerLevel level, BlockPos center, int dx, int dy, int dz) {
         if (dx < 0 || dy < 0 || dz < 0) return null;
 
         DenseBlockPosSet set = new DenseBlockPosSet();
@@ -98,7 +98,7 @@ public class ShipUtils {
      *
      * @return The ship that was created, or null if it wasn't created
      */
-    private static ServerShip assembleBlock(ServerLevel level, BlockPos blockPos) {
+    public static ServerShip assembleBlock(ServerLevel level, BlockPos blockPos) {
         BlockState blockState = level.getBlockState(blockPos);
 
         if (VSGameUtilsKt.getShipManagingPos(level, blockPos) != null) return null;
