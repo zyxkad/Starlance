@@ -33,6 +33,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import org.joml.Vector3d;
+import org.joml.primitives.AABBd;
+import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.ArrayList;
@@ -121,23 +124,36 @@ public abstract class ThrusterEngine {
 	 */
 	public abstract void tickBurningObjects(ThrusterEngineContext context, List<BlockPos> thrusters, Direction direction);
 
-	public static void simpleTickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction, final double maxDistance, final int maxBurnDamage) {
+	public static void simpleTickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction, final double maxDistance, final int maxBurnDamage, final double maxPushVel) {
 		final int maxBurnTime = 15 * 20;
 		final ServerLevel level = context.getLevel();
 		final double distance = maxDistance * context.getPower();
 		if (distance <= 0) {
 			return;
 		}
+		if (thrusters.isEmpty()) {
+			return;
+		}
 
 		final Map<Entity, Double> pendingEntities = new HashMap<>();
 		final List<Entity> entities = new ArrayList<>();
 
+		final Ship ship = VSGameUtilsKt.getShipManagingPos(level, thrusters.get(0));
+		final Vector3d directionVec = new Vector3d(Vec3.atLowerCornerOf(direction.getNormal()).toVector3f());
+		if (ship != null) {
+			ship.getShipToWorld().transformDirection(directionVec);
+		}
+
 		for (final BlockPos pos : thrusters) {
 			final Vec3 centerPos = Vec3.atCenterOf(pos);
-			final Vec3 centerFacePos = centerPos.relative(direction, 0.5);
 			final Vec3 centerExtendedPos = centerPos.relative(direction, distance);
+			final Vec3 centerPosWorld = VSGameUtilsKt.toWorldCoordinates(level, centerPos);
+			final Vec3 centerExtendedPosWorld = VSGameUtilsKt.toWorldCoordinates(level, centerExtendedPos);
 
-			final BlockHitResult hitResult = level.clip(new NoSourceClipContext(centerPos, centerExtendedPos, pos));
+			final Vec3 centerFacePos = centerPos.relative(direction, 0.5);
+			final Vec3 centerFacePosWorld = VSGameUtilsKt.toWorldCoordinates(level, centerFacePos);
+
+			final BlockHitResult hitResult = level.clip(new NoSourceClipContext(centerPosWorld, centerExtendedPosWorld, pos));
 			if (hitResult.getType() == HitResult.Type.BLOCK) {
 				final BlockPos hitPos = hitResult.getBlockPos();
 				final BlockState blockState = level.getBlockState(hitPos);
@@ -148,11 +164,15 @@ public abstract class ThrusterEngine {
 						TntBlock.explode(level, hitPos);
 						level.setBlock(hitPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
 					}
-					final BlockPos firePos = hitPos.relative(hitResult.getDirection());
-					final BlockState firePosState = level.getBlockState(firePos);
-					if (firePosState.isAir() || firePosState.canBeReplaced()) {
-						level.setBlock(firePos, BaseFireBlock.getState(level, firePos), Block.UPDATE_ALL);
-					}
+					Direction.stream()
+						.filter((d) -> d != hitResult.getDirection().getOpposite())
+						.map(hitPos::relative)
+						.filter((firePos) -> {
+							final BlockState firePosState = level.getBlockState(firePos);
+							return firePosState.isAir() || firePosState.canBeReplaced();
+						}).forEach((firePos) -> {
+							level.setBlock(firePos, BaseFireBlock.getState(level, firePos), Block.UPDATE_ALL);
+						});
 				} else if (!hitFluid.isSource() || hitFluid.is(Fluids.WATER)) {
 					if (hitBlock instanceof LiquidBlock) {
 						level.setBlock(hitPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
@@ -162,18 +182,39 @@ public abstract class ThrusterEngine {
 				}
 			}
 
-			final BlockHitResult particleHitResult = level.clip(new ParticleClipContext(centerPos, centerExtendedPos, pos));
+			final BlockHitResult particleHitResult = level.clip(new ParticleClipContext(centerPosWorld, centerExtendedPosWorld, pos));
 			double clipDist = distance;
 			if (particleHitResult.getType() == HitResult.Type.BLOCK) {
-				clipDist = particleHitResult.getLocation().distanceTo(centerPos);
+				clipDist = particleHitResult.getLocation().distanceTo(centerPosWorld);
 			}
 
 			final Vec3 cornerPos = Vec3.atLowerCornerOf(pos).relative(direction, 0.5);
 			final AABB box = new AABB(cornerPos, cornerPos.relative(direction, clipDist - 1.5).add(1, 1, 1));
-			level.getEntities(ANY_ENTITY_TESTER, box,
-				(entity) -> (!(entity instanceof Player player) || !player.isSpectator()) && (entity.getPistonPushReaction() != PushReaction.IGNORE || !entity.fireImmune()), entities);
+			level.getEntities(
+				ANY_ENTITY_TESTER,
+				VSGameUtilsKt.transformAabbToWorld(level, box),
+				(entity) -> {
+					if (entity instanceof Player player && player.isSpectator()) {
+						return false;
+					}
+					if (entity.getPistonPushReaction() == PushReaction.IGNORE && entity.fireImmune()) {
+						return false;
+					}
+					if (ship != null && !VSGameUtilsKt.isBlockInShipyard(level, entity.position())) {
+						final AABB entityBox = entity.getBoundingBox();
+						final AABBd entityBox2 = new AABBd(entityBox.minX, entityBox.minY, entityBox.minZ, entityBox.maxX, entityBox.maxY, entityBox.maxZ);
+						entityBox2.transform(ship.getWorldToShip());
+						System.out.println("box: " + box + "; " + entityBox2 + ": " + box.intersects(entityBox2.minX, entityBox2.minY, entityBox2.minZ, entityBox2.maxX, entityBox2.maxY, entityBox2.maxZ));
+						if (!box.intersects(entityBox2.minX, entityBox2.minY, entityBox2.minZ, entityBox2.maxX, entityBox2.maxY, entityBox2.maxZ)) {
+							return false;
+						}
+					}
+					return true;
+				},
+				entities
+			);
 			for (final Entity entity : entities) {
-				final double dist = entity.getBoundingBox().distanceToSqr(centerFacePos);
+				final double dist = entity.getBoundingBox().distanceToSqr(centerFacePosWorld);
 				pendingEntities.compute(entity, (k, v) -> v == null || dist > v ? dist : v);
 			}
 			entities.clear();
@@ -188,7 +229,7 @@ public abstract class ThrusterEngine {
 			final Entity entity = entry.getKey();
 
 			if (entity.getPistonPushReaction() != PushReaction.IGNORE) {
-				entity.addDeltaMovement(Vec3.atLowerCornerOf(direction.getNormal()).scale(power * 0.1));
+				entity.addDeltaMovement(new Vec3(directionVec.x * power * maxPushVel, directionVec.y * power * maxPushVel, directionVec.z * power * maxPushVel));
 				if (entity instanceof ServerPlayer player) {
 					player.connection.send(new ClientboundSetEntityMotionPacket(player));
 				}

@@ -291,7 +291,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		final Vec3 center = pos.getCenter();
 		final Vec3 centerExtendedPos = center.relative(direction, distance);
 
-		final BlockHitResult hitResult = level.clip(new NoSourceClipContext(center, centerExtendedPos, pos));
+		final BlockHitResult hitResult = level.clip(new NoSourceClipContext(VSGameUtilsKt.toWorldCoordinates(level, center), VSGameUtilsKt.toWorldCoordinates(level, centerExtendedPos), pos));
 		if (hitResult.getType() != HitResult.Type.BLOCK) {
 			return;
 		}

@@ -79,7 +79,7 @@ public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 		@Override
 		public void tickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction) {
-			simpleTickBurningObjects(context, thrusters, direction, 8, 3);
+			simpleTickBurningObjects(context, thrusters, direction, 8, 3, 0.1);
 		}
 	}
 }
