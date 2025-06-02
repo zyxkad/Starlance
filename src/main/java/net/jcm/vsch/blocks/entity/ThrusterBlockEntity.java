@@ -6,6 +6,7 @@ import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
+import java.util.List;
 import java.util.Map;
 
 public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
@@ -25,6 +27,11 @@ public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 				VSCHConfig.getThrusterFuelConsumeRates()
 			)
 		);
+	}
+
+	@Override
+	protected double getEvaporateDistance() {
+		return 8;
 	}
 
 	private static class NormalThrusterEngine extends ThrusterEngine {
@@ -68,6 +75,11 @@ public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			context.addConsumer((ctx) -> {
 				ctx.getFluidHandler().drain(new FluidStack(fluid, (int)(Math.ceil(consumeRate * ctx.getPower()))), IFluidHandler.FluidAction.EXECUTE);
 			});
+		}
+
+		@Override
+		public void tickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction) {
+			simpleTickBurningObjects(context, thrusters, direction, 8, 3);
 		}
 	}
 }

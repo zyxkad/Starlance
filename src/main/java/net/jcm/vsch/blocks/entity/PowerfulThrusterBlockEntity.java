@@ -5,14 +5,17 @@ import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.thruster.ThrusterEngine;
 import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
-
 import net.lointain.cosmos.init.CosmosModParticleTypes;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+
+import java.util.List;
 
 public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	private static final int HYDROGEN_SLOT = 0;
@@ -31,6 +34,11 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	@Override
 	protected ParticleOptions getThrusterParticleType() {
 		return CosmosModParticleTypes.BLUETHRUSTED.get();
+	}
+
+	@Override
+	protected double getEvaporateDistance() {
+		return 8;
 	}
 
 	private static class PowerfulThrusterEngine extends ThrusterEngine {
@@ -62,7 +70,7 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			}
 			int amount = context.getAmount();
 
-			int needsOxygen = (int)(Math.ceil(this.fuelConsumeRate * power * amount));
+			int needsOxygen = (int) (Math.ceil(this.fuelConsumeRate * power * amount));
 			int needsHydrogen = needsOxygen * 2;
 			IFluidHandler fluidHandler = context.getFluidHandler();
 			FluidStack oxygenStack = fluidHandler.getFluidInTank(OXYGEN_SLOT);
@@ -73,14 +81,19 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 				context.setPower(0);
 				return;
 			}
-			context.setPower(avaliableOxygen / ((double)(this.fuelConsumeRate) * amount));
+			context.setPower(avaliableOxygen / ((double) (this.fuelConsumeRate) * amount));
 			context.addConsumer((ctx) -> {
 				IFluidHandler tanks = ctx.getFluidHandler();
-				int oxygen = (int)(Math.ceil(this.fuelConsumeRate * ctx.getPower() * ctx.getAmount()));
+				int oxygen = (int) (Math.ceil(this.fuelConsumeRate * ctx.getPower() * ctx.getAmount()));
 				int hydrogen = oxygen * 2;
 				tanks.drain(new FluidStack(oxygenStack.getFluid(), oxygen), IFluidHandler.FluidAction.EXECUTE);
 				tanks.drain(new FluidStack(hydrogenStack.getFluid(), hydrogen), IFluidHandler.FluidAction.EXECUTE);
 			});
+		}
+
+		@Override
+		public void tickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction) {
+			simpleTickBurningObjects(context, thrusters, direction, 8, 5);
 		}
 	}
 }

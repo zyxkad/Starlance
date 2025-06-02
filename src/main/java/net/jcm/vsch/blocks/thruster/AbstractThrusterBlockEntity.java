@@ -6,6 +6,7 @@ import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.ship.thruster.ThrusterData;
+import net.jcm.vsch.util.NoSourceClipContext;
 import net.lointain.cosmos.init.CosmosModParticleTypes;
 
 import com.mojang.logging.LogUtils;
@@ -28,6 +29,10 @@ import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -223,8 +228,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		return CosmosModParticleTypes.THRUST_SMOKE.get();
 	}
 
+	protected abstract double getEvaporateDistance();
+
 	@Override
-	public void tickParticles(Level level, BlockPos pos, BlockState state) {
+	public void tickParticles(final Level level, final BlockPos pos, final BlockState state) {
 		if (this.brainPos != null) {
 			this.resolveBrain();
 		}
@@ -242,10 +249,11 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		final Direction dir = state.getValue(DirectionalBlock.FACING).getOpposite();
 		final Vector3d direction = new Vector3d(dir.getStepX(), dir.getStepY(), dir.getStepZ());
 
-		spawnParticles(worldPos, direction);
+		this.spawnParticles(worldPos, direction);
+		this.spawnEvaporateParticles(level, pos, dir);
 	}
 
-	protected void spawnParticles(Vector3d pos, Vector3d direction) {
+	protected void spawnParticles(final Vector3d pos, final Vector3d direction) {
 		// Offset the XYZ by a little bit so its at the end of the thruster block
 		double x = pos.x + direction.x;
 		double y = pos.y + direction.y;
@@ -256,7 +264,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		speed.mul(0.6);
 
 		// All that for one particle per tick...
-		level.addParticle(
+		this.level.addParticle(
 			this.getThrusterParticleType(),
 			x, y, z,
 			speed.x, speed.y, speed.z
@@ -265,15 +273,48 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		speed.mul(1.06);
 
 		// Ok ok, two particles per tick
-		level.addParticle(
+		this.level.addParticle(
 			this.getThrusterSmokeParticleType(),
 			x, y, z,
 			speed.x, speed.y, speed.z
 		);
 	}
 
+	/**
+	 * @see ThrusterEngine.simpleTickBurningObjects
+	 */
+	protected void spawnEvaporateParticles(final Level level, final BlockPos pos, final Direction direction) {
+		final double distance = this.getEvaporateDistance();
+		if (distance <= 0) {
+			return;
+		}
+		final Vec3 center = pos.getCenter();
+		final Vec3 centerExtendedPos = center.relative(direction, distance);
+
+		final BlockHitResult hitResult = level.clip(new NoSourceClipContext(center, centerExtendedPos, pos));
+		if (hitResult.getType() != HitResult.Type.BLOCK) {
+			return;
+		}
+		final BlockPos hitPos = hitResult.getBlockPos();
+		final FluidState hitFluid = level.getFluidState(hitPos);
+		if (!hitFluid.is(Fluids.WATER) && !hitFluid.is(Fluids.FLOWING_WATER)) {
+			return;
+		}
+		final Vec3 waterCenter = hitPos.getCenter();
+		for (int i = 0; i < 20; i++) {
+			final Vec3 ppos = waterCenter.offsetRandom(level.random, 1.0f);
+			final Vec3 speed = Vec3.ZERO.offsetRandom(level.random, 0.5f);
+			level.addParticle(
+				CosmosModParticleTypes.AIR_THRUST.get(),
+				true,
+				ppos.x, ppos.y, ppos.z,
+				speed.x, speed.y, speed.z
+			);
+		}
+	}
+
 	@Override
-	public void onFocusWithWrench(ItemStack stack, Level level, Player player) {
+	public void onFocusWithWrench(final ItemStack stack, final Level level, final Player player) {
 		player.displayClientMessage(
 			Component.translatable("vsch.message.mode")
 				.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),

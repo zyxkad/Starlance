@@ -4,9 +4,10 @@ import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.thruster.ThrusterEngine;
 import net.jcm.vsch.blocks.thruster.ThrusterEngineContext;
 import net.jcm.vsch.config.VSCHConfig;
-
 import net.lointain.cosmos.init.CosmosModParticleTypes;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -17,6 +18,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import org.joml.Vector3d;
+
+import java.util.List;
 
 public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
@@ -38,6 +41,11 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	@Override
 	protected ParticleOptions getThrusterSmokeParticleType() {
 		return CosmosModParticleTypes.AIR_THRUST.get();
+	}
+
+	@Override
+	protected double getEvaporateDistance() {
+		return 1;
 	}
 
 	@Override
@@ -93,6 +101,11 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 				int water = (int)(Math.ceil(this.maxWaterConsumeRate * (1 - density) * ctx.getPower() * ctx.getAmount()));
 				ctx.getFluidHandler().drain(new FluidStack(Fluids.WATER, water), IFluidHandler.FluidAction.EXECUTE);
 			});
+		}
+
+		@Override
+		public void tickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction) {
+			//
 		}
 
 		/**
