@@ -170,9 +170,8 @@ public abstract class ThrusterEngine {
 						.filter((firePos) -> {
 							final BlockState firePosState = level.getBlockState(firePos);
 							return firePosState.isAir() || firePosState.canBeReplaced();
-						}).forEach((firePos) -> {
-							level.setBlock(firePos, BaseFireBlock.getState(level, firePos), Block.UPDATE_ALL);
-						});
+						})
+						.forEach((firePos) -> level.setBlock(firePos, BaseFireBlock.getState(level, firePos), Block.UPDATE_ALL));
 				} else if (!hitFluid.isSource() || hitFluid.is(Fluids.WATER)) {
 					if (hitBlock instanceof LiquidBlock) {
 						level.setBlock(hitPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
