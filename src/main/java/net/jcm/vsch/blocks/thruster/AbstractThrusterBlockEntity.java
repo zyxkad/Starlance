@@ -281,7 +281,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	}
 
 	/**
-	 * @see ThrusterEngine.simpleTickBurningObjects
+	 * @see net.jcm.vsch.blocks.thruster.ThrusterEngine.simpleTickBurningObjects
 	 */
 	protected void spawnEvaporateParticles(final Level level, final BlockPos pos, final Direction direction) {
 		final double distance = this.getEvaporateDistance();
