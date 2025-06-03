@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +31,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -297,7 +297,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		}
 		final BlockPos hitPos = hitResult.getBlockPos();
 		final FluidState hitFluid = level.getFluidState(hitPos);
-		if (!hitFluid.is(Fluids.WATER) && !hitFluid.is(Fluids.FLOWING_WATER)) {
+		if (!hitFluid.is(FluidTags.WATER)) {
 			return;
 		}
 		final Vec3 waterCenter = hitPos.getCenter();
