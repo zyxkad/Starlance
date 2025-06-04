@@ -280,6 +280,8 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 
 			final Object moveData = moveableOld != null ? moveableOld.beforeMove(level, pos, target) : null;
 			level.setBlock(target, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
+			// Note: Block.UPDATE_SUPPRESS_DROPS only works for Level.destroyBlock which drop the block's item form,
+			// and it does not prevent contents from dropping.
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_MOVE_BY_PISTON);
 			IMoveable<?> moveableNew = MoveUtil.getMover(level.getBlockEntity(target));
 			if (moveableNew == null) {
