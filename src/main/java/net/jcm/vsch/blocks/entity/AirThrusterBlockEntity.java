@@ -45,7 +45,7 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	@Override
 	protected double getEvaporateDistance() {
-		return 1;
+		return 1 * this.getCurrentPower();
 	}
 
 	@Override
