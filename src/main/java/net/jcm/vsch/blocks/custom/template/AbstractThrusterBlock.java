@@ -1,8 +1,7 @@
 package net.jcm.vsch.blocks.custom.template;
 
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
-import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
-import net.jcm.vsch.ship.thruster.ThrusterData.ThrusterMode;
+import net.jcm.vsch.blocks.thruster.GenericThrusterBlockEntity;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShape;
@@ -10,9 +9,7 @@ import net.jcm.vsch.util.rot.RotShapes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -28,11 +25,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntity> extends DirectionalBlock implements EntityBlock {
+public abstract class AbstractThrusterBlock<T extends GenericThrusterBlockEntity> extends DirectionalBlock implements EntityBlock {
 
 	public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 	// TODO: fix this bounding box
@@ -100,7 +96,7 @@ public abstract class AbstractThrusterBlock<T extends AbstractThrusterBlockEntit
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbor, BlockPos neighborPos, boolean moving) {
 		super.neighborChanged(state, world, pos, neighbor, neighborPos, moving);
-		AbstractThrusterBlockEntity be = (AbstractThrusterBlockEntity) world.getBlockEntity(pos);
+		GenericThrusterBlockEntity be = (GenericThrusterBlockEntity) world.getBlockEntity(pos);
 		be.neighborChanged(neighbor, neighborPos, moving);
 	}
 

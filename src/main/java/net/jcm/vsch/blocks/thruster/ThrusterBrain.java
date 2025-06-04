@@ -62,7 +62,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	private volatile float currentPower = 0;
 	private volatile boolean powerChanged = false;
 
-	private List<AbstractThrusterBlockEntity> connectedBlocks;
+	private List<GenericThrusterBlockEntity> connectedBlocks;
 
 	private final String peripheralType;
 	// Peripheral mode determines if the throttle is controlled by redstone, or by CC computers
@@ -70,7 +70,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	private boolean wasPeripheralMode = true;
 	private LazyOptional<Object> lazyPeripheral = LazyOptional.empty();
 
-	private ThrusterBrain(List<AbstractThrusterBlockEntity> connectedBlocks, String peripheralType, Direction facing, ThrusterEngine engine) {
+	private ThrusterBrain(List<GenericThrusterBlockEntity> connectedBlocks, String peripheralType, Direction facing, ThrusterEngine engine) {
 		this.connectedBlocks = connectedBlocks;
 		this.peripheralType = peripheralType;
 		this.facing = facing;
@@ -84,7 +84,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		}
 	}
 
-	protected ThrusterBrain(AbstractThrusterBlockEntity dataBlock, String peripheralType, Direction facing, ThrusterEngine engine) {
+	protected ThrusterBrain(GenericThrusterBlockEntity dataBlock, String peripheralType, Direction facing, ThrusterEngine engine) {
 		this(new ArrayList<>(List.of(dataBlock)), peripheralType, facing, engine);
 	}
 
@@ -100,11 +100,11 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		return this.connectedBlocks.size();
 	}
 
-	public List<AbstractThrusterBlockEntity> getThrusters() {
+	public List<GenericThrusterBlockEntity> getThrusters() {
 		return Collections.unmodifiableList(this.connectedBlocks);
 	}
 
-	void addThruster(AbstractThrusterBlockEntity be) {
+	void addThruster(GenericThrusterBlockEntity be) {
 		this.connectedBlocks.add(be);
 	}
 
@@ -155,7 +155,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		}
 	}
 
-	public AbstractThrusterBlockEntity getDataBlock() {
+	public GenericThrusterBlockEntity getDataBlock() {
 		return this.connectedBlocks.get(0);
 	}
 
@@ -247,10 +247,10 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		}
 	}
 
-	public void neighborChanged(AbstractThrusterBlockEntity thruster, Block block, BlockPos pos, boolean moving) {
+	public void neighborChanged(GenericThrusterBlockEntity thruster, Block block, BlockPos pos, boolean moving) {
 		Level level = thruster.getLevel();
 		BlockEntity changed = level.getBlockEntity(pos);
-		if (changed instanceof AbstractThrusterBlockEntity newThruster) {
+		if (changed instanceof GenericThrusterBlockEntity newThruster) {
 			// TODO: check if facing changed
 			ThrusterBrain newBrain = newThruster.getBrain();
 			if (newBrain != this) {
@@ -258,7 +258,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			}
 		} else {
 			for (int i = 0; i < this.connectedBlocks.size(); i++) {
-				AbstractThrusterBlockEntity be = this.connectedBlocks.get(i);
+				GenericThrusterBlockEntity be = this.connectedBlocks.get(i);
 				if (be.getBlockPos().equals(pos)) {
 					this.removeFromBrain(level, i);
 					break;
@@ -281,7 +281,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		minX = maxX = dataPos.getX();
 		minY = maxY = dataPos.getY();
 		minZ = maxZ = dataPos.getZ();
-		for (AbstractThrusterBlockEntity be : this.connectedBlocks) {
+		for (GenericThrusterBlockEntity be : this.connectedBlocks) {
 			BlockPos pos = be.getBlockPos();
 			int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 			if (x < minX) {
@@ -305,7 +305,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		}
 
 		this.connectedBlocks.addAll(newBrain.connectedBlocks);
-		for (AbstractThrusterBlockEntity be : newBrain.connectedBlocks) {
+		for (GenericThrusterBlockEntity be : newBrain.connectedBlocks) {
 			be.setBrain(this);
 		}
 		int count = this.connectedBlocks.size();
@@ -320,16 +320,16 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	}
 
 	private void removeFromBrain(Level level, int index) {
-		AbstractThrusterBlockEntity removed = this.connectedBlocks.remove(index);
+		GenericThrusterBlockEntity removed = this.connectedBlocks.remove(index);
 		if (index == 0) {
 			this.broadcastDataBlockUpdate();
 		}
 		Set<BlockPos> collected = new HashSet<>();
 		collected.add(removed.getBlockPos());
-		List<AbstractThrusterBlockEntity>[] sets = streamNeighborPositions(removed.getBlockPos(), this.facing)
+		List<GenericThrusterBlockEntity>[] sets = streamNeighborPositions(removed.getBlockPos(), this.facing)
 			.map(level::getBlockEntity)
-			.filter(AbstractThrusterBlockEntity.class::isInstance)
-			.map(AbstractThrusterBlockEntity.class::cast)
+			.filter(GenericThrusterBlockEntity.class::isInstance)
+			.map(GenericThrusterBlockEntity.class::cast)
 			.filter((be) -> !collected.contains(be.getBlockPos()))
 			.map((be) -> collectAllConnecting(level, be, this.facing, collected))
 			.toArray(List[]::new);
@@ -353,7 +353,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			lastFluids[i] -= stack.getAmount();
 		}
 		for (int i = 1; i < sets.length; i++) {
-			List<AbstractThrusterBlockEntity> set = sets[i];
+			List<GenericThrusterBlockEntity> set = sets[i];
 			ThrusterBrain newBrain = new ThrusterBrain(set, this.peripheralType, this.facing, engine);
 			newBrain.storedEnergy = Math.min(newBrain.maxEnergy, lastEnergy);
 			lastEnergy -= newBrain.storedEnergy;
@@ -366,7 +366,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 					newBrain.tanks[j].setFluid(new FluidStack(stack.getFluid(), amount));
 				}
 			}
-			for (AbstractThrusterBlockEntity t : set) {
+			for (GenericThrusterBlockEntity t : set) {
 				t.setBrain(newBrain);
 			}
 		}
@@ -376,36 +376,36 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		return Direction.stream().filter((d) -> d.getAxis() != facing.getAxis()).map(origin::relative);
 	}
 
-	private static List<AbstractThrusterBlockEntity> collectAllConnecting(Level level, AbstractThrusterBlockEntity be, Direction facing, Set<BlockPos> collected) {
-		List<AbstractThrusterBlockEntity> result = new ArrayList<>();
+	private static List<GenericThrusterBlockEntity> collectAllConnecting(Level level, GenericThrusterBlockEntity be, Direction facing, Set<BlockPos> collected) {
+		List<GenericThrusterBlockEntity> result = new ArrayList<>();
 		if (!collected.add(be.getBlockPos())) {
 			return result;
 		}
-		ArrayDeque<AbstractThrusterBlockEntity> deque = new ArrayDeque<>();
+		ArrayDeque<GenericThrusterBlockEntity> deque = new ArrayDeque<>();
 		deque.addLast(be);
 		while (!deque.isEmpty()) {
-			AbstractThrusterBlockEntity b = deque.removeLast();
+			GenericThrusterBlockEntity b = deque.removeLast();
 			result.add(b);
 			BlockPos pos = b.getBlockPos();
 			streamNeighborPositions(pos, facing)
 				.filter(collected::add)
 				.map(level::getBlockEntity)
-				.filter(AbstractThrusterBlockEntity.class::isInstance)
-				.map(AbstractThrusterBlockEntity.class::cast)
+				.filter(GenericThrusterBlockEntity.class::isInstance)
+				.map(GenericThrusterBlockEntity.class::cast)
 				.forEach(deque::addLast);
 		}
 		return result;
 	}
 
 	private void broadcastDataBlockUpdate() {
-		for (AbstractThrusterBlockEntity be : this.connectedBlocks) {
+		for (GenericThrusterBlockEntity be : this.connectedBlocks) {
 			be.sendUpdate();
 		}
 	}
 
 	private void updatePowerByRedstone() {
 		float newPower = 0;
-		for (AbstractThrusterBlockEntity be : this.connectedBlocks) {
+		for (GenericThrusterBlockEntity be : this.connectedBlocks) {
 			float power = getPowerByRedstone(be.getLevel(), be.getBlockPos());
 			if (power > newPower) {
 				newPower = power;

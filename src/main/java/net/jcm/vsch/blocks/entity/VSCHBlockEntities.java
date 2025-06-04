@@ -2,6 +2,8 @@ package net.jcm.vsch.blocks.entity;
 
 import net.jcm.vsch.VSCHMod;
 import net.jcm.vsch.blocks.VSCHBlocks;
+import net.jcm.vsch.blocks.thruster.AirThrusterBlockEntity;
+import net.jcm.vsch.blocks.thruster.GenericThrusterBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -12,9 +14,9 @@ public class VSCHBlockEntities {
 	public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
 			DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, VSCHMod.MODID);
 
-	public static final RegistryObject<BlockEntityType<ThrusterBlockEntity>> THRUSTER_BLOCK_ENTITY =
+	public static final RegistryObject<BlockEntityType<GenericThrusterBlockEntity>> THRUSTER_BLOCK_ENTITY =
 			BLOCK_ENTITIES.register("thruster_block",
-					() -> BlockEntityType.Builder.of(ThrusterBlockEntity::new, VSCHBlocks.THRUSTER_BLOCK.get())
+					() -> BlockEntityType.Builder.of(GenericThrusterBlockEntity::new, VSCHBlocks.THRUSTER_BLOCK.get(), VSCHBlocks.POWERFUL_THRUSTER_BLOCK.get(), VSCHBlocks.AIR_THRUSTER_BLOCK.get())
 					.build(null));
 
 	public static final RegistryObject<BlockEntityType<AirThrusterBlockEntity>> AIR_THRUSTER_BLOCK_ENTITY =
@@ -22,10 +24,10 @@ public class VSCHBlockEntities {
 					() -> BlockEntityType.Builder.of(AirThrusterBlockEntity::new, VSCHBlocks.AIR_THRUSTER_BLOCK.get())
 					.build(null));
 
-	public static final RegistryObject<BlockEntityType<PowerfulThrusterBlockEntity>> POWERFUL_THRUSTER_BLOCK_ENTITY =
+	/*public static final RegistryObject<BlockEntityType<PowerfulThrusterBlockEntity>> POWERFUL_THRUSTER_BLOCK_ENTITY =
 			BLOCK_ENTITIES.register("powerful_thruster_block",
 					() -> BlockEntityType.Builder.of(PowerfulThrusterBlockEntity::new, VSCHBlocks.POWERFUL_THRUSTER_BLOCK.get())
-					.build(null));
+					.build(null));*/
 
 	public static final RegistryObject<BlockEntityType<DragInducerBlockEntity>> DRAG_INDUCER_BLOCK_ENTITY =
 			BLOCK_ENTITIES.register("drag_inducer_block",
