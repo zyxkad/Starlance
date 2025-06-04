@@ -1,6 +1,6 @@
 package net.jcm.vsch.blocks.thruster;
 
-import net.jcm.vsch.blocks.custom.template.AbstractThrusterBlock;
+import net.jcm.vsch.blocks.custom.BaseThrusterBlock;
 import net.jcm.vsch.blocks.custom.template.WrenchableBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
@@ -172,10 +172,10 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			this.brain.tick(level);
 		}
 
-		boolean isLit = state.getValue(AbstractThrusterBlock.LIT);
+		boolean isLit = state.getValue(BaseThrusterBlock.LIT);
 		boolean powered = this.brain.getPower() > 0;
 		if (powered != isLit) {
-			level.setBlockAndUpdate(pos, state.setValue(AbstractThrusterBlock.LIT, powered));
+			level.setBlockAndUpdate(pos, state.setValue(BaseThrusterBlock.LIT, powered));
 		}
 
 		VSCHForceInducedShips ships = VSCHForceInducedShips.get(level, pos);

@@ -10,7 +10,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class VSCHBlockEntities {
 	public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
-			DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, VSCHMod.MODID);
+		DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, VSCHMod.MODID);
 
 	public static final RegistryObject<BlockEntityType<ThrusterBlockEntity>> THRUSTER_BLOCK_ENTITY =
 			BLOCK_ENTITIES.register("thruster_block",
