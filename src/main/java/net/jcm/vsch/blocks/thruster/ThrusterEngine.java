@@ -203,7 +203,6 @@ public abstract class ThrusterEngine {
 						final AABB entityBox = entity.getBoundingBox();
 						final AABBd entityBox2 = new AABBd(entityBox.minX, entityBox.minY, entityBox.minZ, entityBox.maxX, entityBox.maxY, entityBox.maxZ);
 						entityBox2.transform(ship.getWorldToShip());
-						System.out.println("box: " + box + "; " + entityBox2 + ": " + box.intersects(entityBox2.minX, entityBox2.minY, entityBox2.minZ, entityBox2.maxX, entityBox2.maxY, entityBox2.maxZ));
 						if (!box.intersects(entityBox2.minX, entityBox2.minY, entityBox2.minZ, entityBox2.maxX, entityBox2.maxY, entityBox2.maxZ)) {
 							return false;
 						}

@@ -1,15 +1,16 @@
-package net.jcm.vsch.blocks.custom.template;
+package net.jcm.vsch.blocks.custom;
 
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
+import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.blocks.thruster.GenericThrusterBlockEntity;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.util.rot.DirectionalShape;
-import net.jcm.vsch.util.rot.RotShape;
-import net.jcm.vsch.util.rot.RotShapes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -25,27 +26,29 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class AbstractThrusterBlock<T extends GenericThrusterBlockEntity> extends DirectionalBlock implements EntityBlock {
+public class BaseThrusterBlock<T extends AbstractThrusterBlockEntity> extends DirectionalBlock implements EntityBlock {
 
 	public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
-	// TODO: fix this bounding box
-	private static final RotShape SHAPE = RotShapes.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
-	private final DirectionalShape shape;
 
-	protected AbstractThrusterBlock(Properties properties, DirectionalShape shape) {
+	private final DirectionalShape shape;
+	private final BlockEntityType.BlockEntitySupplier<? extends T> blockEntitySupplier;
+
+	public BaseThrusterBlock(
+		final Properties properties,
+		final DirectionalShape shape,
+		final BlockEntityType.BlockEntitySupplier<? extends T> blockEntitySupplier
+	) {
 		super(properties);
 		this.shape = shape;
+		this.blockEntitySupplier = blockEntitySupplier;
 		registerDefaultState(defaultBlockState()
-				.setValue(FACING, Direction.NORTH)
-				.setValue(LIT, Boolean.valueOf(false))
-				);
-	}
-
-	public AbstractThrusterBlock(Properties properties) {
-		this(properties, DirectionalShape.south(SHAPE));
+			.setValue(FACING, Direction.NORTH)
+			.setValue(LIT, Boolean.valueOf(false))
+		);
 	}
 
 	@Override
@@ -100,9 +103,10 @@ public abstract class AbstractThrusterBlock<T extends GenericThrusterBlockEntity
 		be.neighborChanged(neighbor, neighborPos, moving);
 	}
 
-	// Attach block entity
 	@Override
-	public abstract T newBlockEntity(BlockPos pos, BlockState state);
+	public T newBlockEntity(BlockPos pos, BlockState state) {
+		return blockEntitySupplier.create(pos, state);
+	}
 
 	@Override
 	public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
