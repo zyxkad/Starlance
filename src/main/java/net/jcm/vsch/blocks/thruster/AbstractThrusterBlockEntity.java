@@ -55,11 +55,13 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	private BlockPos brainPos = null;
 	private final Map<Capability<?>, LazyOptional<?>> capsCache = new HashMap<>();
 
-	protected AbstractThrusterBlockEntity(String peripheralType, BlockEntityType<?> type, BlockPos pos, BlockState state, ThrusterEngine engine) {
+	protected AbstractThrusterBlockEntity(String peripheralType, BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 
-		this.brain = new ThrusterBrain(this, peripheralType, state.getValue(DirectionalBlock.FACING), engine);
+		this.brain = new ThrusterBrain(this, peripheralType, state.getValue(DirectionalBlock.FACING), this.createThrusterEngine());
 	}
+
+	protected abstract ThrusterEngine createThrusterEngine();
 
 	public ThrusterBrain getBrain() {
 		return this.brain;

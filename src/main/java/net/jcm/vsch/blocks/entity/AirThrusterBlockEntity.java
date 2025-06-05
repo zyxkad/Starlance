@@ -24,12 +24,15 @@ import java.util.List;
 public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	public AirThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super("air_thruster", VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state,
-			new AirThrusterEngine(
-				VSCHConfig.AIR_THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
-				VSCHConfig.AIR_THRUSTER_STRENGTH.get().floatValue(),
-				VSCHConfig.AIR_THRUSTER_MAX_WATER_CONSUME_RATE.get().intValue()
-			)
+		super("air_thruster", VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+	}
+
+	@Override
+	protected ThrusterEngine createThrusterEngine() {
+		return new AirThrusterEngine(
+			VSCHConfig.AIR_THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
+			VSCHConfig.AIR_THRUSTER_STRENGTH.get().floatValue(),
+			VSCHConfig.AIR_THRUSTER_MAX_WATER_CONSUME_RATE.get().intValue()
 		);
 	}
 
@@ -64,7 +67,7 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		}
 	}
 
-	private static class AirThrusterEngine extends ThrusterEngine {
+	private final static class AirThrusterEngine extends ThrusterEngine {
 		private final int maxWaterConsumeRate;
 
 		public AirThrusterEngine(int energyConsumeRate, float maxThrottle, int maxWaterConsumeRate) {

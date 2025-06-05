@@ -20,12 +20,15 @@ import java.util.Map;
 public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	public ThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super("thruster", VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state,
-			new NormalThrusterEngine(
-				VSCHConfig.THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
-				VSCHConfig.THRUSTER_STRENGTH.get().intValue(),
-				VSCHConfig.getThrusterFuelConsumeRates()
-			)
+		super("thruster", VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
+	}
+
+	@Override
+	protected ThrusterEngine createThrusterEngine() {
+		return new NormalThrusterEngine(
+			VSCHConfig.THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
+			VSCHConfig.THRUSTER_STRENGTH.get().intValue(),
+			VSCHConfig.getThrusterFuelConsumeRates()
 		);
 	}
 
@@ -34,7 +37,7 @@ public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		return 8 * this.getCurrentPower();
 	}
 
-	private static class NormalThrusterEngine extends ThrusterEngine {
+	private final static class NormalThrusterEngine extends ThrusterEngine {
 		private final Map<String, Integer> fuelConsumeRates;
 
 		public NormalThrusterEngine(int energyConsumeRate, float maxThrottle, Map<String, Integer> fuelConsumeRates) {

@@ -22,12 +22,15 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	private static final int OXYGEN_SLOT = 1;
 
 	public PowerfulThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super("powerful_thruster", VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state,
-			new PowerfulThrusterEngine(
-				VSCHConfig.POWERFUL_THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
-				VSCHConfig.POWERFUL_THRUSTER_STRENGTH.get().floatValue(),
-				VSCHConfig.POWERFUL_THRUSTER_FUEL_CONSUME_RATE.get().intValue()
-			)
+		super("powerful_thruster", VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+	}
+
+	@Override
+	protected ThrusterEngine createThrusterEngine() {
+		return new PowerfulThrusterEngine(
+			VSCHConfig.POWERFUL_THRUSTER_ENERGY_CONSUME_RATE.get().intValue(),
+			VSCHConfig.POWERFUL_THRUSTER_STRENGTH.get().floatValue(),
+			VSCHConfig.POWERFUL_THRUSTER_FUEL_CONSUME_RATE.get().intValue()
 		);
 	}
 
@@ -41,7 +44,7 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		return 8 * this.getCurrentPower();
 	}
 
-	private static class PowerfulThrusterEngine extends ThrusterEngine {
+	private final static class PowerfulThrusterEngine extends ThrusterEngine {
 		private final int fuelConsumeRate;
 
 		public PowerfulThrusterEngine(int energyConsumeRate, float maxThrottle, int fuelConsumeRate) {
