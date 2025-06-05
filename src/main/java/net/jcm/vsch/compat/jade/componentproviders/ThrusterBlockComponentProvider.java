@@ -1,6 +1,6 @@
 package net.jcm.vsch.compat.jade.componentproviders;
 
-import net.jcm.vsch.blocks.thruster.GenericThrusterBlockEntity;
+import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
 import net.jcm.vsch.compat.jade.JadeCompat;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,7 @@ public final class ThrusterBlockComponentProvider implements IBlockComponentProv
 			BlockAccessor accessor,
 			IPluginConfig config
 	) {
-		if (!(accessor.getBlockEntity() instanceof GenericThrusterBlockEntity be)) {
+		if (!(accessor.getBlockEntity() instanceof AbstractThrusterBlockEntity be)) {
 			return;
 		}
 		tooltip.add(Component.translatable("vsch.message.mode")

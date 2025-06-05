@@ -2,7 +2,6 @@ package net.jcm.vsch.blocks.custom;
 
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.blocks.thruster.AbstractThrusterBlockEntity;
-import net.jcm.vsch.blocks.thruster.GenericThrusterBlockEntity;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 import net.jcm.vsch.util.rot.DirectionalShape;
 
@@ -99,7 +98,7 @@ public class BaseThrusterBlock<T extends AbstractThrusterBlockEntity> extends Di
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbor, BlockPos neighborPos, boolean moving) {
 		super.neighborChanged(state, world, pos, neighbor, neighborPos, moving);
-		GenericThrusterBlockEntity be = (GenericThrusterBlockEntity) world.getBlockEntity(pos);
+		AbstractThrusterBlockEntity be = (AbstractThrusterBlockEntity) world.getBlockEntity(pos);
 		be.neighborChanged(neighbor, neighborPos, moving);
 	}
 

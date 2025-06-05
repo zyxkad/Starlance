@@ -2,8 +2,6 @@ package net.jcm.vsch.blocks.thruster;
 
 import net.jcm.vsch.blocks.custom.BaseThrusterBlock;
 import net.jcm.vsch.blocks.custom.template.WrenchableBlock;
-import net.jcm.vsch.blocks.entity.NormalThrusterEngine;
-import net.jcm.vsch.blocks.entity.VSCHBlockEntities;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.config.VSCHConfig;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
@@ -40,6 +38,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
 import org.joml.Vector3d;
+import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.HashMap;
@@ -47,7 +46,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
-public class GenericThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity, WrenchableBlock {
+public abstract class AbstractThrusterBlockEntity extends BlockEntity implements ParticleBlockEntity, WrenchableBlock {
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private static final String BRAIN_POS_TAG_NAME = "BrainPos";
@@ -56,18 +55,7 @@ public class GenericThrusterBlockEntity extends BlockEntity implements ParticleB
 	private BlockPos brainPos = null;
 	private final Map<Capability<?>, LazyOptional<?>> capsCache = new HashMap<>();
 
-	public double evaporateDistance = 1;
-	public boolean doSmokeParticle = true;
-	public ParticleOptions smokeParticleType = CosmosModParticleTypes.THRUST_SMOKE.get();
-	public ParticleOptions fireParticleType = CosmosModParticleTypes.THRUSTED.get();
-
-	// Just called for BE registration
-	public GenericThrusterBlockEntity(BlockPos pos, BlockState state) {
-        super(VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
-
-    }
-
-	public GenericThrusterBlockEntity(String peripheralType, BlockEntityType<?> type, BlockPos pos, BlockState state, ThrusterEngine engine) {
+	protected AbstractThrusterBlockEntity(String peripheralType, BlockEntityType<?> type, BlockPos pos, BlockState state, ThrusterEngine engine) {
 		super(type, pos, state);
 
 		this.brain = new ThrusterBrain(this, peripheralType, state.getValue(DirectionalBlock.FACING), engine);
@@ -116,7 +104,7 @@ public class GenericThrusterBlockEntity extends BlockEntity implements ParticleB
 	@Override
 	public void saveAdditional(CompoundTag data) {
 		super.saveAdditional(data);
-		GenericThrusterBlockEntity dataBlock = this.brain.getDataBlock();
+		AbstractThrusterBlockEntity dataBlock = this.brain.getDataBlock();
 		if (this.brainPos != null) {
 			BlockPos pos = this.brainPos.subtract(this.getBlockPos());
 			data.putByteArray(BRAIN_POS_TAG_NAME, new byte[]{(byte)(pos.getX()), (byte)(pos.getY()), (byte)(pos.getZ())});
@@ -162,7 +150,7 @@ public class GenericThrusterBlockEntity extends BlockEntity implements ParticleB
 
 	private void resolveBrain() {
 		BlockEntity be = this.getLevel().getBlockEntity(this.brainPos);
-		if (be instanceof GenericThrusterBlockEntity thruster) {
+		if (be instanceof AbstractThrusterBlockEntity thruster) {
 			ThrusterBrain newBrain = thruster.getBrain();
 			if (this.brain != newBrain) {
 				newBrain.addThruster(this);
@@ -240,9 +228,7 @@ public class GenericThrusterBlockEntity extends BlockEntity implements ParticleB
 		return CosmosModParticleTypes.THRUST_SMOKE.get();
 	}
 
-	protected double getEvaporateDistance() {
-		return evaporateDistance;
-	};
+	protected abstract double getEvaporateDistance();
 
 	@Override
 	public void tickParticles(final Level level, final BlockPos pos, final BlockState state) {
@@ -336,4 +322,7 @@ public class GenericThrusterBlockEntity extends BlockEntity implements ParticleB
 		);
 	}
 
+	private static float getPowerByRedstone(Level level, BlockPos pos) {
+		return (float)(level.getBestNeighborSignal(pos)) / 15;
+	}
 }
