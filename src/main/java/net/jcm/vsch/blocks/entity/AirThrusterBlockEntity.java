@@ -24,7 +24,12 @@ import java.util.List;
 public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	public AirThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super("air_thruster", VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+		super(VSCHBlockEntities.AIR_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+	}
+
+	@Override
+	protected String getPeripheralType() {
+		return "air_thruster";
 	}
 
 	@Override

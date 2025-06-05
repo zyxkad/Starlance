@@ -20,7 +20,12 @@ import java.util.Map;
 public class ThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	public ThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super("thruster", VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
+		super(VSCHBlockEntities.THRUSTER_BLOCK_ENTITY.get(), pos, state);
+	}
+
+	@Override
+	protected String getPeripheralType() {
+		return "thruster";
 	}
 
 	@Override

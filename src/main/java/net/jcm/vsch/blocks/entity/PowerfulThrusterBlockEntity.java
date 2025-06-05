@@ -22,7 +22,12 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	private static final int OXYGEN_SLOT = 1;
 
 	public PowerfulThrusterBlockEntity(BlockPos pos, BlockState state) {
-		super("powerful_thruster", VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+		super(VSCHBlockEntities.POWERFUL_THRUSTER_BLOCK_ENTITY.get(), pos, state);
+	}
+
+	@Override
+	protected String getPeripheralType() {
+		return "powerful_thruster";
 	}
 
 	@Override
