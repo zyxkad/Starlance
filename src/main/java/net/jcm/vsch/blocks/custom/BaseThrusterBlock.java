@@ -73,7 +73,11 @@ public class BaseThrusterBlock<T extends AbstractThrusterBlockEntity> extends Di
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!(level instanceof ServerLevel)) return;
+		super.onRemove(state, level, pos, newState, isMoving);
+
+		if (!(level instanceof ServerLevel)) {
+			return;
+		}
 
 		// ----- Remove the thruster from the force appliers for the current level ----- //
 		// I guess VS does this automatically when switching a shipyards dimension?
@@ -81,8 +85,6 @@ public class BaseThrusterBlock<T extends AbstractThrusterBlockEntity> extends Di
 		if (ships != null) {
 			ships.removeThruster(pos);
 		}
-
-		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override
