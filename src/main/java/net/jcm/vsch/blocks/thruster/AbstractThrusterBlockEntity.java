@@ -319,6 +319,9 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public void onFocusWithWrench(final ItemStack stack, final Level level, final Player player) {
+		if (!level.isClientSide) {
+			return;
+		}
 		player.displayClientMessage(
 			Component.translatable("vsch.message.mode")
 				.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),
