@@ -64,15 +64,15 @@ public class VSCHBlocks {
 	);
 
 	public static final RegistryObject<Block> CREATIVE_THRUSTER_BLOCK = registerBlock(
-			"creative_thruster_block",
-			() -> new BaseThrusterBlock(
-					BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
-							.sound(SoundType.COPPER)
-							.strength(5f)
-							.noOcclusion(),
-					DirectionalShape.down(RotShapes.solid()),
-					CreativeThrusterBlockEntity::new
-			)
+		"creative_thruster_block",
+		() -> new BaseThrusterBlock(
+			BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+				.sound(SoundType.COPPER)
+				.strength(5f)
+				.noOcclusion(),
+			DirectionalShape.down(RotShapes.solid()),
+			CreativeThrusterBlockEntity::new
+		)
 	);
 
 	public static final RegistryObject<Block> DRAG_INDUCER_BLOCK = registerBlock(

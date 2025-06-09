@@ -54,6 +54,11 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 	private static final String BRAIN_POS_TAG_NAME = "BrainPos";
 	private static final String BRAIN_DATA_TAG_NAME = "BrainData";
 	private ThrusterBrain brain;
+	/**
+	 * brainPos holds temporary brain thruster position before it's resolved.
+	 *
+	 * @see resolveBrain
+	 */
 	private BlockPos brainPos = null;
 	private final Map<Capability<?>, LazyOptional<?>> capsCache = new HashMap<>();
 
@@ -164,7 +169,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 			}
 			this.brainPos = null;
 		} else if (this.getLevel() instanceof ServerLevel) {
-			LOGGER.warn("Thruster brain at {} for {} is not found", this.brainPos, this.getBlockPos());
+			LOGGER.warn("[starlance]: Thruster brain at {} for {} is not found", this.brainPos, this.getBlockPos());
 			this.brainPos = null;
 		}
 	}

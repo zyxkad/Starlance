@@ -40,9 +40,7 @@ public class CreativeThrusterBlockEntity extends AbstractThrusterBlockEntity {
 
 	@Override
 	protected ThrusterEngine createThrusterEngine() {
-		return new CreativeThrusterEngine(
-				maxThrottle
-		);
+		return this.new CreativeThrusterEngine();
 	}
 
 	@Override
@@ -87,32 +85,31 @@ public class CreativeThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			}
 
 			return InteractionResult.SUCCESS;
-		} else {
-			return super.onUseWrench(ctx);
 		}
+		return super.onUseWrench(ctx);
 	}
 
 	@Override
 	public void onFocusWithWrench(ItemStack stack, Level level, Player player) {
-		if (level.isClientSide) {
-			return;
-		}
-		//System.out.println(player.isShiftKeyDown());
-		if(player.isShiftKeyDown()) {
+		if (!level.isClientSide && player.isShiftKeyDown()) {
 			player.displayClientMessage(
-					Component.literal("Strength (Newtons): ")
-							.append(Component.literal(String.valueOf(maxThrottle)+" * redstone")),
-					true
+				Component.literal("Max Throttle: ")
+					.append(Component.literal(String.format("%dN", maxThrottle))),
+				true
 			);
-		} else {
-			super.onFocusWithWrench(stack, level, player);
 		}
+		super.onFocusWithWrench(stack, level, player);
  	}
 
-	private final static class CreativeThrusterEngine extends ThrusterEngine {
+	private final class CreativeThrusterEngine extends ThrusterEngine {
 
-		public CreativeThrusterEngine(int maxThrottle) {
-			super(0, 0, maxThrottle);
+		public CreativeThrusterEngine() {
+			super(0, 0, 0);
+		}
+
+		@Override
+		public float getMaxThrottle() {
+			return CreativeThrusterBlockEntity.this.maxThrottle;
 		}
 
 		@Override
@@ -124,14 +121,11 @@ public class CreativeThrusterBlockEntity extends AbstractThrusterBlockEntity {
 		public void tick(ThrusterEngineContext context) {
 			super.tick(context);
 
-
-
 			double power = context.getPower();
 			//context.setPower(getMaxThrottle());
 			if (power == 0) {
 				return;
 			}
-
 		}
 
 		@Override
