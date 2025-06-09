@@ -118,12 +118,50 @@ public abstract class ThrusterEngine {
 	/**
 	 * tickBurningObjects sets on fire entities/blocks that should be burned by the thruster
 	 *
-	 * @param context A {@link ThrusterEngineContext}
+	 * @param context   A {@link ThrusterEngineContext}
 	 * @param thrusters Thrusters' positions
 	 * @param direction Thrusters' facing direction
 	 */
 	public abstract void tickBurningObjects(ThrusterEngineContext context, List<BlockPos> thrusters, Direction direction);
 
+	/**
+	 * simpleTickBurningObjects do some basic operations on the entities / blocks the thruster facing.
+	 * <br/>
+	 *
+	 * <b>Implement details:</b><br/>
+	 * <ol>
+	 * 	<li>
+	 * 		It does a ray detection from middle of a thruster, find the maximum distance flame can go before it hits a block.
+	 * 	</li>
+	 * 	<li>
+	 * 		If the ray hits a block:
+	 * 		<ol>
+	 * 			<li>If the block (or its super class) is a TNT, ignite it.</li>
+	 * 			<li>Otherwise, set the block on fire on each side.</li>
+	 * 		</ol>
+	 * 	</li>
+	 * 	<li>
+	 * 		It collects all entity in the flame collision box.
+	 * 	</li>
+	 * 	<li>
+	 * 		If an entity is pushable, push it based on its distance from the thruster
+	 * 	</li>
+	 * 	<li>
+	 * 		If an entity is not {@link Entity#fireImmune fireImmune} ignite the entity up to 15s based on the its distance from thruster
+	 * 	</li>
+	 * 	<li>
+	 * 		Hurt the entity due fire with at least 1 damage, which increase linearly
+	 * if the entity is closer than 10% of the thruster's max distance.
+	 * 	</li>
+	 * </ol>
+	 *
+	 * @param context       A {@link ThrusterEngineContext}
+	 * @param thrusters     Thrusters' positions
+	 * @param direction     Thrusters' facing direction
+	 * @param maxDistance   Thrusters' max flame length
+	 * @param maxBurnDamage Thrusters' flame's max burn damage
+	 * @param maxPushVel    Thrusters' flame's max push accleration
+	 */
 	public static void simpleTickBurningObjects(final ThrusterEngineContext context, final List<BlockPos> thrusters, final Direction direction, final double maxDistance, final int maxBurnDamage, final double maxPushVel) {
 		final int maxBurnTime = 15 * 20;
 		final ServerLevel level = context.getLevel();
