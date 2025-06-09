@@ -226,7 +226,7 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public void onFocusWithWrench(final ItemStack stack, final Level level, final Player player) {
-		if (!level.isClientSide) {
+		if (level.isClientSide) {
 			return;
 		}
 		player.displayClientMessage(
