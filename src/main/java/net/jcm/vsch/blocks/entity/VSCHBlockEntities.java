@@ -30,6 +30,12 @@ public class VSCHBlockEntities {
 			.build(null)
 	);
 
+	public static final RegistryObject<BlockEntityType<AirThrusterBlockEntity>> CREATIVE_THRUSTER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+			"creative_thruster_block",
+			() -> BlockEntityType.Builder.of(AirThrusterBlockEntity::new, VSCHBlocks.CREATIVE_THRUSTER_BLOCK.get())
+					.build(null)
+	);
+
 	public static final RegistryObject<BlockEntityType<DragInducerBlockEntity>> DRAG_INDUCER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
 		"drag_inducer_block",
 		() -> BlockEntityType.Builder.of(DragInducerBlockEntity::new, VSCHBlocks.DRAG_INDUCER_BLOCK.get())
