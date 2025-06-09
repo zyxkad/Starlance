@@ -224,6 +224,18 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		return InteractionResult.SUCCESS;
 	}
 
+	@Override
+	public void onFocusWithWrench(final ItemStack stack, final Level level, final Player player) {
+		if (!level.isClientSide) {
+			return;
+		}
+		player.displayClientMessage(
+				Component.translatable("vsch.message.mode")
+						.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),
+				true
+		);
+	}
+
 	protected ParticleOptions getThrusterParticleType() {
 		return CosmosModParticleTypes.THRUSTED.get();
 	}
@@ -315,18 +327,6 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 				speed.x, speed.y, speed.z
 			);
 		}
-	}
-
-	@Override
-	public void onFocusWithWrench(final ItemStack stack, final Level level, final Player player) {
-		if (!level.isClientSide) {
-			return;
-		}
-		player.displayClientMessage(
-			Component.translatable("vsch.message.mode")
-				.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),
-			true
-		);
 	}
 
 	private static float getPowerByRedstone(Level level, BlockPos pos) {
