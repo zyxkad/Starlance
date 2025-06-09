@@ -40,9 +40,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
         run: |
           FOLDER_NAME="${REF_NAME////-}"
-          rm -rf ./_site/javadoc/${FOLDER_NAME}
-          mkdir -p ./_site/javadoc
-          cp -a ./build/docs/javadoc ./_site/javadoc/${FOLDER_NAME}
+          rm -rf ./javadoc/${FOLDER_NAME}
+          mkdir -p ./javadoc
+          cp -a ./build/docs/javadoc ./javadoc/${FOLDER_NAME}
 
       - name: Commit and Push Javadoc
         id: push
@@ -52,28 +52,10 @@ jobs:
           FOLDER_NAME="${REF_NAME////-}"
           git config user.name github-actions
           git config user.email github-actions[bot]@users.noreply.github.com
-          git add ./_site/javadoc/${FOLDER_NAME}
-          if ! git commit -m 'update ${FOLDER_NAME}'; then
+          git add ./javadoc/${FOLDER_NAME}
+          if ! git commit -m "update ${FOLDER_NAME}"; then
             echo "status=noop" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git push
           echo "status=succeed" >> "$GITHUB_OUTPUT"
-
-  publish:
-    runs-on: ubuntu-latest
-    needs:
-      - generate-and-push
-    if: ${{ needs.generate-and-push.outputs.status == 'succeed' }}
-    steps:
-      - name: Upload Files as Artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3
-        with:
-          name: github-pages
-          path: ./_site/
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-        with:
-          artifact_name: github-pages
