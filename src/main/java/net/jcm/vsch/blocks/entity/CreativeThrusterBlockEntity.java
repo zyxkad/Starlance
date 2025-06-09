@@ -35,7 +35,7 @@ public class CreativeThrusterBlockEntity extends AbstractThrusterBlockEntity {
 	// TODO: add creative peripheral
 	@Override
 	protected String getPeripheralType() {
-		return "air_thruster";
+		return "creative_thruster";
 	}
 
 	@Override
