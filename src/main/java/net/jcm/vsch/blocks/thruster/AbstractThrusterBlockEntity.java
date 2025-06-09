@@ -1,5 +1,6 @@
 package net.jcm.vsch.blocks.thruster;
 
+import net.jcm.vsch.accessor.IGuiAccessor;
 import net.jcm.vsch.blocks.custom.BaseThrusterBlock;
 import net.jcm.vsch.blocks.custom.template.WrenchableBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
@@ -11,6 +12,7 @@ import net.lointain.cosmos.init.CosmosModParticleTypes;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -110,15 +112,15 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		super.saveAdditional(data);
 		AbstractThrusterBlockEntity dataBlock = this.brain.getDataBlock();
 		if (this.brainPos != null) {
-			BlockPos pos = this.brainPos.subtract(this.getBlockPos());
-			data.putByteArray(BRAIN_POS_TAG_NAME, new byte[]{(byte)(pos.getX()), (byte)(pos.getY()), (byte)(pos.getZ())});
+			BlockPos offset = this.brainPos.subtract(this.getBlockPos());
+			data.putByteArray(BRAIN_POS_TAG_NAME, new byte[]{(byte)(offset.getX()), (byte)(offset.getY()), (byte)(offset.getZ())});
 		} else if (dataBlock == this) {
 			CompoundTag brainData = new CompoundTag();
 			this.brain.writeToNBT(brainData);
 			data.put(BRAIN_DATA_TAG_NAME, brainData);
 		} else {
-			BlockPos pos = dataBlock.getBlockPos().subtract(this.getBlockPos());
-			data.putByteArray(BRAIN_POS_TAG_NAME, new byte[]{(byte)(pos.getX()), (byte)(pos.getY()), (byte)(pos.getZ())});
+			BlockPos offset = dataBlock.getBlockPos().subtract(this.getBlockPos());
+			data.putByteArray(BRAIN_POS_TAG_NAME, new byte[]{(byte)(offset.getX()), (byte)(offset.getY()), (byte)(offset.getZ())});
 		}
 	}
 
@@ -203,8 +205,9 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
 			if (player != null) {
-				player.displayClientMessage(Component.translatable("vsch.error.thruster_modes_disabled")
-					.withStyle(ChatFormatting.RED),
+				player.displayClientMessage(
+					Component.translatable("vsch.error.thruster_modes_disabled")
+						.withStyle(ChatFormatting.RED),
 					true
 				);
 			}
@@ -217,8 +220,11 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 		if (player != null) {
 			// Send a chat message to them. The wrench class will handle the actionbar
-			player.sendSystemMessage(Component.translatable("vsch.message.toggle")
-				.append(Component.translatable("vsch." + blockMode.toString().toLowerCase())));
+			player.displayClientMessage(
+				Component.translatable("vsch.message.toggle")
+					.append(Component.translatable("vsch." + blockMode.toString().toLowerCase())),
+				true
+			);
 		}
 
 		return InteractionResult.SUCCESS;
@@ -226,13 +232,13 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 
 	@Override
 	public void onFocusWithWrench(final ItemStack stack, final Level level, final Player player) {
-		if (level.isClientSide) {
+		if (!level.isClientSide) {
 			return;
 		}
-		player.displayClientMessage(
-				Component.translatable("vsch.message.mode")
-						.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),
-				true
+		((IGuiAccessor) (Minecraft.getInstance().gui)).vsch$setOverlayMessageIfNotExist(
+			Component.translatable("vsch.message.mode")
+				.append(Component.translatable("vsch." + this.getThrusterMode().toString().toLowerCase())),
+			25
 		);
 	}
 

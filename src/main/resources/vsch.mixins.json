@@ -15,6 +15,7 @@
     "accessor.ServerShipObjectWorldAccessor"
   ],
   "client": [
+    "client.MixinGui"
   ],
   "injectors": {
     "defaultRequire": 1

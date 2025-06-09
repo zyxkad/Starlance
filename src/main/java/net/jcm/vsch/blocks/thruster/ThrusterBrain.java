@@ -269,11 +269,11 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.updatePowerByRedstone();
 	}
 
-	private void tryMergeBrain(BlockPos atPos, ThrusterBrain newBrain, BlockPos newPos) {
-		if (this.facing != newBrain.facing || !this.peripheralType.equals(newBrain.peripheralType)) {
+	private void tryMergeBrain(BlockPos atPos, ThrusterBrain other, BlockPos otherPos) {
+		if (this.facing != other.facing || !this.peripheralType.equals(other.peripheralType)) {
 			return;
 		}
-		if (this.facing.getAxis().choose(newPos.getX() - atPos.getX(), newPos.getY() - atPos.getY(), newPos.getZ() - atPos.getZ()) != 0) {
+		if (this.facing.getAxis().choose(otherPos.getX() - atPos.getX(), otherPos.getY() - atPos.getY(), otherPos.getZ() - atPos.getZ()) != 0) {
 			return;
 		}
 		int minX, minY, minZ, maxX, maxY, maxZ;
@@ -304,17 +304,17 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 			return;
 		}
 
-		this.connectedBlocks.addAll(newBrain.connectedBlocks);
-		for (AbstractThrusterBlockEntity be : newBrain.connectedBlocks) {
+		this.connectedBlocks.addAll(other.connectedBlocks);
+		for (AbstractThrusterBlockEntity be : other.connectedBlocks) {
 			be.setBrain(this);
 		}
 		int count = this.connectedBlocks.size();
 		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
-		this.storedEnergy += newBrain.storedEnergy;
+		this.storedEnergy += other.storedEnergy;
 		for (int i = 0; i < this.tanks.length; i++) {
 			FluidTank tank = this.tanks[i];
 			tank.setCapacity(FLUID_TANK_CAPACITY * count);
-			tank.fill(newBrain.tanks[i].getFluid(), IFluidHandler.FluidAction.EXECUTE);
+			tank.fill(other.tanks[i].getFluid(), IFluidHandler.FluidAction.EXECUTE);
 		}
 		this.getDataBlock().sendUpdate();
 	}
@@ -570,10 +570,6 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		@Override
 		public int getTanks() {
 			return ThrusterBrain.this.getTanks();
-		}
-
-		public IFluidHandler getDrainOnly() {
-			return ThrusterBrain.this.getDrainOnly();
 		}
 
 		@Override
