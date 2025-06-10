@@ -182,7 +182,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions[bot]@users.noreply.github.com
-          if ! git commit -m "update ${FOLDER_NAME}"; then
+          if ! git commit -m "update ${REF_NAME////-}"; then
             echo "status=noop" >> "$GITHUB_OUTPUT"
             exit 0
           fi
