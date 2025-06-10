@@ -38,6 +38,7 @@ jobs:
           if [[ "$LENGTH" == 0 ]]; then
             echo "inpr=false" >> "$GITHUB_OUTPUT"
           else
+            echo "::warning::Branch is contributing in a PR, skipping regular checks"
             echo "inpr=true" >> "$GITHUB_OUTPUT"
           fi
   test:
