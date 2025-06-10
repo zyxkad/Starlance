@@ -27,7 +27,7 @@ jobs:
           if [[ "${{ github.event_name != 'push' || github.ref_type != 'branch' }}" == true ]]; then
             echo "inpr=false" >> "$GITHUB_OUTPUT"
             exit 0
-          end
+          fi
           LENGTH=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
