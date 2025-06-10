@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Query PR
         id: query
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [[ "${{ github.event_name != 'push' || github.ref_type != 'branch' }}" == true ]]; then
             echo "inpr=false" >> "$GITHUB_OUTPUT"
