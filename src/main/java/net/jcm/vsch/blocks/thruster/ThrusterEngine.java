@@ -1,5 +1,6 @@
 package net.jcm.vsch.blocks.thruster;
 
+import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.util.NoSourceClipContext;
 
 import net.minecraft.core.BlockPos;
@@ -197,6 +198,9 @@ public abstract class ThrusterEngine {
 				final BlockState blockState = level.getBlockState(hitPos);
 				final Block hitBlock = blockState.getBlock();
 				final FluidState hitFluid = blockState.getFluidState();
+				if (hitBlock == VSCHBlocks.VENT_BLOCK.get()) {
+					return;
+				}
 				if (hitFluid.isEmpty()) {
 					if (hitBlock instanceof TntBlock) {
 						TntBlock.explode(level, hitPos);
@@ -209,7 +213,10 @@ public abstract class ThrusterEngine {
 							final BlockState firePosState = level.getBlockState(firePos);
 							return firePosState.isAir() || firePosState.canBeReplaced();
 						})
-						.forEach((firePos) -> level.setBlock(firePos, BaseFireBlock.getState(level, firePos), Block.UPDATE_ALL));
+						.forEach((firePos) -> {
+							// TODO: make it so theres a random chance, its not setting fire EVERY tick
+                            level.setBlock(firePos, BaseFireBlock.getState(level, firePos), Block.UPDATE_ALL);
+                        });
 				} else if (!hitFluid.isSource() || hitFluid.is(Fluids.WATER)) {
 					if (hitBlock instanceof LiquidBlock) {
 						level.setBlock(hitPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);

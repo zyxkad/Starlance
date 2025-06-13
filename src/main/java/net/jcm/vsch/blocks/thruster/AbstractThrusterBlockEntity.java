@@ -1,6 +1,7 @@
 package net.jcm.vsch.blocks.thruster;
 
 import net.jcm.vsch.accessor.IGuiAccessor;
+import net.jcm.vsch.blocks.VSCHBlocks;
 import net.jcm.vsch.blocks.custom.BaseThrusterBlock;
 import net.jcm.vsch.blocks.custom.template.WrenchableBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
