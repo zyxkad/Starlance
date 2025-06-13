@@ -95,7 +95,7 @@ public class VSCHBlocks {
 		)
 	);
 
-	public static final RegistryObject<Block> DOCKER_BLOCK = registerBlock(
+	/*public static final RegistryObject<Block> DOCKER_BLOCK = registerBlock(
 		"dock",
 		() -> new DockerBlock(
 			BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
@@ -103,7 +103,7 @@ public class VSCHBlocks {
 				.strength(5f)
 				.noOcclusion()
 		)
-	);
+	);*/
 
 	public static final RegistryObject<Block> GYRO_BLOCK = registerBlock(
 		"gyro",

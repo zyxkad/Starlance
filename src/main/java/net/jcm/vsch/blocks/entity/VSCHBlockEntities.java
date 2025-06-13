@@ -48,11 +48,11 @@ public class VSCHBlockEntities {
 			.build(null)
 	);
 
-	public static final RegistryObject<BlockEntityType<DockerBlockEntity>> DOCKER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+	/*public static final RegistryObject<BlockEntityType<DockerBlockEntity>> DOCKER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
 		"dock",
 		() -> BlockEntityType.Builder.of(DockerBlockEntity::new, VSCHBlocks.DOCKER_BLOCK.get())
 			.build(null)
-	);
+	);*/
 
 	public static final RegistryObject<BlockEntityType<GyroBlockEntity>> GYRO_BLOCK_ENTITY = BLOCK_ENTITIES.register(
 		"gyro",
