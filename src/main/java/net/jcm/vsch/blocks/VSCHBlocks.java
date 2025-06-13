@@ -29,7 +29,7 @@ public class VSCHBlocks {
 
 	public static final RegistryObject<Block> VENT_BLOCK = registerBlock(
 			"vent_block",
-			() -> new Block(
+			() -> new VentBlock(
 					BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
 							.sound(SoundType.COPPER)
 							.strength(5f)

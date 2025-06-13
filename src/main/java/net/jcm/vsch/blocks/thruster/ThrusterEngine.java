@@ -1,6 +1,7 @@
 package net.jcm.vsch.blocks.thruster;
 
 import net.jcm.vsch.blocks.VSCHBlocks;
+import net.jcm.vsch.blocks.custom.VentBlock;
 import net.jcm.vsch.util.NoSourceClipContext;
 
 import net.minecraft.core.BlockPos;
@@ -198,7 +199,7 @@ public abstract class ThrusterEngine {
 				final BlockState blockState = level.getBlockState(hitPos);
 				final Block hitBlock = blockState.getBlock();
 				final FluidState hitFluid = blockState.getFluidState();
-				if (hitBlock == VSCHBlocks.VENT_BLOCK.get()) {
+				if (hitBlock instanceof VentBlock) {
 					return;
 				}
 				if (hitFluid.isEmpty()) {
