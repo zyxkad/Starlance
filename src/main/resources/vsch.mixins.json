@@ -5,11 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "mixins.vsch.refmap.json",
   "mixins": [
-    "minecraft.MixinEntity",
     "cosmos.MixinLightRenderer",
+    "cosmos.MixinSpacesuitwornLogicProcedure",
+    "minecraft.MixinEntity",
     "minecraft.MixinMob",
     "valkyrienskies.MixinShipAssemblyKt",
-    "cosmos.MixinSpacesuitwornLogicProcedure",
     "valkyrienskies.MixinVSGameUtilsKt",
     "valkyrienskies.accessor.ServerShipObjectWorldAccessor"
   ],
