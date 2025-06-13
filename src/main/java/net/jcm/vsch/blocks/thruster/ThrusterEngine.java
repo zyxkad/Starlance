@@ -1,7 +1,7 @@
 package net.jcm.vsch.blocks.thruster;
 
+import net.jcm.vsch.api.block.IVentBlock;
 import net.jcm.vsch.blocks.VSCHBlocks;
-import net.jcm.vsch.blocks.custom.VentBlock;
 import net.jcm.vsch.util.NoSourceClipContext;
 
 import net.minecraft.core.BlockPos;
@@ -193,15 +193,12 @@ public abstract class ThrusterEngine {
 			final Vec3 centerFacePos = centerPos.relative(direction, 0.5);
 			final Vec3 centerFacePosWorld = VSGameUtilsKt.toWorldCoordinates(level, centerFacePos);
 
-			final BlockHitResult hitResult = level.clip(new NoSourceClipContext(centerPosWorld, centerExtendedPosWorld, pos));
+			final BlockHitResult hitResult = level.clip(new ThrustClipContext(centerPosWorld, centerExtendedPosWorld, pos));
 			if (hitResult.getType() == HitResult.Type.BLOCK) {
 				final BlockPos hitPos = hitResult.getBlockPos();
 				final BlockState blockState = level.getBlockState(hitPos);
 				final Block hitBlock = blockState.getBlock();
 				final FluidState hitFluid = blockState.getFluidState();
-				if (hitBlock instanceof VentBlock) {
-					return;
-				}
 				if (hitFluid.isEmpty()) {
 					if (hitBlock instanceof TntBlock) {
 						TntBlock.explode(level, hitPos);
@@ -305,16 +302,40 @@ public abstract class ThrusterEngine {
 	}
 
 	/**
-	 * This clip context only matching full blocks in world since CH particle only respect to full block
-	 * and VS2 did not make particle collides with ship yet
+	 * ThrustClipContext skip {@link IVentBlock} if applicable
 	 */
-	private static class ParticleClipContext extends NoSourceClipContext {
-		ParticleClipContext(Vec3 from, Vec3 to, BlockPos source) {
+	private static class ThrustClipContext extends NoSourceClipContext {
+		ThrustClipContext(Vec3 from, Vec3 to, BlockPos source) {
 			super(from, to, source);
 		}
 
 		@Override
 		public VoxelShape getBlockShape(BlockState state, BlockGetter level, BlockPos pos) {
+			final VoxelShape shape = super.getBlockShape(state, level, pos);
+			if (shape.isEmpty()) {
+				return shape;
+			}
+			if (state.getBlock() instanceof IVentBlock vent) {
+				final BlockHitResult hitResult = shape.clip(this.getFrom(), this.getTo(), pos);
+				if (hitResult != null && vent.canThrustPass(hitResult)) {
+					return Shapes.empty();
+				}
+			}
+			return shape;
+		}
+	}
+
+	/**
+	 * This clip context only matching full blocks in world since CH particle only respect to full block
+	 * and VS2 did not make particle collides with ship yet
+	 */
+	private static class ParticleClipContext extends NoSourceClipContext {
+		ParticleClipContext(final Vec3 from, final Vec3 to, final BlockPos source) {
+			super(from, to, source);
+		}
+
+		@Override
+		public VoxelShape getBlockShape(final BlockState state, final BlockGetter level, final BlockPos pos) {
 			if (VSGameUtilsKt.isBlockInShipyard((Level) (level), pos)) {
 				return Shapes.empty();
 			}
@@ -323,7 +344,7 @@ public abstract class ThrusterEngine {
 		}
 
 		@Override
-		public VoxelShape getFluidShape(FluidState state, BlockGetter level, BlockPos pos) {
+		public VoxelShape getFluidShape(final FluidState state, final BlockGetter level, final BlockPos pos) {
 			return Shapes.empty();
 		}
 	}
