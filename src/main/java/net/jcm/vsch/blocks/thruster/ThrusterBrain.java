@@ -265,8 +265,10 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 				}
 			}
 		}
-		// TODO: optimize redstone power scanning
-		this.updatePowerByRedstone();
+		if (!this.isPeripheralMode) {
+			// TODO: optimize redstone power scanning
+			this.updatePowerByRedstone();
+		}
 	}
 
 	private void tryMergeBrain(BlockPos atPos, ThrusterBrain other, BlockPos otherPos) {
