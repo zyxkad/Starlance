@@ -65,7 +65,7 @@ public class MixinPlaceplatformOnKeyPressedProcedure {
 		final Vector3i worldCenter = new Vector3i((int) (target.x), (int) (target.y), (int) (target.z));
 		final ServerShip ship = shipWorld.createNewShipAtBlock(worldCenter, false, 1.0, levelId);
 		final Vector3i shipCenter = ship.getChunkClaim().getCenterBlockCoordinates(VSGameUtilsKt.getYRange(level), new Vector3i());
-		ship.setSlug(player.getGameProfile().getName() + ship.getId());
+		ship.setSlug(player.getGameProfile().getName() + "-" + ship.getId());
 
 		final UseOnContext useCtx = new UseOnContext(
 			level,
