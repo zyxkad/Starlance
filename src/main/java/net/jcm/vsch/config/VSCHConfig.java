@@ -40,7 +40,10 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec.ConfigValue<Number> GYRO_MAX_SPEED;
 	public static final ForgeConfigSpec.ConfigValue<Boolean> GYRO_LIMIT_SPEED;
 
+	// Optimize
+	public static final ForgeConfigSpec.BooleanValue ENABLE_EMPTY_SPACE_CHUNK;
 
+	// Misc
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
 
 	public static final ForgeConfigSpec.ConfigValue<Boolean> LIMIT_SPEED;
@@ -79,6 +82,12 @@ public class VSCHConfig {
 		GYRO_ENERGY_CONSUME_RATE = BUILDER.comment("Gyro energy consume rate. (FE/t)").define("gyro_energy_consume_rate", 10000);
 		GYRO_LIMIT_SPEED = BUILDER.comment("Should the gyro have its rotational speed limited").define("gyro_limit_speed", true);
 		GYRO_MAX_SPEED = BUILDER.comment("Max rotation the gyro will accelerate to (RPM?)").define("gyro_max_speed", 80);
+
+		BUILDER.pop();
+
+		BUILDER.push("Optimize");
+
+		ENABLE_EMPTY_SPACE_CHUNK = BUILDER.comment("Do not load or save space chunks. This option will significantly reduce memory allocation when travelling at high speed. However you won't be able to build blocks in space unless its a ship.").define("enable_empty_space_chunk", false);
 
 		BUILDER.pop();
 

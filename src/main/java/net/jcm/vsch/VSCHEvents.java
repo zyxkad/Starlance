@@ -1,11 +1,16 @@
 package net.jcm.vsch;
 
-import net.lointain.cosmos.network.CosmosModVariables;
+import net.jcm.vsch.event.AtmosphericCollision;
 import net.jcm.vsch.event.GravityInducer;
 import net.jcm.vsch.event.PlanetCollision;
-import net.jcm.vsch.event.AtmosphericCollision;
+import net.jcm.vsch.util.EmptyChunkAccess;
+import net.lointain.cosmos.network.CosmosModVariables;
+
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,4 +45,15 @@ public class VSCHEvents {
 	//	public static void shipLoad(VSEvents.ShipLoadEvent event) {
 	////		Gravity.setAll(event.getServer().overworld());
 	//	}
+
+	@SubscribeEvent
+	public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+		if (!(event.getLevel() instanceof Level level)) {
+			return;
+		}
+		final ChunkPos pos = new ChunkPos(event.getPos());
+		if (EmptyChunkAccess.shouldUseEmptyChunk(level, pos.x, pos.z)) {
+			event.setCanceled(true);
+		}
+	}
 }
