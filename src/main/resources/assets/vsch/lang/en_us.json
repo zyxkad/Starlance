@@ -11,6 +11,7 @@
 	"block.vsch.drag_inducer_block": "Drag inducer",
 	"block.vsch.air_thruster_block": "Air thruster",
 	"block.vsch.powerful_thruster_block": "Powerful thruster",
+	"block.vsch.gyro": "Gyroscope",
 	"item.vsch.wrench": "Wrench",
 	"item.vsch.magnet_boot": "Magnet Boots",
 	"config.jade.plugin_vsch.thruster_component_config": "Thruster Mode Details",
