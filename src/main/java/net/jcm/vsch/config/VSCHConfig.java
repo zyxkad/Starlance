@@ -91,9 +91,9 @@ public class VSCHConfig {
 
 		BUILDER.pop();
 
-		BUILDER.push("RocketSupporter");
+		BUILDER.push("RocketAssembler");
 
-		MAX_ASSEMBLE_BLOCKS = BUILDER.comment("Max assemble blocks for rocket supporter").defineInRange("max_assemble_blocks", 16 * 16 * 256 * 9, 0, Integer.MAX_VALUE);
+		MAX_ASSEMBLE_BLOCKS = BUILDER.comment("Max assemble blocks for rocket assembler").defineInRange("max_assemble_blocks", 16 * 16 * 256 * 9, 0, Integer.MAX_VALUE);
 		ASSEMBLE_BLACKLIST = BUILDER.comment("Prevent assemble if contatins any of these blocks").defineList("assemble_blacklist", DEFAULT_ASSEMBLE_BLACKLIST, (o) -> o instanceof String value && value.length() > 0);
 
 		BUILDER.pop();

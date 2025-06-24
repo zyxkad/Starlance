@@ -114,9 +114,9 @@ public class VSCHBlocks {
 		)
 	);
 
-	public static final RegistryObject<Block> ROCKET_SUPPORTER_BLOCK = registerBlock(
-		"rocket_supporter",
-		() -> new RocketSupporterBlock(
+	public static final RegistryObject<Block> ROCKET_ASSEMBLER_BLOCK = registerBlock(
+		"rocket_assembler",
+		() -> new RocketAssemblerBlock(
 			BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK)
 				.sound(SoundType.ANVIL)
 				.strength(5f)

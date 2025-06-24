@@ -60,10 +60,11 @@ public class VSCHBlockEntities {
 			.build(null)
 	);
 
-	public static final RegistryObject<BlockEntityType<RocketSupporterBlockEntity>> ROCKET_SUPPORTER_BLOCK_ENTITY =
-			BLOCK_ENTITIES.register("rocket_supporter",
-					() -> BlockEntityType.Builder.of(RocketSupporterBlockEntity::new, VSCHBlocks.ROCKET_SUPPORTER_BLOCK.get())
-							.build(null));
+	public static final RegistryObject<BlockEntityType<RocketAssemblerBlockEntity>> ROCKET_ASSEMBLER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+		"rocket_assembler",
+		() -> BlockEntityType.Builder.of(RocketAssemblerBlockEntity::new, VSCHBlocks.ROCKET_ASSEMBLER_BLOCK.get())
+			.build(null)
+	);
 
 	public static void register(IEventBus eventBus) {
 		BLOCK_ENTITIES.register(eventBus);

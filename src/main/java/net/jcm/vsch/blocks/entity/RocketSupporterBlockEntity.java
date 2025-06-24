@@ -1,6 +1,6 @@
 package net.jcm.vsch.blocks.entity;
 
-import net.jcm.vsch.blocks.custom.RocketSupporterBlock;
+import net.jcm.vsch.blocks.custom.RocketAssemblerBlock;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.config.VSCHConfig;
@@ -52,7 +52,7 @@ import java.util.Queue;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class RocketSupporterBlockEntity extends BlockEntity implements ParticleBlockEntity {
+public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleBlockEntity {
 	private static final int MAX_SIZE = 256 * 16;
 
 	private boolean triggering = false;
@@ -63,8 +63,8 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 	private final DenseBlockPosSet checked = new DenseBlockPosSet();
 	private final AABBi box = new AABBi();
 
-	public RocketSupporterBlockEntity(BlockPos pos, BlockState state) {
-		super(VSCHBlockEntities.ROCKET_SUPPORTER_BLOCK_ENTITY.get(), pos, state);
+	public RocketAssemblerBlockEntity(BlockPos pos, BlockState state) {
+		super(VSCHBlockEntities.ROCKET_ASSEMBLER_BLOCK_ENTITY.get(), pos, state);
 	}
 
 	public boolean isAssembling() {
@@ -190,9 +190,9 @@ public class RocketSupporterBlockEntity extends BlockEntity implements ParticleB
 		for (final Direction dir : Direction.values()) {
 			final BlockPos p = pos.relative(dir);
 			final BlockState targetState = level.getBlockState(p);
-			if (targetState.getBlock() instanceof RocketSupporterBlock && targetState.getValue(DirectionalBlock.FACING) == dir.getOpposite()) {
-				final RocketSupporterBlockEntity otherSupporter = (RocketSupporterBlockEntity) (level.getBlockEntity(p));
-				if (otherSupporter != this && otherSupporter.isAssembling()) {
+			if (targetState.getBlock() instanceof RocketAssemblerBlock && targetState.getValue(DirectionalBlock.FACING) == dir.getOpposite()) {
+				final RocketAssemblerBlockEntity otherAssembler = (RocketAssemblerBlockEntity) (level.getBlockEntity(p));
+				if (otherAssembler != this && otherAssembler.isAssembling()) {
 					this.finishAssemble(null);
 					return false;
 				}

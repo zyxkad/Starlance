@@ -1,7 +1,6 @@
-
 package net.jcm.vsch.blocks.custom;
 
-import net.jcm.vsch.blocks.entity.RocketSupporterBlockEntity;
+import net.jcm.vsch.blocks.entity.RocketAssemblerBlockEntity;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 
@@ -19,8 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 
-public class RocketSupporterBlock extends DirectionalBlock implements EntityBlock {
-	public RocketSupporterBlock(Properties properties) {
+public class RocketAssemblerBlock extends DirectionalBlock implements EntityBlock {
+	public RocketAssemblerBlock(Properties properties) {
 		super(properties);
 	}
 
@@ -42,13 +41,13 @@ public class RocketSupporterBlock extends DirectionalBlock implements EntityBloc
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbor, BlockPos neighborPos, boolean moving) {
 		super.neighborChanged(state, world, pos, neighbor, neighborPos, moving);
-		RocketSupporterBlockEntity be = (RocketSupporterBlockEntity) world.getBlockEntity(pos);
+		RocketAssemblerBlockEntity be = (RocketAssemblerBlockEntity) world.getBlockEntity(pos);
 		be.neighborChanged(neighbor, neighborPos, moving);
 	}
 
 	@Override
-	public RocketSupporterBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new RocketSupporterBlockEntity(pos, state);
+	public RocketAssemblerBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new RocketAssemblerBlockEntity(pos, state);
 	}
 
 	@Override
