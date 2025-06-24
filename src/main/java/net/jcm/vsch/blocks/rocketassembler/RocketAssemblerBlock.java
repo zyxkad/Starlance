@@ -1,6 +1,5 @@
-package net.jcm.vsch.blocks.custom;
+package net.jcm.vsch.blocks.rocketassembler;
 
-import net.jcm.vsch.blocks.entity.RocketAssemblerBlockEntity;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 
@@ -17,15 +16,20 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public class RocketAssemblerBlock extends DirectionalBlock implements EntityBlock {
+	public static final EnumProperty<AssembleLED> LED = EnumProperty.create("led", AssembleLED.class);
+
 	public RocketAssemblerBlock(Properties properties) {
 		super(properties);
 	}
 
 	@Override
 	public void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+		builder
+			.add(DirectionalBlock.FACING)
+			.add(LED);
 	}
 
 	@Override
@@ -35,7 +39,8 @@ public class RocketAssemblerBlock extends DirectionalBlock implements EntityBloc
 			dir = dir.getOpposite();
 		}
 		return defaultBlockState()
-			.setValue(DirectionalBlock.FACING, dir);
+			.setValue(DirectionalBlock.FACING, dir)
+			.setValue(LED, AssembleLED.GREEN);
 	}
 
 	@Override

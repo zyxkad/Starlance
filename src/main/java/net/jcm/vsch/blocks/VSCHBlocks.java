@@ -6,6 +6,7 @@ import net.jcm.vsch.blocks.entity.AirThrusterBlockEntity;
 import net.jcm.vsch.blocks.entity.CreativeThrusterBlockEntity;
 import net.jcm.vsch.blocks.entity.PowerfulThrusterBlockEntity;
 import net.jcm.vsch.blocks.entity.ThrusterBlockEntity;
+import net.jcm.vsch.blocks.rocketassembler.RocketAssemblerBlock;
 import net.jcm.vsch.items.VSCHItems;
 import net.jcm.vsch.util.rot.DirectionalShape;
 import net.jcm.vsch.util.rot.RotShapes;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -118,8 +120,10 @@ public class VSCHBlocks {
 		"rocket_assembler",
 		() -> new RocketAssemblerBlock(
 			BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK)
+				.mapColor(MapColor.STONE)
 				.sound(SoundType.ANVIL)
 				.strength(5f)
+				.isRedstoneConductor((state, level, pos) -> false)
 		)
 	);
 

@@ -1,6 +1,6 @@
-package net.jcm.vsch.blocks.entity;
+package net.jcm.vsch.blocks.rocketassembler;
 
-import net.jcm.vsch.blocks.custom.RocketAssemblerBlock;
+import net.jcm.vsch.blocks.entity.VSCHBlockEntities;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.config.VSCHConfig;
@@ -11,6 +11,8 @@ import net.jcm.vsch.util.assemble.MoveUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.entity.Entity;
@@ -56,8 +58,7 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 	private static final int MAX_SIZE = 256 * 16;
 
 	private boolean triggering = false;
-	private boolean assembling = false;
-	private String assembleResult = null;
+	private AssembleResult assembleResult = AssembleResult.SUCCESS;
 	private final Queue<BlockPos> queueing = new ArrayDeque<>();
 	private final DenseBlockPosSet blocks = new DenseBlockPosSet();
 	private final DenseBlockPosSet checked = new DenseBlockPosSet();
@@ -68,15 +69,54 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 	}
 
 	public boolean isAssembling() {
-		return this.assembling;
+		return this.assembleResult.isWorking();
 	}
 
 	public boolean isAssembleSuccessed() {
-		return !this.isAssembling() && this.assembleResult == null;
+		return this.assembleResult.isSuccess();
 	}
 
-	public String getAssembleResult() {
+	public AssembleResult getAssembleResult() {
 		return this.assembleResult;
+	}
+
+	private void setAssembleResult(final AssembleResult result) {
+		if (this.assembleResult == result) {
+			return;
+		}
+		this.assembleResult = result;
+		this.setChanged();
+		this.getLevel().setBlock(this.getBlockPos(), this.getBlockState().setValue(RocketAssemblerBlock.LED, result.getLED()), Block.UPDATE_ALL);
+	}
+
+	@Override
+	public void load(final CompoundTag data) {
+		try {
+			this.assembleResult = AssembleResult.valueOf(data.getString("AssembleResult"));
+		} catch(IllegalArgumentException e) {
+			this.assembleResult = AssembleResult.SUCCESS;
+		}
+	}
+
+	@Override
+	public void saveAdditional(final CompoundTag data) {
+		this.saveShared(data);
+	}
+
+	public void saveShared(final CompoundTag data) {
+		data.putString("AssembleResult", this.assembleResult.toString());
+	}
+
+	@Override
+	public CompoundTag getUpdateTag() {
+		CompoundTag data = super.getUpdateTag();
+		this.saveShared(data);
+		return data;
+	}
+
+	@Override
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
 	public void neighborChanged(Block neighbor, BlockPos neighborPos, boolean moving) {
@@ -96,7 +136,7 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 
 	@Override
 	public void tickForce(ServerLevel level, BlockPos pos, BlockState state) {
-		if (this.assembling) {
+		if (this.isAssembling()) {
 			this.assembleTick(level);
 		}
 	}
@@ -106,12 +146,11 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 		//
 	}
 
-	private void assemble() {
-		if (this.assembling) {
-			return;
+	boolean assemble() {
+		if (this.isAssembling()) {
+			return false;
 		}
-		this.assembling = true;
-		this.assembleResult = null;
+		this.setAssembleResult(AssembleResult.WORKING);
 		this.queueing.clear();
 		this.blocks.clear();
 		this.checked.clear();
@@ -120,13 +159,11 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 		this.box
 			.setMin(facingBlockPos.getX(), facingBlockPos.getY(), facingBlockPos.getZ())
 			.setMax(facingBlockPos.getX(), facingBlockPos.getY(), facingBlockPos.getZ());
+		return true;
 	}
 
-	private void finishAssemble(String error) {
-		// TODO: change texture based on if assemble successed
-		// TODO: show assemble error message somewhere
-		this.assembling = false;
-		this.assembleResult = error;
+	private void finishAssemble(final AssembleResult result) {
+		this.setAssembleResult(result);
 		this.queueing.clear();
 		this.blocks.clear();
 		this.checked.clear();
@@ -145,14 +182,15 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 				break;
 			}
 			if (this.blocks.size() >= VSCHConfig.MAX_ASSEMBLE_BLOCKS.get()) {
-				this.finishAssemble("too many blocks");
+				this.finishAssemble(AssembleResult.TOO_MANY_BLOCKS);
 				return;
 			}
 			if (pos.equals(selfPos)) {
-				this.finishAssemble("cannot assemble itself");
+				this.finishAssemble(AssembleResult.ASSEMBLING_SELF);
 				return;
 			}
-			if (!this.checkBlock(pos)) {
+			this.checkBlock(pos);
+			if (!this.isAssembling()) {
 				return;
 			}
 			ticked++;
@@ -161,29 +199,29 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 			}
 		}
 		if (this.blocks.isEmpty()) {
-			this.finishAssemble("no block to assemble");
+			this.finishAssemble(AssembleResult.NO_BLOCK);
 			return;
 		}
 		if (this.box.lengthX() > MAX_SIZE || this.box.lengthY() > MAX_SIZE || this.box.lengthZ() > MAX_SIZE) {
-			this.finishAssemble("excess size limit");
+			this.finishAssemble(AssembleResult.SIZE_OVERFLOW);
 			return;
 		}
 		this.createShip(level);
 	}
 
-	private boolean checkBlock(final BlockPos pos) {
+	private void checkBlock(final BlockPos pos) {
 		final Level level = this.getLevel();
 		if (!level.hasChunkAt(pos.getX(), pos.getZ())) {
-			this.finishAssemble("assemble unloaded chunk");
-			return false;
+			this.finishAssemble(AssembleResult.CHUNK_UNLOADED);
+			return;
 		}
 		final BlockState block = level.getBlockState(pos);
 		if (this.isAirBlock(block)) {
-			return true;
+			return;
 		}
 		if (!this.canAssembleBlock(block)) {
-			this.finishAssemble("cannot assemble block");
-			return false;
+			this.finishAssemble(AssembleResult.UNABLE_ASSEMBLE);
+			return;
 		}
 		this.box.union(pos.getX(), pos.getY(), pos.getZ());
 		this.blocks.add(pos.getX(), pos.getY(), pos.getZ());
@@ -193,8 +231,8 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 			if (targetState.getBlock() instanceof RocketAssemblerBlock && targetState.getValue(DirectionalBlock.FACING) == dir.getOpposite()) {
 				final RocketAssemblerBlockEntity otherAssembler = (RocketAssemblerBlockEntity) (level.getBlockEntity(p));
 				if (otherAssembler != this && otherAssembler.isAssembling()) {
-					this.finishAssemble(null);
-					return false;
+					this.finishAssemble(AssembleResult.OTHER_ASSEMBLING);
+					return;
 				}
 				continue;
 			}
@@ -202,14 +240,13 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 				this.queueing.add(p);
 			}
 		}
-		return true;
 	}
 
-	private boolean isAirBlock(final BlockState state) {
+	protected boolean isAirBlock(final BlockState state) {
 		return state.isAir();
 	}
 
-	private boolean canAssembleBlock(final BlockState state) {
+	protected boolean canAssembleBlock(final BlockState state) {
 		final Block block = state.getBlock();
 		if (block == Blocks.BEDROCK) {
 			return false;
@@ -353,7 +390,7 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 			});
 		}
 
-		this.finishAssemble(null);
+		this.finishAssemble(AssembleResult.SUCCESS);
 	}
 
 	private static Stream<BlockPos> streamBlocksInAABB(AABB box) {

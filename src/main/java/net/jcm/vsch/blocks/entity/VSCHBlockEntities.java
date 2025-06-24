@@ -2,6 +2,7 @@ package net.jcm.vsch.blocks.entity;
 
 import net.jcm.vsch.VSCHMod;
 import net.jcm.vsch.blocks.VSCHBlocks;
+import net.jcm.vsch.blocks.rocketassembler.RocketAssemblerBlockEntity;
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
