@@ -10,9 +10,11 @@ import net.jcm.vsch.util.assemble.MoveUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.entity.Entity;
@@ -25,6 +27,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
+
+import dan200.computercraft.shared.Capabilities;
 
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.ControlledContraptionEntity;
@@ -58,11 +66,23 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 	private static final int MAX_SIZE = 256 * 16;
 
 	private boolean triggering = false;
-	private AssembleResult assembleResult = AssembleResult.SUCCESS;
+	private volatile AssembleResult assembleResult = AssembleResult.SUCCESS;
+	private String shipSlug = null;
+	private int energyStored = 0;
+	private final int energyConsumption = VSCHConfig.ASSEMBLER_ENERGY_CONSUMPTION.get();
 	private final Queue<BlockPos> queueing = new ArrayDeque<>();
 	private final DenseBlockPosSet blocks = new DenseBlockPosSet();
 	private final DenseBlockPosSet checked = new DenseBlockPosSet();
 	private final AABBi box = new AABBi();
+
+	final IEnergyStorage energyStorage = new EnergyStorage();
+	private final LazyOptional<IEnergyStorage> lazyEnergyStorage = LazyOptional.of(() -> this.energyStorage);
+	private final LazyOptional<Object> lazyPeripheral = LazyOptional.of(() -> {
+		final RocketAssemblerPeripheral peripheral = new RocketAssemblerPeripheral(this);
+		this.assembleFinishCallback = peripheral::onAssembleFinish;
+		return peripheral;
+	});
+	private Runnable assembleFinishCallback = null;
 
 	public RocketAssemblerBlockEntity(BlockPos pos, BlockState state) {
 		super(VSCHBlockEntities.ROCKET_ASSEMBLER_BLOCK_ENTITY.get(), pos, state);
@@ -74,6 +94,10 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 
 	public boolean isAssembleSuccessed() {
 		return this.assembleResult.isSuccess();
+	}
+
+	public int getEnergyConsumption() {
+		return this.energyConsumption;
 	}
 
 	public AssembleResult getAssembleResult() {
@@ -91,6 +115,7 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 
 	@Override
 	public void load(final CompoundTag data) {
+		this.energyStored = data.getInt("EnergyStored");
 		try {
 			this.assembleResult = AssembleResult.valueOf(data.getString("AssembleResult"));
 		} catch(IllegalArgumentException e) {
@@ -100,6 +125,7 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 
 	@Override
 	public void saveAdditional(final CompoundTag data) {
+		data.putInt("EnergyStored", this.energyStored);
 		this.saveShared(data);
 	}
 
@@ -130,8 +156,19 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 		}
 		this.triggering = shouldTrigger;
 		if (shouldTrigger) {
-			this.assemble();
+			this.assemble(null);
 		}
+	}
+
+	@Override
+	public <T> LazyOptional<T> getCapability(final Capability<T> cap, final Direction direction) {
+		if (cap == ForgeCapabilities.ENERGY) {
+			return this.lazyEnergyStorage.cast();
+		}
+		if (CompatMods.COMPUTERCRAFT.isLoaded() && cap == Capabilities.CAPABILITY_PERIPHERAL) {
+			return this.lazyPeripheral.cast();
+		}
+		return super.getCapability(cap, direction);
 	}
 
 	@Override
@@ -146,11 +183,16 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 		//
 	}
 
-	boolean assemble() {
+	boolean assemble(final String slug) {
 		if (this.isAssembling()) {
 			return false;
 		}
+		if (this.energyStored < this.energyConsumption) {
+			this.finishAssemble(AssembleResult.NO_ENERGY);
+			return true;
+		}
 		this.setAssembleResult(AssembleResult.WORKING);
+		this.shipSlug = slug;
 		this.queueing.clear();
 		this.blocks.clear();
 		this.checked.clear();
@@ -164,9 +206,13 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 
 	private void finishAssemble(final AssembleResult result) {
 		this.setAssembleResult(result);
+		this.shipSlug = null;
 		this.queueing.clear();
 		this.blocks.clear();
 		this.checked.clear();
+		if (this.assembleFinishCallback != null) {
+			this.assembleFinishCallback.run();
+		}
 	}
 
 	private void assembleTick(final ServerLevel level) {
@@ -206,6 +252,7 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 			this.finishAssemble(AssembleResult.SIZE_OVERFLOW);
 			return;
 		}
+
 		this.createShip(level);
 	}
 
@@ -248,14 +295,21 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 
 	protected boolean canAssembleBlock(final BlockState state) {
 		final Block block = state.getBlock();
-		if (block == Blocks.BEDROCK) {
+		final ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+		if (VSCHConfig.getAssembleBlacklistSet().contains(blockId)) {
 			return false;
 		}
-		// TODO: load blacklist from config
 		return true;
 	}
 
 	private void createShip(final ServerLevel level) {
+		if (this.energyStored < this.energyConsumption) {
+			this.finishAssemble(AssembleResult.NO_ENERGY);
+			return;
+		}
+		this.energyStored -= this.energyConsumption;
+		this.setChanged();
+
 		final ServerShipWorldCore shipWorld = VSGameUtilsKt.getShipObjectWorld(level);
 		final String levelId = VSGameUtilsKt.getDimensionId(level);
 		final Vector3i worldCenter = new Vector3i(this.box.center(new Vector3d()), RoundingMode.TRUNCATE);
@@ -264,6 +318,8 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 		final Vector3i offset = shipCenter.sub(worldCenter, new Vector3i());
 		final List<Pair<BlockPos, BlockState>> blockStates = new ArrayList<>(this.blocks.size());
 		final List<Entity> entities = new ArrayList<>();
+
+		ship.setSlug(this.shipSlug == null ? "+assembled+rocket+" + ship.getId() : this.shipSlug);
 
 		// get attachable entities
 		for (final Entity entity : level.getEntities(null, new AABB(this.box.minX - 1, this.box.minY - 1, this.box.minZ - 1, this.box.maxX + 2, this.box.maxY + 2, this.box.maxZ + 2))) {
@@ -407,5 +463,43 @@ public class RocketAssemblerBlockEntity extends BlockEntity implements ParticleB
 			final int y = i + minY;
 			return new BlockPos(x, y, z);
 		});
+	}
+
+	private class EnergyStorage implements IEnergyStorage {
+		@Override
+		public int receiveEnergy(final int maxReceive, final boolean simulate) {
+			final int storedEnergy = this.getEnergyStored();
+			final int newEnergy = Math.min(storedEnergy + maxReceive, this.getMaxEnergyStored());
+			if (!simulate) {
+				RocketAssemblerBlockEntity.this.energyStored = newEnergy;
+				RocketAssemblerBlockEntity.this.setChanged();
+			}
+			return newEnergy - storedEnergy;
+		}
+
+		@Override
+		public int extractEnergy(final int maxExtract, final boolean simulate) {
+			return 0;
+		}
+
+		@Override
+		public int getEnergyStored() {
+			return RocketAssemblerBlockEntity.this.energyStored;
+		}
+
+		@Override
+		public int getMaxEnergyStored() {
+			return RocketAssemblerBlockEntity.this.getEnergyConsumption();
+		}
+
+		@Override
+		public boolean canExtract() {
+			return false;
+		}
+
+		@Override
+		public boolean canReceive() {
+			return true;
+		}
 	}
 }
