@@ -16,6 +16,7 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class AtmosphericCollision {
 	private static final Logger LOGGER = LogManager.getLogger(VSCHMod.MODID);
+
 	/**
 	 * Checks all VS ships for the given level, if any of them are above their
 	 * dimensions atmosphere (as set in a CH datapack), they will be moved to the
