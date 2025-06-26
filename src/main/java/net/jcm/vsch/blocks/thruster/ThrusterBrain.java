@@ -58,8 +58,9 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	private final FluidTank[] tanks;
 	private final IFluidHandler drainOnly = this.new DrainOnly();
 
-	private volatile float power = 0;
-	private volatile float currentPower = 0;
+	private double scale;
+	private volatile double power = 0;
+	private volatile double currentPower = 0;
 	private volatile boolean powerChanged = false;
 
 	private List<AbstractThrusterBlockEntity> connectedBlocks;
@@ -82,6 +83,7 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		for (int i = 0; i < this.tanks.length; i++) {
 			this.tanks[i] = new FluidTank(FLUID_TANK_CAPACITY * count);
 		}
+		this.scale = this.connectedBlocks.get(0).getScale();
 	}
 
 	protected ThrusterBrain(AbstractThrusterBlockEntity dataBlock, String peripheralType, Direction facing, ThrusterEngine engine) {
@@ -116,11 +118,15 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.getDataBlock().sendUpdate();
 	}
 
-	public float getCurrentPower() {
+	public double getCurrentPower() {
 		return this.currentPower;
 	}
 
-	protected void setCurrentPower(float power) {
+	public double getMaxThrottle() {
+		return this.engine.getMaxThrottle() * this.scale;
+	}
+
+	protected void setCurrentPower(double power) {
 		if (this.currentPower == power) {
 			return;
 		}
@@ -128,19 +134,19 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		this.markPowerChanged();
 	}
 
-	public float getCurrentThrottle() {
-		return this.getCurrentPower() * this.engine.getMaxThrottle();
+	public double getCurrentThrottle() {
+		return this.getCurrentPower() * this.getMaxThrottle();
 	}
 
 	/**
 	 * @return thruster power in range of [0.0, 1.0]
 	 */
-	public float getPower() {
+	public double getPower() {
 		return this.power;
 	}
 
-	public void setPower(float power) {
-		float newPower = Math.min(Math.max(power, 0), 1);
+	public void setPower(double power) {
+		double newPower = Math.min(Math.max(power, 0), 1);
 		this.power = newPower;
 	}
 
@@ -175,8 +181,8 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	public void readFromNBT(CompoundTag data) {
 		int count = data.getInt(THRUSTERS_COUNT_TAG_NAME);
 		this.thrusterData.mode = ThrusterData.ThrusterMode.values()[data.getByte(MODE_TAG_NAME)];
-		this.setPower(data.getFloat(POWER_TAG_NAME));
-		this.currentPower = data.getFloat(CURRENT_POWER_TAG_NAME);
+		this.setPower(data.getDouble(POWER_TAG_NAME));
+		this.currentPower = data.getDouble(CURRENT_POWER_TAG_NAME);
 		this.isPeripheralMode = CompatMods.COMPUTERCRAFT.isLoaded() && data.getBoolean(PERIPHERAL_MOD_TAG_NAME);
 		this.maxEnergy = this.engine.getEnergyConsumeRate() * count;
 		this.storedEnergy = Math.min(this.maxEnergy, data.getInt(ENERGY_TAG_NAME));
@@ -196,8 +202,8 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 	public void writeToNBT(CompoundTag data) {
 		data.putInt(THRUSTERS_COUNT_TAG_NAME, this.connectedBlocks.size());
 		data.putByte(MODE_TAG_NAME, (byte) (this.thrusterData.mode.ordinal()));
-		data.putFloat(POWER_TAG_NAME, this.getPower());
-		data.putFloat(CURRENT_POWER_TAG_NAME, this.getCurrentPower());
+		data.putDouble(POWER_TAG_NAME, this.getPower());
+		data.putDouble(CURRENT_POWER_TAG_NAME, this.getCurrentPower());
 		data.putBoolean(PERIPHERAL_MOD_TAG_NAME, this.getPeripheralMode());
 		data.putInt(ENERGY_TAG_NAME, this.storedEnergy);
 		ListTag tanks = new ListTag();
@@ -224,14 +230,15 @@ public class ThrusterBrain implements IEnergyStorage, IFluidHandler, ICapability
 		return LazyOptional.empty();
 	}
 
-	public void tick(ServerLevel level) {
+	public void tick(final ServerLevel level) {
 		// If we have changed peripheral mode, and we aren't peripheral mode
 		if (this.wasPeripheralMode != this.isPeripheralMode && !this.isPeripheralMode) {
 			this.updatePowerByRedstone();
 		}
 		this.wasPeripheralMode = this.isPeripheralMode;
 
-		ThrusterEngineContext context = new ThrusterEngineContext(level, this.extractOnly, this.drainOnly, this.getPower(), this.connectedBlocks.size());
+		this.scale = this.connectedBlocks.get(0).getScale();
+		final ThrusterEngineContext context = new ThrusterEngineContext(level, this.extractOnly, this.drainOnly, this.getPower(), this.connectedBlocks.size(), this.scale);
 		this.engine.tick(context);
 		if (context.isRejected()) {
 			this.setCurrentPower(0);

@@ -2,9 +2,12 @@ package net.jcm.vsch.ship.thruster;
 
 import net.jcm.vsch.api.force.IVSCHForceApplier;
 import net.jcm.vsch.config.VSCHConfig;
+
 import net.minecraft.core.BlockPos;
+
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
+import org.valkyrienskies.core.api.ships.properties.ShipTransform;
 import org.valkyrienskies.core.impl.game.ships.PhysShipImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
@@ -24,15 +27,16 @@ public class ThrusterForceApplier implements IVSCHForceApplier {
     @Override
     public void applyForces(BlockPos pos, PhysShipImpl physShip) {
         // Get current thrust from thruster
-        float throttle = data.throttle;
-        if (throttle == 0.0f) {
+        double throttle = data.throttle;
+        if (throttle == 0) {
             return;
         }
 
         // Transform force direction from ship relative to world relative
-        Vector3d tForce = physShip.getTransform().getShipToWorld().transformDirection(data.dir, new Vector3d());
+        ShipTransform transform = physShip.getTransform();
+        // TODO: investigate if VS 2.5 still scaling down velocity
+        Vector3d tForce = transform.getShipToWorld().transformDirection(data.dir.div(transform.getShipToWorldScaling(), new Vector3d()));
         tForce.mul(throttle);
-
 
         Vector3dc linearVelocity = physShip.getPoseVel().getVel();
 
@@ -55,7 +59,7 @@ public class ThrusterForceApplier implements IVSCHForceApplier {
 
                         Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
                                 .add(0.5, 0.5, 0.5, new Vector3d())
-                                .sub(physShip.getTransform().getPositionInShip());
+                                .sub(transform.getPositionInShip());
 
 
                         Vector3d parallel = new Vector3d(tPos).mul(tForce.dot(tPos) / tForce.dot(tForce));
@@ -78,7 +82,7 @@ public class ThrusterForceApplier implements IVSCHForceApplier {
         if (data.mode == ThrusterData.ThrusterMode.POSITION) {
             Vector3d tPos = VectorConversionsMCKt.toJOMLD(pos)
                     .add(0.5, 0.5, 0.5, new Vector3d())
-                    .sub(physShip.getTransform().getPositionInShip());
+                    .sub(transform.getPositionInShip());
 
             physShip.applyInvariantForceToPos(tForce, tPos);
 
