@@ -91,22 +91,23 @@ public class AirThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			if (this.maxWaterConsumeRate == 0) {
 				return;
 			}
-			double power = context.getPower();
+			final double power = context.getPower();
 			if (power == 0) {
 				return;
 			}
-			double density = getLevelAirDensity(context.getLevel());
+			final double density = getLevelAirDensity(context.getLevel());
 			if (density >= 1) {
 				return;
 			}
-			int amount = context.getAmount();
+			final double scale = context.getScale();
+			final int amount = context.getAmount();
 
-			double waterConsumeRate = this.maxWaterConsumeRate * (1 - density);
-			int needsWater = (int)(Math.ceil(waterConsumeRate * power * amount));
-			int avaliableWater = context.getFluidHandler().drain(new FluidStack(Fluids.WATER, needsWater), IFluidHandler.FluidAction.SIMULATE).getAmount();
+			final double waterConsumeRate = this.maxWaterConsumeRate * (1 - density);
+			final int needsWater = (int) (Math.ceil(waterConsumeRate * power * scale * amount));
+			final int avaliableWater = context.getFluidHandler().drain(new FluidStack(Fluids.WATER, needsWater), IFluidHandler.FluidAction.SIMULATE).getAmount();
 			context.setPower(avaliableWater / (waterConsumeRate * amount));
 			context.addConsumer((ctx) -> {
-				int water = (int)(Math.ceil(this.maxWaterConsumeRate * (1 - density) * ctx.getPower() * ctx.getAmount()));
+				final int water = (int) (Math.ceil(this.maxWaterConsumeRate * (1 - density) * ctx.getPower() * ctx.getScale() * ctx.getAmount()));
 				ctx.getFluidHandler().drain(new FluidStack(Fluids.WATER, water), IFluidHandler.FluidAction.EXECUTE);
 			});
 		}

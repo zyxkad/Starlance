@@ -42,6 +42,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
 import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.valkyrienskies.core.api.ships.Ship;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
@@ -94,8 +95,17 @@ public abstract class AbstractThrusterBlockEntity extends BlockEntity implements
 		this.brain.setThrusterMode(mode);
 	}
 
-	public float getCurrentPower() {
+	public double getCurrentPower() {
 		return this.brain.getCurrentPower();
+	}
+
+	double getScale() {
+		final Ship ship = VSGameUtilsKt.getShipManagingPos(this.getLevel(), this.getBlockPos());
+		if (ship == null) {
+			return 1;
+		}
+		final Vector3dc scaling = ship.getTransform().getShipToWorldScaling();
+		return scaling.x() * scaling.y() * scaling.z();
 	}
 
 	@Override
