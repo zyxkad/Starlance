@@ -2,40 +2,18 @@ package net.jcm.vsch.blocks.custom;
 
 import net.jcm.vsch.blocks.entity.DragInducerBlockEntity;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
-import net.jcm.vsch.config.VSCHConfig;
-import net.jcm.vsch.ship.DraggerData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
-import net.jcm.vsch.util.rot.DirectionalShape;
-import net.jcm.vsch.util.rot.RotShape;
-import net.jcm.vsch.util.rot.RotShapes;
-import net.lointain.cosmos.init.CosmosModItems;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-
-import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 public class DragInducerBlock extends Block implements EntityBlock {
 
@@ -51,7 +29,11 @@ public class DragInducerBlock extends Block implements EntityBlock {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (!(level instanceof ServerLevel)) return;
+		super.onRemove(state, level, pos, newState, isMoving);
+
+		if (!(level instanceof ServerLevel)) {
+			return;
+		}
 
 		// ----- Remove this block from the force appliers for the current level ----- //
 		// I guess VS does this automatically when switching a shipyards dimension?
@@ -59,8 +41,6 @@ public class DragInducerBlock extends Block implements EntityBlock {
 		if (ships != null) {
 			ships.removeDragger(pos);
 		}
-
-		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override

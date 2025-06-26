@@ -5,7 +5,7 @@ import dan200.computercraft.shared.Capabilities;
 import net.jcm.vsch.blocks.entity.template.ParticleBlockEntity;
 import net.jcm.vsch.compat.CompatMods;
 import net.jcm.vsch.compat.cc.peripherals.DragInducerPeripheral;
-import net.jcm.vsch.ship.DraggerData;
+import net.jcm.vsch.ship.dragger.DraggerData;
 import net.jcm.vsch.ship.VSCHForceInducedShips;
 
 import net.minecraft.core.BlockPos;
@@ -124,7 +124,7 @@ public class DragInducerBlockEntity extends BlockEntity implements ParticleBlock
 		if (ships == null) {
 			return;
 		}
-		if (ships.getDraggerAtPos(pos) == null) {
+		if (ships.getDraggerAtPos(pos) != this.draggerData) {
 			ships.addDragger(pos, this.draggerData);
 		}
 	}

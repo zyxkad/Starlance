@@ -1,22 +1,38 @@
-package net.jcm.vsch.compat.cc.peripherals;
+package net.jcm.vsch.compat.cc;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.LuaValues;
+import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import net.jcm.vsch.blocks.entity.template.AbstractThrusterBlockEntity;
-import net.jcm.vsch.ship.ThrusterData;
+import net.jcm.vsch.blocks.thruster.ThrusterBrain;
+import net.jcm.vsch.config.VSCHConfig;
+import net.jcm.vsch.ship.thruster.ThrusterData;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ThrusterPeripheral implements IPeripheral {
-	private final AbstractThrusterBlockEntity entity;
+	private static final Set<String> ADDTIONAL_TYPES = Stream.concat(
+		CCGenerics.ENERGY_METHODS.getType().getAdditionalTypes().stream(),
+		CCGenerics.FLUID_METHODS.getType().getAdditionalTypes().stream()
+	).collect(Collectors.toSet());
 
-	public ThrusterPeripheral(AbstractThrusterBlockEntity entity) {
-		this.entity = entity;
+	private final ThrusterBrain brain;
+
+	public ThrusterPeripheral(ThrusterBrain brain) {
+		this.brain = brain;
 	}
 
 	@Override
 	public Object getTarget() {
-		return this.entity;
+		return this.brain;
 	}
 
 	@Override
@@ -24,58 +40,93 @@ public class ThrusterPeripheral implements IPeripheral {
 		return "starlance_thruster";
 	}
 
+	@Override
+	public Set<String> getAdditionalTypes() {
+		return ADDTIONAL_TYPES;
+	}
+
 	@LuaFunction
-	public String getThrusterType() {
-		return this.entity.getTypeString();
+	public final String getThrusterType() {
+		return this.brain.getPeripheralType();
 	}
 
 	@LuaFunction(mainThread = true)
-	public String getMode() {
-		return this.entity.getThrusterMode().toString();
+	public final MethodResult getMode() {
+		ThrusterData.ThrusterMode mode = this.brain.getThrusterMode();
+		return MethodResult.of(mode.toString(), mode.ordinal() + 1);
 	}
 
 	@LuaFunction(mainThread = true)
-	public void setMode(String mode) throws LuaException {
-		ThrusterData.ThrusterMode tmode;
-		try {
-			tmode = ThrusterData.ThrusterMode.valueOf(mode.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			throw new LuaException("unknown thruster mode");
+	public final void setMode(IArguments args) throws LuaException {
+		if (!VSCHConfig.THRUSTER_TOGGLE.get()) {
+			throw new LuaException("Thruster mode toggle disabled in server config");
 		}
-		this.entity.setThrusterMode(tmode);
+		ThrusterData.ThrusterMode tmode;
+		Object arg0 = args.get(0);
+		if (arg0 instanceof String mode) {
+			try {
+				tmode = ThrusterData.ThrusterMode.valueOf(mode.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				throw new LuaException("Unknown thruster mode");
+			}
+		} else if (arg0 instanceof Number mode) {
+			try {
+				tmode = ThrusterData.ThrusterMode.values()[mode.intValue() - 1];
+			} catch (IndexOutOfBoundsException e) {
+				throw new LuaException("Unknown thruster mode");
+			}
+		} else {
+			throw LuaValues.badArgumentOf(args, 0, "string or number");
+		}
+		this.brain.setThrusterMode(tmode);
 	}
 
 	@LuaFunction
-	public boolean getPeripheralMode() {
-		return this.entity.getPeripheralMode();
+	public final boolean getPeripheralMode() {
+		return this.brain.getPeripheralMode();
 	}
 
 	@LuaFunction
-	public void setPeripheralMode(boolean mode) {
-		this.entity.setPeripheralMode(mode);
+	public final void setPeripheralMode(boolean mode) {
+		this.brain.setPeripheralMode(mode);
 	}
 
 	@LuaFunction
-	public float getPower() {
-		return this.entity.getPower();
+	public final double getPower() {
+		return this.brain.getPower();
 	}
 
 	@LuaFunction
-	public void setPower(double power) throws LuaException {
-		if (!this.entity.getPeripheralMode()) {
+	public final void setPower(double power) throws LuaException {
+		if (!this.brain.getPeripheralMode()) {
 			throw new LuaException("Peripheral mode is off, redstone control only");
 		}
-		this.entity.setPower((float) power);
+		this.brain.setPower(power);
 	}
 
 	@LuaFunction
-	public float getMaxThrottle() {
-		return this.entity.getMaxThrottle();
+	public final double getThrusters() {
+		return this.brain.getThrusterCount();
 	}
 
 	@LuaFunction
-	public float getThrottle() {
-		return this.entity.getThrottle();
+	public final double getTotalMaxThrottle() {
+		return this.brain.getMaxThrottle() * this.brain.getThrusterCount();
+	}
+
+	@LuaFunction
+	public final double getTotalThrottle() {
+		return this.brain.getCurrentThrottle() * this.brain.getThrusterCount();
+	}
+
+	@LuaFunction
+	public final double getEachMaxThrottle() {
+		return this.brain.getMaxThrottle();
+	}
+
+	@LuaFunction
+	public final double getEachThrottle() {
+		return this.brain.getCurrentThrottle();
 	}
 
 	@Override
@@ -84,8 +135,35 @@ public class ThrusterPeripheral implements IPeripheral {
 			return true;
 		}
 		if (other instanceof ThrusterPeripheral otherThruster) {
-			return this.entity == otherThruster.entity;
+			return this.brain == otherThruster.brain;
 		}
 		return false;
+	}
+
+	//// Generic methods ////
+
+	@LuaFunction(mainThread = true)
+	public int getEnergy() {
+		return CCGenerics.ENERGY_METHODS.getEnergy(this.brain);
+	}
+
+	@LuaFunction(mainThread = true)
+	public int getEnergyCapacity() {
+		return CCGenerics.ENERGY_METHODS.getEnergyCapacity(this.brain);
+	}
+
+	@LuaFunction(mainThread = true)
+	public Map<Integer, Map<String, ?>> tanks() {
+		return CCGenerics.FLUID_METHODS.tanks(this.brain);
+	}
+
+	@LuaFunction(mainThread = true)
+	public int pushFluid(IComputerAccess computer, String toName, Optional<Integer> limit, Optional<String> fluidName) throws LuaException {
+		return CCGenerics.FLUID_METHODS.pushFluid(this.brain, computer, toName, limit, fluidName);
+	}
+
+	@LuaFunction(mainThread = true)
+	public int pullFluid(IComputerAccess computer, String fromName, Optional<Integer> limit, Optional<String> fluidName) throws LuaException {
+		return CCGenerics.FLUID_METHODS.pullFluid(this.brain, computer, fromName, limit, fluidName);
 	}
 }
