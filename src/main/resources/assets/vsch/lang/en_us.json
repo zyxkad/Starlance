@@ -1,12 +1,12 @@
 {
 	"vsch.error.thruster_modes_disabled": "Thruster mode toggling is disabled!",
-	"vsch.global": " §6GLOBAL",
+	"vsch.global": "§6GLOBAL",
 	"vsch.itemtab": "Starlance",
 	"vsch.message.gyro": "Strength set to §6%s%%",
-	"vsch.message.mode": "Mode:",
-	"vsch.message.strength": "Strength:",
+	"vsch.message.mode": "Mode: ",
+	"vsch.message.strength": "Strength: ",
 	"vsch.message.toggle": "Mode set to",
-	"vsch.position": " §ePOSITION",
+	"vsch.position": "§ePOSITION",
 
 	"block.vsch.air_thruster_block": "Air thruster",
 	"block.vsch.drag_inducer_block": "Drag inducer",
