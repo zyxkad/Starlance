@@ -40,7 +40,10 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec.ConfigValue<Number> GYRO_MAX_SPEED;
 	public static final ForgeConfigSpec.ConfigValue<Boolean> GYRO_LIMIT_SPEED;
 
+	// Optimize
+	public static final ForgeConfigSpec.BooleanValue ENABLE_EMPTY_SPACE_CHUNK;
 
+	// Misc
 	public static final ForgeConfigSpec.ConfigValue<Number> MAX_DRAG;
 
 	public static final ForgeConfigSpec.ConfigValue<Boolean> LIMIT_SPEED;
@@ -52,6 +55,8 @@ public class VSCHConfig {
 	public static final ForgeConfigSpec.ConfigValue<Number> MAGNET_BOOT_MAX_FORCE;
 	public static final ForgeConfigSpec.ConfigValue<Number> GRAVITY_DISTANCE;
 	public static final ForgeConfigSpec.ConfigValue<Number> GRAVITY_MAX_FORCE;
+
+	public static final ForgeConfigSpec.BooleanValue ENABLE_PLACE_SHIP_PLATFORM;
 
 	static {
 		BUILDER.push("Thrusters");
@@ -82,6 +87,12 @@ public class VSCHConfig {
 
 		BUILDER.pop();
 
+		BUILDER.push("Optimize");
+
+		ENABLE_EMPTY_SPACE_CHUNK = BUILDER.comment("Do not load or save space chunks.\nThis option will significantly reduce memory allocation and disk usage\nwhen travelling at high speed.\nHowever then you can only build blocks on ships.\nIt is highly recommended to turn on Misc.enable_place_ship_platform at same time.").define("enable_empty_space_chunk", false);
+
+		BUILDER.pop();
+
 		BUILDER.push("Misc");
 
 		MAX_DRAG = BUILDER.comment("Max force the drag inducer can use to slow down").define("max_drag", 15000);
@@ -93,6 +104,8 @@ public class VSCHConfig {
 		MAGNET_BOOT_MAX_FORCE = BUILDER.comment("Max acceleration magnet boots will apply at close distances to move the player downwards.").define("magnet_boot_max_force", 0.09);
 		GRAVITY_DISTANCE = BUILDER.comment("Distance (in blocks) at which gravity generator will pull you in").define("gravity_gen_distance", 6);
 		GRAVITY_MAX_FORCE = BUILDER.comment("Max acceleration gravity generator will apply at close distances to move the player downwards.").define("gravity_gen_max_force", 0.09);
+
+		ENABLE_PLACE_SHIP_PLATFORM = BUILDER.comment("After enabled, the block placed by key N will be spawned as a ship.").define("enable_place_ship_platform", false);
 
 		BUILDER.pop();
 
