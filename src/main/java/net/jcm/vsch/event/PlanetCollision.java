@@ -45,7 +45,7 @@ public class PlanetCollision {
 
 			final CompoundTag nearestPlanet = VSCHUtils.getNearestPlanet(level, shipCenter, dimension);
 			if (nearestPlanet == null) {
-				continue;
+				return;
 			}
 			if (!VSCHUtils.isCollidingWithPlanet(nearestPlanet, shipCenter)) {
 				continue;
