@@ -3,16 +3,16 @@ Big contributors:
 - Zyxkad
 
 Minor contributors:
-- jamesgreen26
 - Diego32099
+- jamesgreen26
 
 Language contributors:
-- oldfriendlyaxl + .thetigerking - Spanish (Mexico)
 - .thetigerking - Korean
-- piebit - Hebrew
+- .thetigerking's friends - Hindi, German, Italian, Japanese
 - fullcotonalchimist - French (France)
-- kot.b - Polski (Polska)
-- potterhead123123 - Indonesian
 - hamster768 - Russian (Russia)
 - isklaus616 - Brazilian Portuguese
-- .thetigerking's friends - Hindi, German, Italian, Japanese
+- kot.b - Polski (Polska)
+- oldfriendlyaxl + .thetigerking - Spanish (Mexico)
+- piebit - Hebrew
+- potterhead123123 - Indonesian
