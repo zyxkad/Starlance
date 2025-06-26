@@ -1,21 +1,24 @@
 {
-	"vsch.itemtab": "Starlance",
-	"vsch.message.toggle": "Zmień tryb na",
-	"vsch.message.mode": "Tryb:",
-	"vsch.global": " §6GLOBALNY",
-	"vsch.position": " §ePOZYCYJNY",
 	"vsch.error.thruster_modes_disabled": "Zmienianie trybów silników jest wyłączone!",
-	"vsch.error.thruster_not_on_ship": "Silnik nie znajduje się na statku",
-	"block.vsch.thruster_block": "Silnik",
-	"block.vsch.drag_inducer_block": "Wzmacniacz oporu",
+	"vsch.global": "§6GLOBALNY",
+	"vsch.itemtab": "Starlance",
+	"vsch.message.mode": "Tryb: ",
+	"vsch.message.toggle": "Zmień tryb na",
+	"vsch.position": "§ePOZYCYJNY",
+
 	"block.vsch.air_thruster_block": "Silnik powietrzny",
+	"block.vsch.drag_inducer_block": "Wzmacniacz oporu",
 	"block.vsch.powerful_thruster_block": "Mocny silnik",
-	"item.vsch.wrench": "Klucz",
+	"block.vsch.thruster_block": "Silnik",
 	"item.vsch.magnet_boot": "Buty magnetyczne",
+	"item.vsch.wrench": "Klucz",
+
 	"config.jade.plugin_vsch.thruster_component_config": "Detale trybów silnika",
-	"vsch.ponder.thrusters.header": "Silniki",
-	"vsch.ponder.thrusters.text_1": "Silniki potrzebują redstona aby działać",
-	"vsch.ponder.thrusters.text_2": "Poziom siły redstona kontroluje ich siłę",
+
+	"vsch.ponder.drag_inducer.header": "Wzmacniacz oporu",
+	"vsch.ponder.drag_inducer.text_1": "Czasami może być trudno zwolnić w kosmosie",
+	"vsch.ponder.drag_inducer.text_2": "Po to jest wzmacniacz oporu",
+	"vsch.ponder.drag_inducer.text_3": "Gdy zostanie zasilony, wzmacniacz oporu będzie próbował cię spowolnić w każdym kierunku",
 	"vsch.ponder.thruster_modes.header": "Tryby silników",
 	"vsch.ponder.thruster_modes.text_1": "Domyslnie, silniki są w trybie POZYCYJNYM",
 	"vsch.ponder.thruster_modes.text_2": "Co znaczy że będą oddawać siłe względem swojej pozycji",
@@ -23,8 +26,7 @@
 	"vsch.ponder.thruster_modes.text_4": "Używając klucza, tryb silnika może być zmieniony na GLOBALNY",
 	"vsch.ponder.thruster_modes.text_5": "W trybie GLOBALNYM silnik oddaje siłę bez względu na pozycję",
 	"vsch.ponder.thruster_modes.text_6": "Co zapobiega niechcianym obrotom",
-	"vsch.ponder.drag_inducer.header": "Wzmacniacz oporu",
-	"vsch.ponder.drag_inducer.text_1": "Czasami może być trudno zwolnić w kosmosie",
-	"vsch.ponder.drag_inducer.text_2": "Po to jest wzmacniacz oporu",
-	"vsch.ponder.drag_inducer.text_3": "Gdy zostanie zasilony, wzmacniacz oporu będzie próbował cię spowolnić w każdym kierunku"
+	"vsch.ponder.thrusters.header": "Silniki",
+	"vsch.ponder.thrusters.text_1": "Silniki potrzebują redstona aby działać",
+	"vsch.ponder.thrusters.text_2": "Poziom siły redstona kontroluje ich siłę"
 }
