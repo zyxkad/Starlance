@@ -126,8 +126,8 @@ jobs:
             |-----------|---------------------|
             | Commit    | ${{ env.HEAD_SHA }} |
             | Logs      | ${{ env.JOB_PATH }} |
-            ${{ env.JAVADOC_FOLDER && format('| JavaDoc  | <https://jcm236.github.io/Starlance/javadoc/{0}/> |', env.JAVADOC_FOLDER) || '' }}
-            ${{ env.ARTIFACT_URL && format('| Jar Files  | [{0}]({1}) |', env.ARTIFACT_NAME, env.ARTIFACT_URL) || '' }}
-            ${{ env.ARTIFACT_EXP && format('| Expires At | {0} |', env.ARTIFACT_EXP) || '' }}
+            ${{ env.JAVADOC_FOLDER && format('| JavaDoc  | <https://jcm236.github.io/Starlance/javadoc/{0}/> |\n', env.JAVADOC_FOLDER) || '' 
+            }}${{ env.ARTIFACT_URL && format('| Jar Files  | [{0}]({1}) |\n', env.ARTIFACT_NAME, env.ARTIFACT_URL) || '' 
+            }}${{ env.ARTIFACT_EXP && format('| Expires At | {0} |\n', env.ARTIFACT_EXP) || '' }}
 
             [badge]: https://img.shields.io/badge/${{ format('{0}-{1}', github.event.workflow_run.conclusion, github.event.workflow_run.conclusion == 'success' && '3fb950' || 'f85149') }}?style=for-the-badge&logo=github&label=build

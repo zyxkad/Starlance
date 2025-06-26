@@ -72,28 +72,29 @@ public class PowerfulThrusterBlockEntity extends AbstractThrusterBlockEntity {
 			if (this.fuelConsumeRate == 0) {
 				return;
 			}
-			double power = context.getPower();
+			final double power = context.getPower();
 			if (power == 0) {
 				return;
 			}
-			int amount = context.getAmount();
+			final double scale = context.getScale();
+			final int amount = context.getAmount();
 
-			int needsOxygen = (int) (Math.ceil(this.fuelConsumeRate * power * amount));
-			int needsHydrogen = needsOxygen * 2;
-			IFluidHandler fluidHandler = context.getFluidHandler();
-			FluidStack oxygenStack = fluidHandler.getFluidInTank(OXYGEN_SLOT);
-			FluidStack hydrogenStack = fluidHandler.getFluidInTank(HYDROGEN_SLOT);
-			int avaliableHydrogen = Math.min(needsHydrogen, hydrogenStack.getAmount());
-			int avaliableOxygen = Math.min(avaliableHydrogen / 2, Math.min(needsOxygen, oxygenStack.getAmount()));
+			final int needsOxygen = (int) (Math.ceil(this.fuelConsumeRate * power * scale * amount));
+			final int needsHydrogen = needsOxygen * 2;
+			final IFluidHandler fluidHandler = context.getFluidHandler();
+			final FluidStack oxygenStack = fluidHandler.getFluidInTank(OXYGEN_SLOT);
+			final FluidStack hydrogenStack = fluidHandler.getFluidInTank(HYDROGEN_SLOT);
+			final int avaliableHydrogen = Math.min(needsHydrogen, hydrogenStack.getAmount());
+			final int avaliableOxygen = Math.min(avaliableHydrogen / 2, Math.min(needsOxygen, oxygenStack.getAmount()));
 			if (avaliableOxygen == 0) {
 				context.setPower(0);
 				return;
 			}
 			context.setPower(avaliableOxygen / ((double) (this.fuelConsumeRate) * amount));
 			context.addConsumer((ctx) -> {
-				IFluidHandler tanks = ctx.getFluidHandler();
-				int oxygen = (int) (Math.ceil(this.fuelConsumeRate * ctx.getPower() * ctx.getAmount()));
-				int hydrogen = oxygen * 2;
+				final IFluidHandler tanks = ctx.getFluidHandler();
+				final int oxygen = (int) (Math.ceil(this.fuelConsumeRate * ctx.getPower() * ctx.getScale() * ctx.getAmount()));
+				final int hydrogen = oxygen * 2;
 				tanks.drain(new FluidStack(oxygenStack.getFluid(), oxygen), IFluidHandler.FluidAction.EXECUTE);
 				tanks.drain(new FluidStack(hydrogenStack.getFluid(), hydrogen), IFluidHandler.FluidAction.EXECUTE);
 			});

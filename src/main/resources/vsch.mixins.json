@@ -6,10 +6,9 @@
   "refmap": "mixins.vsch.refmap.json",
   "mixins": [
     "cosmos.MixinLightRenderer",
-    "cosmos.MixinSpacesuitwornLogicProcedure",
     "cosmos.MixinPlaceplatformOnKeyPressedProcedure",
+    "cosmos.MixinSpacesuitwornLogicProcedure",
     "minecraft.MixinChunkMap",
-    "minecraft.MixinEntity",
     "minecraft.MixinMob",
     "valkyrienskies.MixinShipAssemblyKt",
     "valkyrienskies.MixinVSGameUtilsKt",
