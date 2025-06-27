@@ -1,0 +1,32 @@
+{
+	"vsch.error.thruster_modes_disabled": "Переключение режимов работы двигателя отключено!",
+	"vsch.global": "§6ГЛОБАЛЬНЫЙ",
+	"vsch.itemtab": "Starlance",
+	"vsch.message.mode": "Режим: ",
+	"vsch.message.toggle": "Изменить режим на",
+	"vsch.position": "§eПОЗИЦИОННЫЙ",
+
+	"block.vsch.air_thruster_block": "Воздушный двигатель",
+	"block.vsch.drag_inducer_block": "Индуктор торможени",
+	"block.vsch.powerful_thruster_block": "Мощный двигатель",
+	"block.vsch.thruster_block": "Двигатель",
+	"item.vsch.magnet_boot": "Магнитные ботинки",
+	"item.vsch.wrench": "Гаечный ключ",
+
+	"config.jade.plugin_vsch.thruster_component_config": "Подробности о режиме работы двигателя",
+
+	"vsch.ponder.drag_inducer.header": "Индуктор торможения",
+	"vsch.ponder.drag_inducer.text_1": "Иногда бывает трудно притормозить в космосе",
+	"vsch.ponder.drag_inducer.text_2": "Вот тут-то и вступает в действие индуктор торможения",
+	"vsch.ponder.drag_inducer.text_3": "При активации красным камнем индуктор торможения будет пытаться замедлить вас во всех направлениях",
+	"vsch.ponder.thruster_modes.header": "Режимы работы двигателя",
+	"vsch.ponder.thruster_modes.text_1": "По умолчанию двигатели находятся в режиме ПОЗИЦИОНИРОВАНИЯ",
+	"vsch.ponder.thruster_modes.text_2": "Это означает, что они будут применять силу в зависимости от того, где они находятся",
+	"vsch.ponder.thruster_modes.text_3": "Однако это может привести к нежелательному вращению",
+	"vsch.ponder.thruster_modes.text_4": "С помощью гаечного ключа двигатель можно перевести в ГЛОБАЛЬНЫЙ режим",
+	"vsch.ponder.thruster_modes.text_5": "В ГЛОБАЛЬНОМ режиме он применяет силу без учета положения",
+	"vsch.ponder.thruster_modes.text_6": "Это предотвращает нежелательное вращение",
+	"vsch.ponder.thrusters.header": "Двигатели",
+	"vsch.ponder.thrusters.text_1": "Двигатели должны быть активированными красным камнем для обеспечения тяги",
+	"vsch.ponder.thrusters.text_2": "Уровень красного камня может контролировать силу"
+}

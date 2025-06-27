@@ -1,12 +1,12 @@
 {
 	"vsch.error.thruster_modes_disabled": "Thruster mode toggling is disabled!",
-	"vsch.global": " §6GLOBAL",
+	"vsch.global": "§6GLOBAL",
 	"vsch.itemtab": "Starlance",
 	"vsch.message.gyro": "Strength set to §6%s%%",
-	"vsch.message.mode": "Mode:",
-	"vsch.message.strength": "Strength:",
+	"vsch.message.mode": "Mode: ",
+	"vsch.message.strength": "Strength: ",
 	"vsch.message.toggle": "Mode set to",
-	"vsch.position": " §ePOSITION",
+	"vsch.position": "§ePOSITION",
 
 	"block.vsch.air_thruster_block": "Air thruster",
 	"block.vsch.drag_inducer_block": "Drag inducer",
@@ -14,10 +14,11 @@
 	"block.vsch.powerful_thruster_block": "Powerful thruster",
 	"block.vsch.rocket_assembler": "Rocket Assembler",
 	"block.vsch.thruster_block": "Thruster",
-	"config.jade.plugin_vsch.gyro_component_config": "Gyro Mode Details",
-	"config.jade.plugin_vsch.thruster_component_config": "Thruster Mode Details",
 	"item.vsch.magnet_boot": "Magnet Boots",
 	"item.vsch.wrench": "Wrench",
+
+	"config.jade.plugin_vsch.gyro_component_config": "Gyro Mode Details",
+	"config.jade.plugin_vsch.thruster_component_config": "Thruster Mode Details",
 
 	"vsch.ponder.drag_inducer.header": "Drag inducer",
 	"vsch.ponder.drag_inducer.text_1": "Sometimes, it can be hard to slow down in space",
