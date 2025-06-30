@@ -120,11 +120,13 @@ jobs:
     steps:
       - name: Checkout Target Branch
         uses: actions/checkout@v4
+
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: microsoft
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
