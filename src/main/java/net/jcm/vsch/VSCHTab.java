@@ -20,6 +20,7 @@ public class VSCHTab {
 				tabData.accept(VSCHBlocks.AIR_THRUSTER_BLOCK.get());
 				tabData.accept(VSCHBlocks.POWERFUL_THRUSTER_BLOCK.get());
 				tabData.accept(VSCHBlocks.DRAG_INDUCER_BLOCK.get());
+				tabData.accept(VSCHBlocks.GYRO_BLOCK.get());
 				tabData.accept(VSCHBlocks.ROCKET_ASSEMBLER_BLOCK.get());
 
 				tabData.accept(VSCHItems.MAGNET_BOOT.get());
