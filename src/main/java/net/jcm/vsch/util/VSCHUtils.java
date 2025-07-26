@@ -6,12 +6,14 @@ import net.lointain.cosmos.network.CosmosModVariables.WorldVariables;
 import net.lointain.cosmos.procedures.DistanceOrderProviderProcedure;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -263,5 +265,9 @@ public class VSCHUtils {
 			}
 		}
 		return loadedships;
+	}
+
+	public static Component getWarningComponent() {
+		return Component.translatable(VSCHMod.MODID+".tooltip.may_need_fuel_or_energy").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
 	}
 }

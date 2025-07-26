@@ -24,7 +24,7 @@ public class VSCHItems {
 		"magnet_boot",
 		() -> new MagnetBootItem(ArmorMaterials.IRON, Type.BOOTS, new Item.Properties())
 	);
-
+	
 	public static void register(IEventBus eventBus) {
 		ITEMS.register(eventBus);
 	}
