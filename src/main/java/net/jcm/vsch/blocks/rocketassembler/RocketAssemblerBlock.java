@@ -43,7 +43,7 @@ public class RocketAssemblerBlock extends DirectionalBlock implements EntityBloc
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
 		Direction dir = ctx.getNearestLookingDirection().getOpposite();
-		if (ctx.getPlayer() != null && ctx.getPlayer().isShiftKeyDown()) {
+		if (ctx.isSecondaryUseActive()) {
 			dir = dir.getOpposite();
 		}
 		return defaultBlockState()
